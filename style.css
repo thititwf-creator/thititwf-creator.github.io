@@ -1,10 +1,239 @@
-/* คัดลอก CSS ทั้งหมดจากไฟล์เดิมมาวางที่นี่ */
-* { margin: 0; padding: 0; box-sizing: border-box; }
-body { font-family: 'Kanit', sans-serif; /* ... โค้ดที่เหลือทั้งหมด ... */ }
-/* ... */
-.divider {
-    height: 2px;
-    background-color: rgba(255, 255, 255, 0.3);
+/* --- 1. Global Styles & Variables --- */
+:root {
+    --bg-color: #FFE5D8;
+    --grand-total-bg: #6A60A9;
+    --grand-total-percent-bg: #FFC629;
+    --search-bg: #FFF;
+    --sort-inactive-bg: #FADCD3;
+    --sort-active-bg: #F88282;
+    --text-light: #FFFFFF;
+    --text-dark: #333333;
+    --text-muted: #666;
+    --status-green: #28a745;
+    --status-yellow: #FFC629;
+    --status-red: #dc3545;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Kanit', sans-serif;
+    background-color: var(--bg-color);
+    display: flex;
+    justify-content: center;
+    padding: 20px;
+    color: var(--text-dark);
+}
+
+.main-container {
+    width: 100%;
+    max-width: 1200px;
+    text-align: center;
+}
+
+/* --- 2. Header Section --- */
+.header-section {
+    width: 100%;
+    margin-bottom: 30px;
+}
+
+.header-logo {
+    width: 80px;
+    height: 80px;
+    object-fit: contain;
+    margin-bottom: 15px;
+    border-radius: 50%;
+    background-color: var(--text-light);
+    padding: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.header-title {
+    font-size: 2.8rem;
+    font-weight: 700;
+    color: var(--text-light);
+    margin-bottom: 15px;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.header-note {
+    display: inline-block;
+    background-color: rgba(255, 255, 255, 0.5);
+    color: #585858;
+    font-size: 0.9rem;
+    font-weight: 400;
+    padding: 10px 25px;
+    border-radius: 50px;
+    margin-bottom: 25px;
+    max-width: 100%;
+}
+.header-note:empty { display: none; }
+
+/* --- 3. Grand Total Card (ภาพรวมประเทศ) --- */
+#grandTotalContainer .card {
+    background-color: var(--grand-total-bg);
+    color: var(--text-light);
+    border-radius: 20px;
+    padding: 25px 30px;
+    text-align: left;
+    box-shadow: 0 8px 25px rgba(106, 96, 169, 0.3);
+}
+
+#grandTotalContainer .card-header {
+    padding-bottom: 15px;
+    margin-bottom: 15px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+#grandTotalContainer .card-title {
+    color: var(--text-light);
+    font-size: 1.8rem;
+    font-weight: 500;
+}
+
+#grandTotalContainer .card-percentage {
+    background-color: var(--grand-total-percent-bg);
+    color: var(--text-dark);
+    font-size: 1.8rem;
+    font-weight: 700;
+    padding: 10px 20px;
+    border-radius: 12px;
+}
+
+#grandTotalContainer .data-row {
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+#grandTotalContainer .data-row:last-child { border-bottom: none; }
+
+#grandTotalContainer .data-row .label {
+    color: #E0E0E0;
+    font-size: 1rem;
+}
+
+#grandTotalContainer .data-row .value {
+    color: var(--text-light);
+    font-size: 1.2rem;
+    font-weight: 500;
+}
+
+/* --- 4. Controls (Search & Sort) --- */
+.controls-container {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+#searchInput {
+    flex-grow: 1;
+    padding: 15px 25px;
+    border-radius: 50px;
     border: none;
-    margin-bottom: 20px;
+    background-color: var(--search-bg);
+    font-family: 'Kanit', sans-serif;
+    font-size: 1rem;
+    color: var(--text-muted);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+#searchInput::placeholder { color: #AAAAAA; }
+
+.sort-buttons { display: flex; gap: 10px; }
+
+.sort-button {
+    padding: 15px 25px;
+    border: none;
+    border-radius: 50px;
+    font-family: 'Kanit', sans-serif;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: background-color 0.3s, color 0.3s;
+    background-color: var(--sort-inactive-bg);
+    color: #A97C70;
+}
+
+.sort-button.active {
+    background-color: var(--sort-active-bg);
+    color: var(--text-light);
+    box-shadow: 0 4px 15px rgba(248, 130, 130, 0.4);
+}
+
+/* --- 5. Provincial Cards (การ์ดจังหวัด) --- */
+.cards-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 25px;
+    text-align: left;
+}
+
+.card {
+    background: var(--text-light);
+    border-radius: 20px;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.05);
+    padding: 20px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border-left: 10px solid; /* ใช้สีจาก status class */
+}
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 24px rgba(0,0,0,0.1);
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.card-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--text-dark);
+}
+
+.card-percentage {
+    font-size: 1.5rem;
+    font-weight: 700;
+    padding: 8px 15px;
+    border-radius: 12px;
+    color: var(--text-dark);
+}
+
+.card-body .data-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.95rem;
+    padding: 8px 0;
+}
+
+.data-row .label { color: var(--text-muted); }
+.data-row .value { color: var(--text-dark); font-weight: 500; }
+
+/* --- 6. Status Colors --- */
+.card.status-green { border-left-color: var(--status-green); }
+.card-percentage.status-green { background-color: var(--status-green); color: var(--text-light); }
+
+.card.status-yellow { border-left-color: var(--status-yellow); }
+.card-percentage.status-yellow { background-color: var(--status-yellow); }
+
+.card.status-red { border-left-color: var(--status-red); }
+.card-percentage.status-red { background-color: var(--status-red); color: var(--text-light); }
+
+/* --- 7. Loading & Error States --- */
+.loading-text, .error-text {
+    color: var(--text-dark);
+    font-size: 1.2rem;
+    text-align: center;
+    padding: 40px 0;
+    background: rgba(255,255,255,0.7);
+    border-radius: 15px;
+    grid-column: 1 / -1; /* ทำให้กินพื้นที่เต็มความกว้างของ grid */
 }

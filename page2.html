@@ -3,33 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>สรุปข้อมูลหนี้ครบกำหนดชำระ (GitHub Pages)</title>
+    <title>สรุปข้อมูลหนี้ครบกำหนดชำระ</title>
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;700&display=swap" rel="stylesheet">
-    <!-- ลิงก์ไปยังไฟล์ CSS ภายนอก -->
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
     <div class="main-container">
-        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQZtkPBp_xmIFgEEmX2cyScE1QzabzZbtNdbQ&s" alt="Logo" class="header-logo">
-        <h1 class="header-title">สรุปหนี้ครบกำหนดชำระ</h1>
-        <p class="header-note" id="noteDisplay"></p>
-
-        <div id="grandTotalContainer"></div>
-        <hr class="divider">
-
-        <div class="controls-container">
-            <input type="text" id="searchInput" placeholder="พิมพ์ชื่อจังหวัดเพื่อค้นหา...">
-            <button id="sort-province" class="sort-button active">เรียงตามจังหวัด</button>
-            <button id="sort-percentage" class="sort-button">เรียงตามร้อยละ</button>
+        <!-- จัดกลุ่ม Header และการ์ดภาพรวมไว้ด้วยกัน -->
+        <div class="header-section">
+            <img src="https://i.imgur.com/g5dISaN.png" alt="Logo" class="header-logo">
+            <h1 class="header-title">สรุปหนี้ครบกำหนดชำระ</h1>
+            <p class="header-note" id="noteDisplay"></p>
+            
+            <!-- Container ของการ์ดภาพรวมประเทศ (ย้ายมาไว้ตรงนี้ ) -->
+            <div id="grandTotalContainer">
+                <!-- การ์ดจะถูกสร้างโดย JavaScript -->
+            </div>
         </div>
 
+        <!-- ส่วนควบคุม: ค้นหาและจัดเรียง -->
+        <div class="controls-container">
+            <input type="text" id="searchInput" placeholder="พิมพ์ชื่อจังหวัดเพื่อค้นหา...">
+            <div class="sort-buttons">
+                <button id="sort-province" class="sort-button active">เรียงตามจังหวัด</button>
+                <button id="sort-percentage" class="sort-button">เรียงตามร้อยละ</button>
+            </div>
+        </div>
+
+        <!-- Container สำหรับแสดงผลการ์ดจังหวัด -->
         <div class="cards-container" id="cardsContainer">
             <p class="loading-text">กำลังโหลดข้อมูล...</p>
         </div>
     </div>
 
-    <!-- ลิงก์ไปยังไฟล์ JavaScript ภายนอก -->
     <script src="script.js"></script>
   <!-- ลิงก์สำหรับกลับไปหน้าแรก -->
   <a href="homepage.html">กลับไปหน้าแรก</a>
