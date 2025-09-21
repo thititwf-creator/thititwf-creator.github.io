@@ -3,38 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard จาก Google Sheet</title>
-    <!-- โหลดไลบรารี Chart.js จาก CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>สรุปข้อมูลหนี้ครบกำหนดชำระ (GitHub Pages)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- ลิงก์ไปยังไฟล์ CSS ภายนอก -->
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="dashboard-container">
-        <h1>ภาพรวมข้อมูล</h1>
 
-        <!-- ส่วนแสดงผลการ์ดข้อมูล (Cards ) -->
-        <div class="card-container">
-            <div class="card">
-                <h2>ยอดขายรวม</h2>
-                <p id="total-sales">กำลังโหลด...</p>
-            </div>
-            <div class="card">
-                <h2>ผู้เข้าชมทั้งหมด</h2>
-                <p id="total-visitors">กำลังโหลด...</p>
-            </div>
-            <div class="card">
-                <h2>เดือนที่ยอดขายสูงสุด</h2>
-                <p id="best-month">กำลังโหลด...</p>
-            </div>
+    <div class="main-container">
+        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQZtkPBp_xmIFgEEmX2cyScE1QzabzZbtNdbQ&s" alt="Logo" class="header-logo">
+        <h1 class="header-title">สรุปหนี้ครบกำหนดชำระ</h1>
+        <p class="header-note" id="noteDisplay"></p>
+
+        <div id="grandTotalContainer"></div>
+        <hr class="divider">
+
+        <div class="controls-container">
+            <input type="text" id="searchInput" placeholder="พิมพ์ชื่อจังหวัดเพื่อค้นหา...">
+            <button id="sort-province" class="sort-button active">เรียงตามจังหวัด</button>
+            <button id="sort-percentage" class="sort-button">เรียงตามร้อยละ</button>
         </div>
 
-        <!-- ส่วนแสดงผลกราฟ -->
-        <div class="chart-container">
-            <canvas id="salesChart"></canvas>
+        <div class="cards-container" id="cardsContainer">
+            <p class="loading-text">กำลังโหลดข้อมูล...</p>
         </div>
     </div>
 
-    <script src="dashboard.js"></script>
+    <!-- ลิงก์ไปยังไฟล์ JavaScript ภายนอก -->
+    <script src="script.js"></script>
   <!-- ลิงก์สำหรับกลับไปหน้าแรก -->
   <a href="homepage.html">กลับไปหน้าแรก</a>
 </body>
