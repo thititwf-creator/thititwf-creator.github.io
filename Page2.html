@@ -1,13 +1,40 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8">
-  <title>หน้าที่สอง</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard จาก Google Sheet</title>
+    <!-- โหลดไลบรารี Chart.js จาก CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h1>นี่คือหน้าที่สอง (Page 2)</h1>
-  <p>ยินดีต้อนรับสู่หน้าที่สองของเว็บไซต์ของฉัน</p>
-  
+    <div class="dashboard-container">
+        <h1>ภาพรวมข้อมูล</h1>
+
+        <!-- ส่วนแสดงผลการ์ดข้อมูล (Cards ) -->
+        <div class="card-container">
+            <div class="card">
+                <h2>ยอดขายรวม</h2>
+                <p id="total-sales">กำลังโหลด...</p>
+            </div>
+            <div class="card">
+                <h2>ผู้เข้าชมทั้งหมด</h2>
+                <p id="total-visitors">กำลังโหลด...</p>
+            </div>
+            <div class="card">
+                <h2>เดือนที่ยอดขายสูงสุด</h2>
+                <p id="best-month">กำลังโหลด...</p>
+            </div>
+        </div>
+
+        <!-- ส่วนแสดงผลกราฟ -->
+        <div class="chart-container">
+            <canvas id="salesChart"></canvas>
+        </div>
+    </div>
+
+    <script src="dashboard.js"></script>
   <!-- ลิงก์สำหรับกลับไปหน้าแรก -->
   <a href="index.html">กลับไปหน้าแรก</a>
 </body>
