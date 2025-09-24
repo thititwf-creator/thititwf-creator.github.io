@@ -30,21 +30,17 @@ async function loadInitialData() {
         const rows = csvText.split('\n').slice(1);
 
         allData = rows.map(row => {
-            // แก้ไข: ใช้ .trim() เพื่อตัดช่องว่างที่อาจติดมากับข้อมูล
-            const cols = row.split(',').map(s => s.trim()); 
-            
-            // ตรวจสอบว่ามีข้อมูลครบถ้วนหรือไม่
-            if (cols.length < 6) return null;
+            const cols = row.split(',').map(s => s.trim());
+            if (cols.length < 6 || !cols[3]) return null; // ถ้าไม่มีชื่อจังหวัด ให้ข้าม
 
             return {
                 month: cols[1],
                 year: cols[2],
                 province: cols[3],
-                // แก้ไข: แปลงเป็นตัวเลขและตรวจสอบว่าเป็น NaN หรือไม่ ถ้าใช่ให้เป็น 0
                 expected: parseFloat(cols[4]) || 0,
                 returned: parseFloat(cols[5]) || 0,
             };
-        }).filter(d => d && d.year && d.month && d.province); // กรองแถวที่ข้อมูลไม่สมบูรณ์ (null) ออก
+        }).filter(Boolean); // filter(Boolean) เป็นวิธีลัดในการกรองค่า null, undefined, "" ออก
 
         populateYearFilter();
 
@@ -88,6 +84,7 @@ function onYearSelect() {
     monthSelect.disabled = false;
 }
 
+// *** ฟังก์ชันที่แก้ไขใหม่ทั้งหมด ***
 function onMonthSelect() {
     const selectedYear = yearSelect.value;
     const selectedMonth = monthSelect.value;
@@ -98,12 +95,32 @@ function onMonthSelect() {
         return;
     }
 
-    const filteredData = allData.filter(d => d.year === selectedYear && d.month === selectedMonth);
-    
-    // **จุดแก้ไขสำคัญที่ 1: คำนวณ Grand Total ใหม่ทั้งหมด**
-    const grandTotal = filteredData.reduce((acc, cur) => {
-        acc.totalExpected += cur.expected;
-        acc.totalReturned += cur.returned;
+    // 1. กรองข้อมูลดิบตามปีและเดือนที่เลือก
+    const rawFilteredData = allData.filter(d => d.year === selectedYear && d.month === selectedMonth);
+
+    // 2. **[ขั้นตอนใหม่ที่สำคัญ]** รวมข้อมูล (Aggregate) ตามจังหวัด
+    const aggregatedData = {};
+    for (const item of rawFilteredData) {
+        if (!aggregatedData[item.province]) {
+            // ถ้ายังไม่เคยเจอจังหวัดนี้ ให้สร้าง object ใหม่
+            aggregatedData[item.province] = {
+                province: item.province,
+                totalExpected: 0,
+                totalReturned: 0,
+            };
+        }
+        // บวกค่า expected และ returned เข้าไปในจังหวัดนั้นๆ
+        aggregatedData[item.province].totalExpected += item.expected;
+        aggregatedData[item.province].totalReturned += item.returned;
+    }
+
+    // แปลง object กลับเป็น array เพื่อใช้งานต่อ
+    const processedData = Object.values(aggregatedData);
+
+    // 3. คำนวณ Grand Total จากข้อมูลที่ "รวมแล้ว" (processedData)
+    const grandTotal = processedData.reduce((acc, cur) => {
+        acc.totalExpected += cur.totalExpected;
+        acc.totalReturned += cur.totalReturned;
         return acc;
     }, { totalExpected: 0, totalReturned: 0 });
 
@@ -111,25 +128,21 @@ function onMonthSelect() {
         province: `ภาพรวม ${selectedMonth} ${selectedYear}`,
         totalExpected: grandTotal.totalExpected,
         totalReturned: grandTotal.totalReturned,
-        // **จุดแก้ไขสำคัญที่ 2: คำนวณ % ของ Grand Total ใหม่เสมอ**
         percentage: calculatePercentageValue(grandTotal.totalReturned, grandTotal.totalExpected)
     };
     renderGrandTotalCard(grandTotalData);
 
-    // **จุดแก้ไขสำคัญที่ 3: สร้างข้อมูลรายจังหวัดและคำนวณ % ใหม่ทุกครั้ง**
-    provincialData = filteredData.map(item => ({
-        province: item.province,
-        totalExpected: item.expected,
-        totalReturned: item.returned,
-        // คำนวณ % ของแต่ละจังหวัดใหม่เสมอ ไม่ใช้ค่าจาก CSV
-        percentage: calculatePercentageValue(item.returned, item.expected)
+    // 4. สร้างข้อมูลรายจังหวัดจากข้อมูลที่ "รวมแล้ว" และคำนวณ % ใหม่
+    provincialData = processedData.map(item => ({
+        ...item,
+        percentage: calculatePercentageValue(item.totalReturned, item.totalExpected)
     }));
 
     renderFilteredAndSortedCards();
 }
 
 
-// ----- ส่วนที่เหลือเป็นฟังก์ชันแสดงผล (เหมือนเดิม แต่ถูกต้องแล้วเพราะข้อมูลต้นทางถูก) -----
+// ----- ส่วนที่เหลือเป็นฟังก์ชันแสดงผล (ไม่ต้องแก้ไข) -----
 
 function handleSort(key) {
     if (currentSort.key === key) {
