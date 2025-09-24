@@ -1,5 +1,5 @@
 // --- START: ค่าที่ต้องแก้ไข ---
-const ROLLBACK_CSV_URL = 'ใส่_ROLLBACK_CSV_URL_ของคุณที่นี่'; 
+const ROLLBACK_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSriF3pc_Y5lQhZNYoD1jEa8mV7o0Nn0AmXsGhqMD5qXlEMVL86FFYE3o59VIZ6srMk4yeox0bupsGQ/pub?gid=0&single=true&output=csv'; 
 // --- END: ค่าที่ต้องแก้ไข ---
 
 let allData = [];
