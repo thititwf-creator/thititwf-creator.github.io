@@ -27,20 +27,22 @@ async function loadInitialData() {
         if (!response.ok) throw new Error('Network response was not ok');
         
         const csvText = await response.text();
-        const rows = csvText.split('\n').slice(1);
+        // แก้ไข: ใช้ .split(/\r?\n/) เพื่อให้รองรับไฟล์จากทั้ง Windows และ Unix
+        const rows = csvText.split(/\r?\n/).slice(1);
 
         allData = rows.map(row => {
             const cols = row.split(',').map(s => s.trim());
-            if (cols.length < 6 || !cols[3]) return null; // ถ้าไม่มีชื่อจังหวัด ให้ข้าม
+            if (cols.length < 6 || !cols[3]) return null;
 
             return {
                 month: cols[1],
                 year: cols[2],
                 province: cols[3],
-                expected: parseFloat(cols[4]) || 0,
-                returned: parseFloat(cols[5]) || 0,
+                // อ่านค่ามาเป็น String ก่อนตามปกติ
+                expected: cols[4],
+                returned: cols[5],
             };
-        }).filter(Boolean); // filter(Boolean) เป็นวิธีลัดในการกรองค่า null, undefined, "" ออก
+        }).filter(Boolean);
 
         populateYearFilter();
 
@@ -84,7 +86,7 @@ function onYearSelect() {
     monthSelect.disabled = false;
 }
 
-// *** ฟังก์ชันที่แก้ไขใหม่ทั้งหมด ***
+// *** ฟังก์ชัน onMonthSelect ที่แก้ไขใหม่ทั้งหมด ***
 function onMonthSelect() {
     const selectedYear = yearSelect.value;
     const selectedMonth = monthSelect.value;
@@ -95,30 +97,26 @@ function onMonthSelect() {
         return;
     }
 
-    // 1. กรองข้อมูลดิบตามปีและเดือนที่เลือก
     const rawFilteredData = allData.filter(d => d.year === selectedYear && d.month === selectedMonth);
 
-    // 2. **[ขั้นตอนใหม่ที่สำคัญ]** รวมข้อมูล (Aggregate) ตามจังหวัด
     const aggregatedData = {};
     for (const item of rawFilteredData) {
         if (!aggregatedData[item.province]) {
-            // ถ้ายังไม่เคยเจอจังหวัดนี้ ให้สร้าง object ใหม่
             aggregatedData[item.province] = {
                 province: item.province,
-                totalExpected: 0,
-                totalReturned: 0,
+                totalExpected: 0, // เริ่มต้นเป็นตัวเลข
+                totalReturned: 0, // เริ่มต้นเป็นตัวเลข
             };
         }
-        // บวกค่า expected และ returned เข้าไปในจังหวัดนั้นๆ
-        aggregatedData[item.province].totalExpected += item.expected;
-        aggregatedData[item.province].totalReturned += item.returned;
+        // **[จุดแก้ไขที่สำคัญที่สุด]** ใช้ parseFloat() ที่นี่ทันที ก่อนทำการบวก
+        aggregatedData[item.province].totalExpected += parseFloat(item.expected) || 0;
+        aggregatedData[item.province].totalReturned += parseFloat(item.returned) || 0;
     }
 
-    // แปลง object กลับเป็น array เพื่อใช้งานต่อ
     const processedData = Object.values(aggregatedData);
 
-    // 3. คำนวณ Grand Total จากข้อมูลที่ "รวมแล้ว" (processedData)
     const grandTotal = processedData.reduce((acc, cur) => {
+        // ค่า cur.totalExpected และ cur.totalReturned เป็นตัวเลขที่ถูกต้องแล้ว
         acc.totalExpected += cur.totalExpected;
         acc.totalReturned += cur.totalReturned;
         return acc;
@@ -132,7 +130,6 @@ function onMonthSelect() {
     };
     renderGrandTotalCard(grandTotalData);
 
-    // 4. สร้างข้อมูลรายจังหวัดจากข้อมูลที่ "รวมแล้ว" และคำนวณ % ใหม่
     provincialData = processedData.map(item => ({
         ...item,
         percentage: calculatePercentageValue(item.totalReturned, item.totalExpected)
@@ -186,6 +183,10 @@ function getStatusColor(percentage) {
 }
 
 function formatCurrency(num) {
+    // ตรวจสอบว่าเป็นตัวเลขที่ถูกต้องก่อน format
+    if (typeof num !== 'number' || isNaN(num)) {
+        num = 0;
+    }
     return new Intl.NumberFormat('th-TH', { style: 'currency', currency: 'THB' }).format(num);
 }
 
@@ -256,8 +257,11 @@ function renderProvincialCards(data) {
 }
 
 function calculatePercentageValue(returned, expected) {
-    if (expected === 0 || !expected) return 0;
-    return (parseFloat(returned) * 100) / parseFloat(expected);
+    // แปลงเป็นตัวเลขอีกครั้งเพื่อความปลอดภัยสูงสุด
+    const numReturned = parseFloat(returned) || 0;
+    const numExpected = parseFloat(expected) || 0;
+    if (numExpected === 0) return 0;
+    return (numReturned * 100) / numExpected;
 }
 
 function showError(error, message = 'เกิดข้อผิดพลาด') {
