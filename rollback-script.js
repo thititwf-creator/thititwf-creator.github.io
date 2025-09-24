@@ -27,7 +27,6 @@ async function loadInitialData() {
         if (!response.ok) throw new Error('Network response was not ok');
         
         const csvText = await response.text();
-        // แก้ไข: ใช้ .split(/\r?\n/) เพื่อให้รองรับไฟล์จากทั้ง Windows และ Unix
         const rows = csvText.split(/\r?\n/).slice(1);
 
         allData = rows.map(row => {
@@ -38,7 +37,6 @@ async function loadInitialData() {
                 month: cols[1],
                 year: cols[2],
                 province: cols[3],
-                // อ่านค่ามาเป็น String ก่อนตามปกติ
                 expected: cols[4],
                 returned: cols[5],
             };
@@ -86,7 +84,7 @@ function onYearSelect() {
     monthSelect.disabled = false;
 }
 
-// *** ฟังก์ชัน onMonthSelect ที่แก้ไขใหม่ทั้งหมด ***
+// *** ฟังก์ชัน onMonthSelect ที่แก้ไขใหม่ทั้งหมดตามตรรกะล่าสุด ***
 function onMonthSelect() {
     const selectedYear = yearSelect.value;
     const selectedMonth = monthSelect.value;
@@ -97,28 +95,14 @@ function onMonthSelect() {
         return;
     }
 
+    // 1. กรองข้อมูลดิบตามปีและเดือนที่เลือก
     const rawFilteredData = allData.filter(d => d.year === selectedYear && d.month === selectedMonth);
 
-    const aggregatedData = {};
-    for (const item of rawFilteredData) {
-        if (!aggregatedData[item.province]) {
-            aggregatedData[item.province] = {
-                province: item.province,
-                totalExpected: 0, // เริ่มต้นเป็นตัวเลข
-                totalReturned: 0, // เริ่มต้นเป็นตัวเลข
-            };
-        }
-        // **[จุดแก้ไขที่สำคัญที่สุด]** ใช้ parseFloat() ที่นี่ทันที ก่อนทำการบวก
-        aggregatedData[item.province].totalExpected += parseFloat(item.expected) || 0;
-        aggregatedData[item.province].totalReturned += parseFloat(item.returned) || 0;
-    }
-
-    const processedData = Object.values(aggregatedData);
-
-    const grandTotal = processedData.reduce((acc, cur) => {
-        // ค่า cur.totalExpected และ cur.totalReturned เป็นตัวเลขที่ถูกต้องแล้ว
-        acc.totalExpected += cur.totalExpected;
-        acc.totalReturned += cur.totalReturned;
+    // 2. **คำนวณ Grand Total** (สำหรับแสดงในภาพรวม)
+    //    ส่วนนี้จะทำการ "รวมยอด" ของทุกแถวที่กรองมาได้
+    const grandTotal = rawFilteredData.reduce((acc, item) => {
+        acc.totalExpected += parseFloat(item.expected) || 0;
+        acc.totalReturned += parseFloat(item.returned) || 0;
         return acc;
     }, { totalExpected: 0, totalReturned: 0 });
 
@@ -130,11 +114,24 @@ function onMonthSelect() {
     };
     renderGrandTotalCard(grandTotalData);
 
-    provincialData = processedData.map(item => ({
-        ...item,
-        percentage: calculatePercentageValue(item.totalReturned, item.totalExpected)
-    }));
+    // 3. **เตรียมข้อมูลรายจังหวัด** (สำหรับแสดงในการ์ด)
+    //    ส่วนนี้จะ "ไม่รวมยอด" แต่จะแปลงข้อมูลแต่ละแถวให้อยู่ในรูปแบบที่พร้อมใช้งาน
+    //    และคำนวณเปอร์เซ็นต์ของแต่ละแถวแยกกัน
+    provincialData = rawFilteredData.map((item, index) => {
+        const returned = parseFloat(item.returned) || 0;
+        const expected = parseFloat(item.expected) || 0;
+        
+        return {
+            // เพิ่ม uniqueId เพื่อให้การเรียงลำดับเสถียร
+            uniqueId: `${item.province}-${index}`, 
+            province: item.province,
+            totalReturned: returned,
+            totalExpected: expected,
+            percentage: calculatePercentageValue(returned, expected)
+        };
+    });
 
+    // 4. แสดงผลการ์ดทั้งหมด
     renderFilteredAndSortedCards();
 }
 
@@ -146,7 +143,12 @@ function handleSort(key) {
         currentSort.order = currentSort.order === 'asc' ? 'desc' : 'asc';
     } else {
         currentSort.key = key;
-        currentSort.order = key === 'percentage' ? 'desc' : 'asc';
+        // ปรับค่าเริ่มต้นของการเรียง
+        if (key === 'percentage') {
+            currentSort.order = 'desc';
+        } else { // province
+            currentSort.order = 'asc';
+        }
     }
     updateSortButtons();
     renderFilteredAndSortedCards();
@@ -166,10 +168,12 @@ function renderFilteredAndSortedCards() {
     dataToRender.sort((a, b) => {
         let valA = a[currentSort.key];
         let valB = b[currentSort.key];
-        if (currentSort.order === 'asc') {
-            return valA > valB ? 1 : -1;
+        
+        // จัดการการเรียงตัวอักษรและตัวเลข
+        if (typeof valA === 'string') {
+            return currentSort.order === 'asc' ? valA.localeCompare(valB, 'th') : valB.localeCompare(valA, 'th');
         } else {
-            return valA < valB ? 1 : -1;
+            return currentSort.order === 'asc' ? valA - valB : valB - valA;
         }
     });
 
@@ -183,7 +187,6 @@ function getStatusColor(percentage) {
 }
 
 function formatCurrency(num) {
-    // ตรวจสอบว่าเป็นตัวเลขที่ถูกต้องก่อน format
     if (typeof num !== 'number' || isNaN(num)) {
         num = 0;
     }
@@ -257,7 +260,6 @@ function renderProvincialCards(data) {
 }
 
 function calculatePercentageValue(returned, expected) {
-    // แปลงเป็นตัวเลขอีกครั้งเพื่อความปลอดภัยสูงสุด
     const numReturned = parseFloat(returned) || 0;
     const numExpected = parseFloat(expected) || 0;
     if (numExpected === 0) return 0;
