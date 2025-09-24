@@ -21,26 +21,32 @@ document.addEventListener("DOMContentLoaded", function() {
     loadInitialData();
 });
 
+/**
+ * ฟังก์ชันอ่านข้อมูลเริ่มต้น - ปรับปรุงตามโครงสร้างคอลัมน์ล่าสุด
+ */
 async function loadInitialData() {
     try {
         const response = await fetch(ROLLBACK_CSV_URL);
         if (!response.ok) throw new Error('Network response was not ok');
         
         const csvText = await response.text();
-        const rows = csvText.split(/\r?\n/).slice(1);
+        const rows = csvText.split(/\r?\n/).slice(1); // ตัด Header ทิ้ง
 
         allData = rows.map(row => {
             const cols = row.split(',').map(s => s.trim());
+            
+            // ตรวจสอบว่ามีข้อมูลครบถึงคอลัมน์ F (index 5) และมีชื่อจังหวัด (index 3)
             if (cols.length < 6 || !cols[3]) return null;
 
+            // **[จุดปรับปรุง]** อ่านข้อมูลตามดัชนีคอลัมน์ที่ถูกต้อง (B-F -> 1-5)
             return {
-                month: cols[1],
-                year: cols[2],
-                province: cols[3],
-                expected: cols[4],
-                returned: cols[5],
+                month: cols[1],    // คอลัมน์ B
+                year: cols[2],     // คอลัมน์ C
+                province: cols[3], // คอลัมน์ D
+                expected: cols[4], // คอลัมน์ E
+                returned: cols[5], // คอลัมน์ F
             };
-        }).filter(Boolean);
+        }).filter(Boolean); // กรองแถวที่เป็น null ออก
 
         populateYearFilter();
 
@@ -84,7 +90,6 @@ function onYearSelect() {
     monthSelect.disabled = false;
 }
 
-// *** ฟังก์ชัน onMonthSelect ที่แก้ไขใหม่ทั้งหมดตามตรรกะล่าสุด ***
 function onMonthSelect() {
     const selectedYear = yearSelect.value;
     const selectedMonth = monthSelect.value;
@@ -95,11 +100,9 @@ function onMonthSelect() {
         return;
     }
 
-    // 1. กรองข้อมูลดิบตามปีและเดือนที่เลือก
     const rawFilteredData = allData.filter(d => d.year === selectedYear && d.month === selectedMonth);
 
-    // 2. **คำนวณ Grand Total** (สำหรับแสดงในภาพรวม)
-    //    ส่วนนี้จะทำการ "รวมยอด" ของทุกแถวที่กรองมาได้
+    // 1. คำนวณ Grand Total (สำหรับแสดงในภาพรวม)
     const grandTotal = rawFilteredData.reduce((acc, item) => {
         acc.totalExpected += parseFloat(item.expected) || 0;
         acc.totalReturned += parseFloat(item.returned) || 0;
@@ -114,15 +117,12 @@ function onMonthSelect() {
     };
     renderGrandTotalCard(grandTotalData);
 
-    // 3. **เตรียมข้อมูลรายจังหวัด** (สำหรับแสดงในการ์ด)
-    //    ส่วนนี้จะ "ไม่รวมยอด" แต่จะแปลงข้อมูลแต่ละแถวให้อยู่ในรูปแบบที่พร้อมใช้งาน
-    //    และคำนวณเปอร์เซ็นต์ของแต่ละแถวแยกกัน
+    // 2. เตรียมข้อมูลรายจังหวัด (สำหรับแสดงในการ์ด)
     provincialData = rawFilteredData.map((item, index) => {
         const returned = parseFloat(item.returned) || 0;
         const expected = parseFloat(item.expected) || 0;
         
         return {
-            // เพิ่ม uniqueId เพื่อให้การเรียงลำดับเสถียร
             uniqueId: `${item.province}-${index}`, 
             province: item.province,
             totalReturned: returned,
@@ -131,7 +131,6 @@ function onMonthSelect() {
         };
     });
 
-    // 4. แสดงผลการ์ดทั้งหมด
     renderFilteredAndSortedCards();
 }
 
@@ -143,12 +142,7 @@ function handleSort(key) {
         currentSort.order = currentSort.order === 'asc' ? 'desc' : 'asc';
     } else {
         currentSort.key = key;
-        // ปรับค่าเริ่มต้นของการเรียง
-        if (key === 'percentage') {
-            currentSort.order = 'desc';
-        } else { // province
-            currentSort.order = 'asc';
-        }
+        currentSort.order = (key === 'percentage') ? 'desc' : 'asc';
     }
     updateSortButtons();
     renderFilteredAndSortedCards();
@@ -168,8 +162,6 @@ function renderFilteredAndSortedCards() {
     dataToRender.sort((a, b) => {
         let valA = a[currentSort.key];
         let valB = b[currentSort.key];
-        
-        // จัดการการเรียงตัวอักษรและตัวเลข
         if (typeof valA === 'string') {
             return currentSort.order === 'asc' ? valA.localeCompare(valB, 'th') : valB.localeCompare(valA, 'th');
         } else {
@@ -259,10 +251,14 @@ function renderProvincialCards(data) {
     });
 }
 
+/**
+ * ฟังก์ชันคำนวณร้อยละ - ตรงตามสูตรที่ให้มา
+ * (เงินต้นที่รับคืน * 100) / เงินต้นที่คาดว่าจะได้รับ
+ */
 function calculatePercentageValue(returned, expected) {
     const numReturned = parseFloat(returned) || 0;
     const numExpected = parseFloat(expected) || 0;
-    if (numExpected === 0) return 0;
+    if (numExpected === 0) return 0; // ป้องกันการหารด้วยศูนย์
     return (numReturned * 100) / numExpected;
 }
 
