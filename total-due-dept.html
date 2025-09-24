@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>สรุปภาพรวมหนี้รายปี</title>
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;700&display=swap" rel="stylesheet">
-    <!-- 1. โหลด Chart.js จาก CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
@@ -37,6 +36,7 @@
             backdrop-filter: blur(4px);
             border: 1px solid var(--border-color);
             text-align: center;
+            position: relative; /* เพิ่ม position relative เพื่อให้ปุ่ม back อ้างอิงได้ */
         }
         .header-title {
             font-size: 2.2rem;
@@ -61,7 +61,7 @@
         }
         .chart-container {
             position: relative;
-            height: 50vh; /* ปรับความสูงได้ตามต้องการ */
+            height: 50vh;
             width: 100%;
         }
         .message-text {
@@ -69,27 +69,47 @@
             opacity: 0.7;
             padding: 50px 0;
         }
+
+        /* --- [ส่วนที่เพิ่มเข้ามา] สไตล์สำหรับปุ่มกลับหน้าหลัก --- */
+        .back-button {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: rgba(255, 255, 255, 0.2);
+            color: var(--text-light);
+            text-decoration: none;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            transition: background-color 0.3s ease;
+        }
+        .back-button:hover {
+            background-color: rgba(255, 255, 255, 0.4);
+        }
+        /* --- จบส่วนที่เพิ่มเข้ามา --- */
+
     </style>
 </head>
 <body>
 
     <div class="main-container">
+        <!-- [ส่วนที่เพิ่มเข้ามา] ปุ่มกลับหน้าหลัก -->
+        <a href="index.html" class="back-button">‹ กลับหน้าหลัก</a>
+
         <h1 class="header-title">สรุปภาพรวมหนี้รายปี</h1>
         <p class="header-subtitle">เปรียบเทียบร้อยละการชำระคืนในแต่ละเดือน</p>
 
-        <!-- Dropdown สำหรับเลือกปี -->
         <select id="year-select">
             <option value="">กำลังโหลดข้อมูลปี...</option>
         </select>
 
-        <!-- พื้นที่สำหรับแสดงกราฟ -->
         <div class="chart-container">
             <canvas id="monthly-chart"></canvas>
             <p id="message-display" class="message-text">กรุณาเลือกปีเพื่อแสดงกราฟ</p>
         </div>
     </div>
 
-    <!-- 2. โหลดไฟล์ JavaScript ของเรา -->
     <script src="total-due-dept.js"></script>
 
 </body>
