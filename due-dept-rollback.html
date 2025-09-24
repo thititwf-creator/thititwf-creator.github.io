@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ข้อมูลหนี้ย้อนหลัง</title>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- ใช้ CSS ไฟล์เดิมจากหน้าหลัก -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="main-container">
+        <div class="header-section">
+            <a href="index.html" style="text-decoration: none;"> <!-- ลิงก์กลับหน้าหลัก -->
+                <img src="https://i.imgur.com/g5dISaN.png" alt="Logo" class="header-logo">
+            </a>
+            <h1 class="header-title">ข้อมูลหนี้ย้อนหลัง</h1>
+            
+            <!-- ส่วนของ Dropdown สำหรับเลือกปีและเดือน -->
+            <div class="filter-container">
+                <select id="year-select" class="filter-select"></select>
+                <select id="month-select" class="filter-select" disabled></select>
+            </div>
+            
+            <div id="grandTotalContainer">
+                <!-- การ์ดภาพรวมจะถูกสร้างที่นี่ -->
+            </div>
+        </div>
+
+        <div class="controls-container">
+            <input type="text" id="searchInput" placeholder="พิมพ์ชื่อจังหวัดเพื่อค้นหา...">
+            <div class="sort-buttons">
+                <button id="sort-province" class="sort-button active">เรียงตามจังหวัด</button>
+                <button id="sort-percentage" class="sort-button">เรียงตามร้อยละ</button>
+            </div>
+        </div>
+
+        <div class="cards-container" id="cardsContainer">
+            <p class="loading-text">กรุณาเลือกปีและเดือนเพื่อแสดงข้อมูล</p>
+        </div>
+    </div>
+
+    <!-- ลิงก์ไปยัง Script ของหน้านี้โดยเฉพาะ -->
+    <script src="rollback-script.js"></script>
+</body>
+</html>
