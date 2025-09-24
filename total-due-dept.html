@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>สรุปภาพรวมหนี้รายปี</title>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- 1. โหลด Chart.js จาก CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100% );
+            --text-light: #ffffff;
+            --card-bg: rgba(255, 255, 255, 0.1);
+            --border-color: rgba(255, 255, 255, 0.2);
+            --select-bg: rgba(255, 255, 255, 0.9);
+            --select-text: #333;
+        }
+        body {
+            font-family: 'Kanit', sans-serif;
+            background: var(--bg-gradient);
+            color: var(--text-light);
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+        .main-container {
+            width: 100%;
+            max-width: 1000px;
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            backdrop-filter: blur(4px);
+            border: 1px solid var(--border-color);
+            text-align: center;
+        }
+        .header-title {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        .header-subtitle {
+            font-size: 1.1rem;
+            margin-bottom: 30px;
+            opacity: 0.8;
+        }
+        #year-select {
+            font-family: 'Kanit', sans-serif;
+            font-size: 1rem;
+            padding: 12px 20px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            background-color: var(--select-bg);
+            color: var(--select-text);
+            margin-bottom: 30px;
+            width: 250px;
+        }
+        .chart-container {
+            position: relative;
+            height: 50vh; /* ปรับความสูงได้ตามต้องการ */
+            width: 100%;
+        }
+        .message-text {
+            font-size: 1.2rem;
+            opacity: 0.7;
+            padding: 50px 0;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="main-container">
+        <h1 class="header-title">สรุปภาพรวมหนี้รายปี</h1>
+        <p class="header-subtitle">เปรียบเทียบร้อยละการชำระคืนในแต่ละเดือน</p>
+
+        <!-- Dropdown สำหรับเลือกปี -->
+        <select id="year-select">
+            <option value="">กำลังโหลดข้อมูลปี...</option>
+        </select>
+
+        <!-- พื้นที่สำหรับแสดงกราฟ -->
+        <div class="chart-container">
+            <canvas id="monthly-chart"></canvas>
+            <p id="message-display" class="message-text">กรุณาเลือกปีเพื่อแสดงกราฟ</p>
+        </div>
+    </div>
+
+    <!-- 2. โหลดไฟล์ JavaScript ของเรา -->
+    <script src="total-due-dept.js"></script>
+
+</body>
+</html>
