@@ -22,7 +22,7 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 
 /**
- * ฟังก์ชันอ่านข้อมูลเริ่มต้น - แก้ไขปัญหาการอ่านค่าตัวเลขที่มี Comma
+ * ฟังก์ชันอ่านข้อมูลเริ่มต้น - ปรับปรุงตามโครงสร้างคอลัมน์ล่าสุด
  */
 async function loadInitialData() {
     try {
@@ -30,33 +30,23 @@ async function loadInitialData() {
         if (!response.ok) throw new Error('Network response was not ok');
         
         const csvText = await response.text();
-        const rows = csvText.split(/\r?\n/).slice(1);
+        const rows = csvText.split(/\r?\n/).slice(1); // ตัด Header ทิ้ง
 
         allData = rows.map(row => {
-            // **[จุดแก้ไขที่สำคัญที่สุด]**
-            // ใช้ Regular Expression เพื่อหาข้อมูลในเครื่องหมายคำพูด "" (ถ้ามี)
-            // หรือข้อมูลที่ไม่มี comma ซึ่งจะช่วยแยกคอลัมน์ได้อย่างถูกต้อง
-            // แม้ว่าในคอลัมน์นั้นจะมี comma (เช่นในตัวเลข)
-            const cols = row.match(/(".*?"|[^",]+)(?=\s*,|\s*$)/g) || [];
+            const cols = row.split(',').map(s => s.trim());
+            
+            // ตรวจสอบว่ามีข้อมูลครบถึงคอลัมน์ F (index 5) และมีชื่อจังหวัด (index 3)
+            if (cols.length < 6 || !cols[3]) return null;
 
-            // ลบเครื่องหมาย " ออกจากข้อมูลที่อ่านได้
-            const cleanedCols = cols.map(col => col.replace(/"/g, '').trim());
-
-            if (cleanedCols.length < 6 || !cleanedCols[3]) return null;
-
-            // **[จุดแก้ไขที่ 2]**
-            // ทำการลบ comma ออกจากตัวเลขก่อนแปลงเป็น Float
-            const expectedStr = cleanedCols[4].replace(/,/g, '');
-            const returnedStr = cleanedCols[5].replace(/,/g, '');
-
+            // **[จุดปรับปรุง]** อ่านข้อมูลตามดัชนีคอลัมน์ที่ถูกต้อง (B-F -> 1-5)
             return {
-                month: cleanedCols[1],
-                year: cleanedCols[2],
-                province: cleanedCols[3],
-                expected: expectedStr, // เก็บเป็น String ที่ไม่มี comma
-                returned: returnedStr, // เก็บเป็น String ที่ไม่มี comma
+                month: cols[1],    // คอลัมน์ B
+                year: cols[2],     // คอลัมน์ C
+                province: cols[3], // คอลัมน์ D
+                expected: cols[4], // คอลัมน์ E
+                returned: cols[5], // คอลัมน์ F
             };
-        }).filter(Boolean);
+        }).filter(Boolean); // กรองแถวที่เป็น null ออก
 
         populateYearFilter();
 
@@ -64,9 +54,6 @@ async function loadInitialData() {
         showError(error, 'เกิดข้อผิดพลาดในการโหลดข้อมูลเริ่มต้น');
     }
 }
-
-// ฟังก์ชันที่เหลือทั้งหมดทำงานถูกต้องแล้ว และไม่ต้องแก้ไข
-// เพราะมันจะได้รับข้อมูลที่ "สะอาด" จาก loadInitialData()
 
 function populateYearFilter() {
     const years = [...new Set(allData.map(d => d.year))].sort((a, b) => b - a);
@@ -115,6 +102,7 @@ function onMonthSelect() {
 
     const rawFilteredData = allData.filter(d => d.year === selectedYear && d.month === selectedMonth);
 
+    // 1. คำนวณ Grand Total (สำหรับแสดงในภาพรวม)
     const grandTotal = rawFilteredData.reduce((acc, item) => {
         acc.totalExpected += parseFloat(item.expected) || 0;
         acc.totalReturned += parseFloat(item.returned) || 0;
@@ -129,6 +117,7 @@ function onMonthSelect() {
     };
     renderGrandTotalCard(grandTotalData);
 
+    // 2. เตรียมข้อมูลรายจังหวัด (สำหรับแสดงในการ์ด)
     provincialData = rawFilteredData.map((item, index) => {
         const returned = parseFloat(item.returned) || 0;
         const expected = parseFloat(item.expected) || 0;
@@ -144,6 +133,9 @@ function onMonthSelect() {
 
     renderFilteredAndSortedCards();
 }
+
+
+// ----- ส่วนที่เหลือเป็นฟังก์ชันแสดงผล (ไม่ต้องแก้ไข) -----
 
 function handleSort(key) {
     if (currentSort.key === key) {
@@ -259,10 +251,14 @@ function renderProvincialCards(data) {
     });
 }
 
+/**
+ * ฟังก์ชันคำนวณร้อยละ - ตรงตามสูตรที่ให้มา
+ * (เงินต้นที่รับคืน * 100) / เงินต้นที่คาดว่าจะได้รับ
+ */
 function calculatePercentageValue(returned, expected) {
     const numReturned = parseFloat(returned) || 0;
     const numExpected = parseFloat(expected) || 0;
-    if (numExpected === 0) return 0;
+    if (numExpected === 0) return 0; // ป้องกันการหารด้วยศูนย์
     return (numReturned * 100) / numExpected;
 }
 
