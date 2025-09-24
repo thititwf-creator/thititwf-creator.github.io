@@ -1,56 +1,50 @@
 // --- START: ค่าที่ต้องแก้ไข ---
-// วาง URL ของชีตข้อมูลย้อนหลัง (A-G) ที่เผยแพร่เป็น CSV ที่นี่
-const ROLLBACK_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSriF3pc_Y5lQhZNYoD1jEa8mV7o0Nn0AmXsGhqMD5qXlEMVL86FFYE3o59VIZ6srMk4yeox0bupsGQ/pub?gid=0&single=true&output=csv'; 
+const ROLLBACK_CSV_URL = 'ใส่_ROLLBACK_CSV_URL_ของคุณที่นี่'; 
 // --- END: ค่าที่ต้องแก้ไข ---
 
-// ตัวแปรสำหรับเก็บข้อมูลทั้งหมดและสถานะปัจจุบัน
 let allData = [];
 let provincialData = [];
 let currentSort = { key: 'province', order: 'asc' };
 
-// Element จากหน้าเว็บ
 const yearSelect = document.getElementById('year-select');
 const monthSelect = document.getElementById('month-select');
 const searchInput = document.getElementById('searchInput');
 const cardsContainer = document.getElementById('cardsContainer');
 const grandTotalContainer = document.getElementById('grandTotalContainer');
 
-// เริ่มทำงานเมื่อหน้าเว็บโหลดเสร็จ
 document.addEventListener("DOMContentLoaded", function() {
-    // เชื่อม Event Listeners
     yearSelect.addEventListener('change', onYearSelect);
     monthSelect.addEventListener('change', onMonthSelect);
     searchInput.addEventListener('input', renderFilteredAndSortedCards);
     document.getElementById('sort-province').addEventListener('click', () => handleSort('province'));
     document.getElementById('sort-percentage').addEventListener('click', () => handleSort('percentage'));
-
-    // เริ่มกระบวนการดึงข้อมูล
     loadInitialData();
 });
 
-/**
- * ดึงข้อมูล CSV ทั้งหมดมาเก็บไว้และสร้าง Dropdown ปี
- */
 async function loadInitialData() {
     try {
         const response = await fetch(ROLLBACK_CSV_URL);
         if (!response.ok) throw new Error('Network response was not ok');
         
         const csvText = await response.text();
-        const rows = csvText.split('\n').slice(1); // ตัด Header
+        const rows = csvText.split('\n').slice(1);
 
         allData = rows.map(row => {
-            const cols = row.split(',');
+            // แก้ไข: ใช้ .trim() เพื่อตัดช่องว่างที่อาจติดมากับข้อมูล
+            const cols = row.split(',').map(s => s.trim()); 
+            
+            // ตรวจสอบว่ามีข้อมูลครบถ้วนหรือไม่
+            if (cols.length < 6) return null;
+
             return {
-                order: cols[0],
                 month: cols[1],
                 year: cols[2],
                 province: cols[3],
+                // แก้ไข: แปลงเป็นตัวเลขและตรวจสอบว่าเป็น NaN หรือไม่ ถ้าใช่ให้เป็น 0
                 expected: parseFloat(cols[4]) || 0,
                 returned: parseFloat(cols[5]) || 0,
-                percentage: parseFloat(cols[6]) || 0
             };
-        }).filter(d => d.year && d.month && d.province); // กรองข้อมูลที่ไม่สมบูรณ์ออก
+        }).filter(d => d && d.year && d.month && d.province); // กรองแถวที่ข้อมูลไม่สมบูรณ์ (null) ออก
 
         populateYearFilter();
 
@@ -59,11 +53,8 @@ async function loadInitialData() {
     }
 }
 
-/**
- * สร้างตัวเลือก "ปี" ใน Dropdown จากข้อมูลทั้งหมด
- */
 function populateYearFilter() {
-    const years = [...new Set(allData.map(d => d.year))].sort((a, b) => b - a); // เรียงปีล่าสุดก่อน
+    const years = [...new Set(allData.map(d => d.year))].sort((a, b) => b - a);
     yearSelect.innerHTML = '<option value="">-- เลือกปี --</option>';
     years.forEach(year => {
         const option = document.createElement('option');
@@ -73,9 +64,6 @@ function populateYearFilter() {
     });
 }
 
-/**
- * เมื่อผู้ใช้เลือก "ปี" ให้สร้าง Dropdown "เดือน" ที่เกี่ยวข้อง
- */
 function onYearSelect() {
     const selectedYear = yearSelect.value;
     cardsContainer.innerHTML = '<p class="loading-text">กรุณาเลือกเดือนเพื่อแสดงข้อมูล</p>';
@@ -87,9 +75,11 @@ function onYearSelect() {
         return;
     }
 
-    const months = [...new Set(allData.filter(d => d.year === selectedYear).map(d => d.month))];
+    const monthsInYear = allData.filter(d => d.year === selectedYear);
+    const uniqueMonths = [...new Set(monthsInYear.map(d => d.month))];
+    
     monthSelect.innerHTML = '<option value="">-- เลือกเดือน --</option>';
-    months.forEach(month => {
+    uniqueMonths.forEach(month => {
         const option = document.createElement('option');
         option.value = month;
         option.textContent = month;
@@ -98,9 +88,6 @@ function onYearSelect() {
     monthSelect.disabled = false;
 }
 
-/**
- * เมื่อผู้ใช้เลือก "เดือน" ให้ทำการกรองและแสดงผลข้อมูล
- */
 function onMonthSelect() {
     const selectedYear = yearSelect.value;
     const selectedMonth = monthSelect.value;
@@ -111,10 +98,9 @@ function onMonthSelect() {
         return;
     }
 
-    // กรองข้อมูลตามปีและเดือนที่เลือก
     const filteredData = allData.filter(d => d.year === selectedYear && d.month === selectedMonth);
     
-    // คำนวณ Grand Total จากข้อมูลที่กรองแล้ว
+    // **จุดแก้ไขสำคัญที่ 1: คำนวณ Grand Total ใหม่ทั้งหมด**
     const grandTotal = filteredData.reduce((acc, cur) => {
         acc.totalExpected += cur.expected;
         acc.totalReturned += cur.returned;
@@ -123,25 +109,27 @@ function onMonthSelect() {
 
     const grandTotalData = {
         province: `ภาพรวม ${selectedMonth} ${selectedYear}`,
-        ...grandTotal,
+        totalExpected: grandTotal.totalExpected,
+        totalReturned: grandTotal.totalReturned,
+        // **จุดแก้ไขสำคัญที่ 2: คำนวณ % ของ Grand Total ใหม่เสมอ**
         percentage: calculatePercentageValue(grandTotal.totalReturned, grandTotal.totalExpected)
     };
     renderGrandTotalCard(grandTotalData);
 
-    // เก็บข้อมูลรายจังหวัดเพื่อใช้ค้นหาและจัดเรียง
+    // **จุดแก้ไขสำคัญที่ 3: สร้างข้อมูลรายจังหวัดและคำนวณ % ใหม่ทุกครั้ง**
     provincialData = filteredData.map(item => ({
-        ...item,
-        totalExpected: item.expected, // เปลี่ยนชื่อ key ให้ตรงกับฟังก์ชัน render
-        totalReturned: item.returned, // เปลี่ยนชื่อ key ให้ตรงกับฟังก์ชัน render
-        percentage: calculatePercentageValue(item.returned, item.expected) // คำนวณ % ใหม่เพื่อความแม่นยำ
+        province: item.province,
+        totalExpected: item.expected,
+        totalReturned: item.returned,
+        // คำนวณ % ของแต่ละจังหวัดใหม่เสมอ ไม่ใช้ค่าจาก CSV
+        percentage: calculatePercentageValue(item.returned, item.expected)
     }));
 
     renderFilteredAndSortedCards();
 }
 
 
-// ----- ส่วนที่เหลือเป็นฟังก์ชันแสดงผล ซึ่งคัดลอกมาจาก script.js เดิมได้เลย -----
-// (มีการปรับแก้เล็กน้อยเพื่อให้เข้ากันได้)
+// ----- ส่วนที่เหลือเป็นฟังก์ชันแสดงผล (เหมือนเดิม แต่ถูกต้องแล้วเพราะข้อมูลต้นทางถูก) -----
 
 function handleSort(key) {
     if (currentSort.key === key) {
@@ -191,7 +179,7 @@ function formatCurrency(num) {
 function renderGrandTotalCard(item) {
     grandTotalContainer.innerHTML = '';
     const card = document.createElement('div');
-    card.className = 'card'; // ใช้คลาส card ทั่วไป
+    card.className = 'card';
     
     const percentage = item.percentage || 0;
     const statusClass = getStatusColor(percentage);
@@ -213,7 +201,6 @@ function renderGrandTotalCard(item) {
         </div>
     `;
     grandTotalContainer.appendChild(card);
-    // ทำให้การ์ดนี้มีสไตล์เหมือนภาพรวมประเทศ
     grandTotalContainer.querySelector('.card').style.backgroundColor = 'var(--grand-total-bg)';
     grandTotalContainer.querySelector('.card').style.color = 'var(--text-light)';
 }
