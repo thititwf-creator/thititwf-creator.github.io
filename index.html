@@ -7,7 +7,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            /* ใช้โทนสีส้ม-ชมพู เหมือนหน้าอื่นๆ */
             --bg-gradient: linear-gradient(135deg, #ffc3a0 0%, #ffafbd 100% );
             --text-light: #ffffff;
             --text-dark: #333;
@@ -40,6 +39,18 @@
             text-align: center;
         }
 
+        /* --- [จุดแก้ไข] เพิ่มสไตล์สำหรับโลโก้ --- */
+        .header-logo {
+            width: 100px;
+            height: 100px;
+            object-fit: contain;
+            margin-bottom: 20px; /* เพิ่มระยะห่างด้านล่าง */
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.5);
+            padding: 5px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
         .header-title {
             font-size: 2.8rem;
             font-weight: 700;
@@ -57,7 +68,7 @@
 
         .menu-container {
             display: grid;
-            grid-template-columns: 1fr; /* เริ่มต้นที่ 1 คอลัมน์ */
+            grid-template-columns: 1fr;
             gap: 20px;
         }
 
@@ -93,7 +104,6 @@
             opacity: 0.9;
         }
         
-        /* ทำให้เป็น 2 คอลัมน์เมื่อหน้าจอใหญ่ขึ้น */
         @media (min-width: 768px) {
             .menu-container {
                 grid-template-columns: repeat(2, 1fr);
@@ -105,35 +115,28 @@
 <body>
 
     <div class="main-container">
+        
+        <!-- [จุดแก้ไข] เพิ่มโลโก้เข้ามาที่นี่ -->
+        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQZtkPBp_xmIFgEEmX2cyScE1QzabzZbtNdbQ&s" alt="Logo" class="header-logo">
+
         <h1 class="header-title">แดชบอร์ดสรุปข้อมูลหนี้</h1>
         <p class="header-subtitle">เลือกรายงานที่ต้องการดูข้อมูล</p>
 
         <div class="menu-container">
-            <!-- ลิงก์ที่ 1: หนี้ครบ -->
             <a href="due-dept-kpi.html" class="menu-card">
-                <span class="menu-card-title">หนี้ครบกำหนด (KPI)</span>
+                <span class="menu-card-title">หนี้ครบกำหนด (KPI )</span>
                 <span class="menu-card-description">ข้อมูลล่าสุดรายจังหวัด พร้อมภาพรวม</span>
             </a>
 
-            <!-- ลิงก์ที่ 2: หนี้ครบ ย้อนหลัง -->
             <a href="due-dept-rollback.html" class="menu-card">
                 <span class="menu-card-title">ข้อมูลหนี้ย้อนหลัง</span>
                 <span class="menu-card-description">เลือกดูข้อมูลรายจังหวัดตามปีงบประมาณและเดือน</span>
             </a>
 
-            <!-- ลิงก์ที่ 3: หนี้ครบ ภาพรวมรายปี -->
             <a href="total-due-dept.html" class="menu-card">
                 <span class="menu-card-title">ภาพรวมรายปีงบประมาณ</span>
                 <span class="menu-card-description">กราฟเปรียบเทียบร้อยละการชำระคืนในแต่ละเดือน</span>
             </a>
-            
-            <!-- คุณสามารถเพิ่มการ์ดลิงก์อื่นๆ ที่นี่ได้ในอนาคต -->
-            <!-- 
-            <a href="#" class="menu-card">
-                <span class="menu-card-title">รายงานอื่นๆ</span>
-                <span class="menu-card-description">คำอธิบายสั้นๆ เกี่ยวกับรายงานนี้</span>
-            </a>
-            -->
         </div>
     </div>
 

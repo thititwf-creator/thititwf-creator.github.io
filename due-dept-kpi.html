@@ -5,12 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>สรุปข้อมูลหนี้ครบกำหนดชำระ</title>
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;700&display=swap" rel="stylesheet">
-    <!-- ผมจะย้าย CSS เข้ามาในไฟล์นี้โดยตรงเพื่อให้ง่ายต่อการแก้ไข -->
     <style>
-        /* --- [จุดแก้ไขที่ 1] เพิ่ม CSS ทั้งหมดเข้ามา และปรับสีพื้นหลัง --- */
         :root {
-            /* ใช้โทนสีส้ม-ชมพู เหมือนหน้า rollback */
-            --bg-gradient: linear-gradient(135deg, #ffc3a0 0%, #ffafbd 100% );
+            --bg-gradient: linear-gradient(135deg, #ffc3a0 0%, #ffafbd 100%  );
             --text-light: #ffffff;
             --text-dark: #333;
             --card-bg: #ffffff;
@@ -24,7 +21,7 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Kanit', sans-serif;
-            background: var(--bg-gradient); /* กำหนดสีพื้นหลัง */
+            background: var(--bg-gradient);
             display: flex;
             justify-content: center;
             align-items: flex-start;
@@ -35,20 +32,10 @@
             width: 100%;
             max-width: 1200px;
             text-align: center;
-            position: relative; /* เพิ่ม position relative */
+            position: relative;
         }
         .header-section {
             margin-bottom: 30px;
-        }
-        .header-logo {
-            width: 100px;
-            height: 100px;
-            object-fit: contain;
-            margin-bottom: 15px;
-            border-radius: 50%;
-            background-color: rgba(255, 255, 255, 0.5);
-            padding: 5px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
         }
         .header-title {
             font-size: 2.5rem;
@@ -75,8 +62,8 @@
             background: var(--grand-total-bg);
             color: var(--text-light);
             border-left: 8px solid #4a2a8a;
-            margin: 0 auto; /* จัดให้อยู่กึ่งกลาง */
-            max-width: 800px; /* กำหนดความกว้างสูงสุด */
+            margin: 0 auto;
+            max-width: 800px;
         }
         #grandTotalContainer .card-title { color: var(--text-light); font-size: 1.8rem; }
         #grandTotalContainer .card-percentage { font-size: 2.2rem; }
@@ -154,8 +141,6 @@
             border-radius: 15px;
             grid-column: 1 / -1;
         }
-
-        /* --- [จุดแก้ไขที่ 2] สไตล์สำหรับปุ่มกลับหน้าหลัก --- */
         .back-button {
             position: absolute;
             top: 10px;
@@ -173,17 +158,15 @@
         .back-button:hover {
             background-color: rgba(255, 255, 255, 0.5);
         }
-        /* --- จบส่วนที่เพิ่มเข้ามา --- */
     </style>
 </head>
 <body>
 
     <div class="main-container">
-        <!-- [จุดแก้ไขที่ 3] เพิ่มปุ่มกลับไปหน้า index.html -->
         <a href="index.html" class="back-button">‹ กลับหน้าแรก</a>
 
         <div class="header-section">
-            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQZtkPBp_xmIFgEEmX2cyScE1QzabzZbtNdbQ&s" alt="Logo" class="header-logo">
+            <!-- [จุดแก้ไข] ลบโลโก้ออกจากตรงนี้ -->
             <h1 class="header-title">สรุปหนี้ครบกำหนดชำระ</h1>
             <p class="header-note" id="noteDisplay"></p>
             
