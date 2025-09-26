@@ -1,15 +1,141 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <title>Demo</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>หน้าหลัก - สรุปข้อมูลหนี้</title>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* ใช้โทนสีส้ม-ชมพู เหมือนหน้าอื่นๆ */
+            --bg-gradient: linear-gradient(135deg, #ffc3a0 0%, #ffafbd 100% );
+            --text-light: #ffffff;
+            --text-dark: #333;
+            --card-bg: rgba(255, 255, 255, 0.85);
+            --card-hover-bg: #ffffff;
+            --card-shadow: rgba(0, 0, 0, 0.1);
+            --card-hover-shadow: rgba(0, 0, 0, 0.2);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Kanit', sans-serif;
+            background: var(--bg-gradient);
+            color: var(--text-dark);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .main-container {
+            width: 100%;
+            max-width: 800px;
+            text-align: center;
+        }
+
+        .header-title {
+            font-size: 2.8rem;
+            font-weight: 700;
+            color: var(--text-light);
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.25);
+        }
+
+        .header-subtitle {
+            font-size: 1.2rem;
+            color: var(--text-light);
+            opacity: 0.9;
+            margin-bottom: 40px;
+        }
+
+        .menu-container {
+            display: grid;
+            grid-template-columns: 1fr; /* เริ่มต้นที่ 1 คอลัมน์ */
+            gap: 20px;
+        }
+
+        .menu-card {
+            background: var(--card-bg);
+            color: var(--text-dark);
+            text-decoration: none;
+            padding: 25px 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 16px var(--card-shadow);
+            transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            text-align: left;
+        }
+
+        .menu-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 24px var(--card-hover-shadow);
+            background-color: var(--card-hover-bg);
+        }
+
+        .menu-card-title {
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .menu-card-description {
+            font-size: 1rem;
+            color: #555;
+            opacity: 0.9;
+        }
+        
+        /* ทำให้เป็น 2 คอลัมน์เมื่อหน้าจอใหญ่ขึ้น */
+        @media (min-width: 768px) {
+            .menu-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+    </style>
 </head>
 <body>
-  <h1>ยินดีต้อนรับสู่เว็บไซต์ของฉัน!</h1>
-  <p>This is Homepage</p>
-  
-  <!-- เพิ่มลิงก์นี้เข้าไป -->
-  <a href="due-dept-kpi.html">หนี้ครบ</a><br>
-  <a href="due-dept-rollback.html">หนี้ครบ ย้อนหลัง</a><br>
-  <a href="total-due-dept.html">หนี้ครบ ภาพรวมรายปี</a>
+
+    <div class="main-container">
+        <h1 class="header-title">แดชบอร์ดสรุปข้อมูลหนี้</h1>
+        <p class="header-subtitle">เลือกรายงานที่ต้องการดูข้อมูล</p>
+
+        <div class="menu-container">
+            <!-- ลิงก์ที่ 1: หนี้ครบ -->
+            <a href="due-dept-kpi.html" class="menu-card">
+                <span class="menu-card-title">หนี้ครบกำหนด (KPI)</span>
+                <span class="menu-card-description">ข้อมูลล่าสุดรายจังหวัด พร้อมภาพรวม</span>
+            </a>
+
+            <!-- ลิงก์ที่ 2: หนี้ครบ ย้อนหลัง -->
+            <a href="due-dept-rollback.html" class="menu-card">
+                <span class="menu-card-title">ข้อมูลหนี้ย้อนหลัง</span>
+                <span class="menu-card-description">เลือกดูข้อมูลรายจังหวัดตามปีงบประมาณและเดือน</span>
+            </a>
+
+            <!-- ลิงก์ที่ 3: หนี้ครบ ภาพรวมรายปี -->
+            <a href="total-due-dept.html" class="menu-card">
+                <span class="menu-card-title">ภาพรวมรายปีงบประมาณ</span>
+                <span class="menu-card-description">กราฟเปรียบเทียบร้อยละการชำระคืนในแต่ละเดือน</span>
+            </a>
+            
+            <!-- คุณสามารถเพิ่มการ์ดลิงก์อื่นๆ ที่นี่ได้ในอนาคต -->
+            <!-- 
+            <a href="#" class="menu-card">
+                <span class="menu-card-title">รายงานอื่นๆ</span>
+                <span class="menu-card-description">คำอธิบายสั้นๆ เกี่ยวกับรายงานนี้</span>
+            </a>
+            -->
+        </div>
+    </div>
+
 </body>
 </html>
