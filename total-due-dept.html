@@ -3,18 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>สรุปภาพรวมหนี้รายปี</title>
+    <title>สรุปภาพรวมหนี้รายปีงบประมาณ</title>
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
+        /* --- [จุดแก้ไขที่ 1] นำ CSS จากหน้า 'ข้อมูลหนี้ย้อนหลัง' มาใช้ --- */
         :root {
-            --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100% );
+            --bg-gradient: linear-gradient(135deg, #ffc3a0 0%, #ffafbd 100% );
             --text-light: #ffffff;
-            --card-bg: rgba(255, 255, 255, 0.1);
-            --border-color: rgba(255, 255, 255, 0.2);
-            --select-bg: rgba(255, 255, 255, 0.9);
+            --text-dark: #333;
+            --card-bg: rgba(255, 255, 255, 0.15); /* ปรับให้โปร่งแสงขึ้นเล็กน้อยสำหรับพื้นหลังกราฟ */
+            --border-color: rgba(255, 255, 255, 0.3);
+            --control-bg: rgba(255, 255, 255, 0.7);
             --select-text: #333;
         }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
         body {
             font-family: 'Kanit', sans-serif;
             background: var(--bg-gradient);
@@ -26,87 +31,105 @@
             margin: 0;
             padding: 20px;
         }
+
         .main-container {
             width: 100%;
-            max-width: 1000px;
+            max-width: 1200px; /* ขยายความกว้างเพื่อให้กราฟดูดีขึ้น */
             background: var(--card-bg);
             border-radius: 20px;
             padding: 30px;
-            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
-            backdrop-filter: blur(4px);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.2);
+            backdrop-filter: blur(5px);
             border: 1px solid var(--border-color);
             text-align: center;
-            position: relative; /* เพิ่ม position relative เพื่อให้ปุ่ม back อ้างอิงได้ */
+            position: relative;
         }
+
         .header-title {
-            font-size: 2.2rem;
+            font-size: 2.5rem; /* ปรับขนาดให้เท่ากัน */
             font-weight: 700;
+            color: var(--text-light);
             margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
         }
+
         .header-subtitle {
             font-size: 1.1rem;
             margin-bottom: 30px;
-            opacity: 0.8;
+            opacity: 0.9;
         }
+
+        /* --- [จุดแก้ไขที่ 2] ปรับสไตล์ Dropdown ให้เหมือนกัน --- */
         #year-select {
             font-family: 'Kanit', sans-serif;
             font-size: 1rem;
             padding: 12px 20px;
-            border-radius: 10px;
-            border: 1px solid var(--border-color);
-            background-color: var(--select-bg);
+            border-radius: 50px; /* ทำให้ขอบมน */
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            background-color: var(--control-bg);
             color: var(--select-text);
             margin-bottom: 30px;
-            width: 250px;
-        }
-        .chart-container {
-            position: relative;
-            height: 50vh;
-            width: 100%;
-        }
-        .message-text {
-            font-size: 1.2rem;
-            opacity: 0.7;
-            padding: 50px 0;
+            min-width: 280px; /* กำหนดความกว้างขั้นต่ำ */
         }
 
-        /* --- [ส่วนที่เพิ่มเข้ามา] สไตล์สำหรับปุ่มกลับหน้าหลัก --- */
+        .chart-container {
+            position: relative;
+            height: 60vh; /* เพิ่มความสูงของกราฟ */
+            width: 100%;
+            background-color: rgba(0, 0, 0, 0.1); /* เพิ่มพื้นหลังให้กราฟเด่นขึ้น */
+            padding: 20px;
+            border-radius: 15px;
+        }
+
+        .message-text {
+            font-size: 1.2rem;
+            color: var(--text-light); /* เปลี่ยนสีข้อความให้สว่าง */
+            opacity: 0.8;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+        }
+
         .back-button {
             position: absolute;
             top: 20px;
             left: 20px;
             display: inline-block;
             padding: 10px 20px;
-            background-color: rgba(255, 255, 255, 0.2);
+            background-color: rgba(255, 255, 255, 0.3);
             color: var(--text-light);
             text-decoration: none;
             border-radius: 50px;
             font-size: 0.9rem;
             transition: background-color 0.3s ease;
+            text-shadow: none;
         }
-        .back-button:hover {
-            background-color: rgba(255, 255, 255, 0.4);
-        }
-        /* --- จบส่วนที่เพิ่มเข้ามา --- */
 
+        .back-button:hover {
+            background-color: rgba(255, 255, 255, 0.5);
+        }
     </style>
 </head>
 <body>
 
     <div class="main-container">
-        <!-- [ส่วนที่เพิ่มเข้ามา] ปุ่มกลับหน้าหลัก -->
         <a href="index.html" class="back-button">‹ กลับหน้าหลัก</a>
 
-        <h1 class="header-title">สรุปภาพรวมหนี้รายปี</h1>
+        <h1 class="header-title">ภาพรวมรายปีงบประมาณ</h1>
         <p class="header-subtitle">เปรียบเทียบร้อยละการชำระคืนในแต่ละเดือน</p>
 
         <select id="year-select">
-            <option value="">กำลังโหลดข้อมูลปี...</option>
+            <!-- [แก้ไข] เปลี่ยนข้อความเริ่มต้นให้สอดคล้อง -->
+            <option value="">-- เลือกปีงบประมาณ --</option>
         </select>
 
         <div class="chart-container">
             <canvas id="monthly-chart"></canvas>
-            <p id="message-display" class="message-text">กรุณาเลือกปีเพื่อแสดงกราฟ</p>
+            <!-- [แก้ไข] เปลี่ยนข้อความเริ่มต้นให้สอดคล้อง -->
+            <div id="message-display" class="message-text">
+                <span>กรุณาเลือกปีงบประมาณเพื่อแสดงกราฟ</span>
+            </div>
         </div>
     </div>
 
