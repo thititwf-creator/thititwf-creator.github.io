@@ -26,7 +26,7 @@ document.addEventListener('DOMContentLoaded', function( ) {
 
     // 3. สร้างตัวเลือก "ปี" (อ้างอิงจากชื่อคอลัมน์ "ปงบ")
     function populateYearFilter(data) {
-        const years = [...new Set(data.map(row => row.ปงบ))].sort((a, b) => b - a);
+        const years = [...new Set(data.map(row => row.ปีงบ))].sort((a, b) => b - a);
         years.forEach(year => {
             if (year) {
                 const option = document.createElement('option');
@@ -52,7 +52,7 @@ document.addEventListener('DOMContentLoaded', function( ) {
             return;
         }
 
-        const filteredData = allData.filter(row => row.ปงบ === year);
+        const filteredData = allData.filter(row => row.ปีงบ === year);
 
         if (filteredData.length === 0) {
             dataContainer.innerHTML = '<p>ไม่พบข้อมูลสำหรับปีที่เลือก</p>';
