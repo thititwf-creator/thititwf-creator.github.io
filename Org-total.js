@@ -1,54 +1,63 @@
-document.addEventListener('DOMContentLoaded', function( ) {
+document.addEventListener('DOMContentLoaded', function() {
     // =================================================================
-    // 1. การตั้งค่า และตัวแปรสถานะ
+    // 1. การตั้งค่า และตัวแปรสถานะ (State Variables)
     // =================================================================
-    const googleSheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSZceIHi5hcr_J-uV_HBVQXX8Z9NCZOiygswERJzkxb0iZUhm0dvSvj73p7khB8u-g1Kvk-_hZikgpb/pub?gid=889852624&single=true&output=csv'; // <--- แก้ไข GID ตรงนี้
+    
+    // *** จุดแก้ไขที่ 1: เปลี่ยน URL ของ Google Sheet ***
+    const googleSheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSZceIHi5hcr_J-uV_HBVQXX8Z9NCZOiygswERJzkxb0iZUhm0dvSvj73p7khB8u-g1Kvk-_hZikgpb/pub?gid=889852624&single=true&output=csv';
+
     const yearFilter = document.getElementById('year-filter' );
     const dataContainer = document.getElementById('data-container');
+    
     let allData = [];
     let currentSort = { key: null, direction: 'asc' };
 
     // =================================================================
     // 2. ฟังก์ชันเสริม (Helper Functions)
     // =================================================================
-    function formatNumberWithCommas(num) { if (num === null || num === undefined || num === '') return ''; const numStr = String(num).replace(/,/g, ''); if (isNaN(parseFloat(numStr))) return num; if (numStr.includes('.')) { return parseFloat(numStr).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); } return parseFloat(numStr).toLocaleString('en-US'); }
-    function parseNumber(str) { if (typeof str !== 'string') return parseFloat(str) || 0; return parseFloat(str.replace(/,/g, '')) || 0; }
+
+    function formatNumberWithCommas(num) {
+        if (num === null || num === undefined || num === '') return '';
+        const numStr = String(num).replace(/,/g, '');
+        if (isNaN(parseFloat(numStr))) return num;
+        if (numStr.includes('.')) {
+            return parseFloat(numStr).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+        return parseFloat(numStr).toLocaleString('en-US');
+    }
+
+    function parseNumber(str) {
+        if (typeof str !== 'string') return parseFloat(str) || 0;
+        return parseFloat(str.replace(/,/g, '')) || 0;
+    }
 
     // =================================================================
-    // 3. การดึงและประมวลผลข้อมูล
+    // 3. การดึงและประมวลผลข้อมูล (Data Fetching & Processing)
     // =================================================================
+
     dataContainer.innerHTML = '<p>กำลังโหลดข้อมูลจาก Google Sheet...</p>';
+
     Papa.parse(googleSheetUrl, {
         download: true,
         header: true,
         skipEmptyLines: true,
         complete: function(results) {
             if (results.data && results.data.length > 0) {
-                const processedData = results.data.map(row => {
-                    const provinceCount = parseNumber(row['จังหวัด (แห่ง)']);
-                    const districtCount = parseNumber(row['อำเภอ (แห่ง)']);
-                    const subdistrictCount = parseNumber(row['ตำบล (แห่ง)']);
-                    const villageCount = parseNumber(row['หมู่บ้าน(แห่ง)']);
-                    const baseOct = parseNumber(row['ฐานข้อมูล สมาชิก ณ 1 ต.ค.']);
-                    const baseJul = parseNumber(row['ฐานข้อมูล สมาชิก ณ 31 ก.ค.']);
-                    const totalOrgs = provinceCount + districtCount + subdistrictCount + villageCount;
-                    const percent1 = totalOrgs > 0 ? (baseOct * 100 / totalOrgs) : 0;
-                    const percent2 = totalOrgs > 0 ? (baseJul * 100 / totalOrgs) : 0;
-                    const membersAdded = baseJul - baseOct;
-                    return { ...row, 'รวม': totalOrgs, 'คิดเป็นร้อยละ_1': percent1.toFixed(2), 'คิดเป็นร้อยละ_2': percent2.toFixed(2), 'จำนวนสมาชิกที่เพิ่มขึ้น': membersAdded };
-                });
-                allData = processedData;
+                allData = results.data;
                 populateYearFilter(allData);
                 dataContainer.innerHTML = '<p>กรุณาเลือกปีงบประมาณเพื่อแสดงข้อมูล</p>';
             } else {
                 dataContainer.innerHTML = '<p style="color: red;">ไม่พบข้อมูลในไฟล์ Google Sheet</p>';
             }
         },
-        error: function(error) { console.error("เกิดข้อผิดพลาดในการดึงข้อมูล:", error); dataContainer.innerHTML = '<p style="color: red;">ไม่สามารถโหลดข้อมูลได้ กรุณาตรวจสอบ URL</p>'; }
+        error: function(error) {
+            console.error("เกิดข้อผิดพลาดในการดึงข้อมูล:", error);
+            dataContainer.innerHTML = '<p style="color: red;">ไม่สามารถโหลดข้อมูลได้ กรุณาตรวจสอบ URL</p>';
+        }
     });
 
     // =================================================================
-    // 4. ฟังก์ชันจัดการหน้าเว็บ
+    // 4. ฟังก์ชันจัดการหน้าเว็บ (UI Functions)
     // =================================================================
 
     function populateYearFilter(data) {
@@ -65,35 +74,34 @@ document.addEventListener('DOMContentLoaded', function( ) {
 
     function renderTable(dataToRender) {
         dataContainer.innerHTML = '';
+
         if (!dataToRender || dataToRender.length === 0) {
             dataContainer.innerHTML = '<p>ไม่พบข้อมูลสำหรับปีที่เลือก</p>';
             return;
         }
+
         const table = document.createElement('table');
         
-        // *** สร้างหัวตาราง 2 ชั้น (Merged Headers) ***
+        // *** จุดแก้ไขที่ 2: เปลี่ยนหัวตารางให้ตรงกับ Sheet ใหม่ ***
         const tableHead = `
             <thead>
                 <tr>
-                    <th rowspan="2" class="sortable" data-key="จังหวัด">จังหวัด</th>
-                    <th colspan="5">ฐานข้อมูลคณะกรรมการพัฒนาสตรีทุกระดับ</th>
-                    <th colspan="4">ข้อมูลจำนวนสมาชิกกองทุนพัฒนาบทบาทสตรี (องค์กร)</th>
-                    <th rowspan="2" class="sortable" data-key="จำนวนสมาชิกที่เพิ่มขึ้น">จำนวนสมาชิกที่เพิ่มขึ้น</th>
-                </tr>
-                <tr>
+                    <th class="sortable" data-key="จังหวัด">จังหวัด</th>
                     <th class="sortable" data-key="จังหวัด (แห่ง)">จังหวัด (แห่ง)</th>
                     <th class="sortable" data-key="อำเภอ (แห่ง)">อำเภอ (แห่ง)</th>
                     <th class="sortable" data-key="ตำบล (แห่ง)">ตำบล (แห่ง)</th>
                     <th class="sortable" data-key="หมู่บ้าน(แห่ง)">หมู่บ้าน (แห่ง)</th>
                     <th class="sortable" data-key="รวม">รวม</th>
-                    <th class="sortable" data-key="ฐานข้อมูล สมาชิก ณ 1 ต.ค.">ฐานข้อมูล สมาชิก ณ 1 ต.ค.</th>
+                    <th class="sortable" data-key="ฐานข้อมูล สมาชิก ณ 1 ต.ค.">ฐานข้อมูล ณ 1 ต.ค.</th>
                     <th>คิดเป็นร้อยละ</th>
-                    <th class="sortable" data-key="ฐานข้อมูล สมาชิก ณ 31 ก.ค.">ฐานข้อมูล สมาชิก ณ 31 ก.ค.</th>
+                    <th class="sortable" data-key="ฐานข้อมูล สมาชิก ณ 31 ก.ค.">ฐานข้อมูล ณ 31 ก.ค.</th>
                     <th>คิดเป็นร้อยละ</th>
+                    <th class="sortable" data-key="จำนวนสมาชิกที่เพิ่มขึ้น จากคอลัม A ถึง M">จำนวนที่เพิ่มขึ้น</th>
                 </tr>
             </thead>
         `;
 
+        // *** จุดแก้ไขที่ 3: เปลี่ยนการแสดงผลข้อมูลในแต่ละแถว ***
         const tableBody = `
             <tbody>
                 ${dataToRender.map(row => `
@@ -105,15 +113,16 @@ document.addEventListener('DOMContentLoaded', function( ) {
                         <td>${formatNumberWithCommas(row['หมู่บ้าน(แห่ง)'])}</td>
                         <td>${formatNumberWithCommas(row['รวม'])}</td>
                         <td>${formatNumberWithCommas(row['ฐานข้อมูล สมาชิก ณ 1 ต.ค.'])}</td>
-                        <td>${row['คิดเป็นร้อยละ_1']}</td>
+                        <td>${row['คิดเป็นร้อยละ_1'] || ''}</td>
                         <td>${formatNumberWithCommas(row['ฐานข้อมูล สมาชิก ณ 31 ก.ค.'])}</td>
-                        <td>${row['คิดเป็นร้อยละ_2']}</td>
-                        <td>${formatNumberWithCommas(row['จำนวนสมาชิกที่เพิ่มขึ้น'])}</td>
+                        <td>${row['คิดเป็นร้อยละ_2'] || ''}</td>
+                        <td>${formatNumberWithCommas(row['จำนวนสมาชิกที่เพิ่มขึ้น จากคอลัม A ถึง M'])}</td>
                     </tr>
                 `).join('')}
             </tbody>
         `;
 
+        // *** จุดแก้ไขที่ 4: คำนวณผลรวมสำหรับคอลัมน์ใหม่ ***
         const totals = dataToRender.reduce((acc, row) => {
             acc.provinceCount += parseNumber(row['จังหวัด (แห่ง)']);
             acc.districtCount += parseNumber(row['อำเภอ (แห่ง)']);
@@ -122,16 +131,17 @@ document.addEventListener('DOMContentLoaded', function( ) {
             acc.totalOrgs += parseNumber(row['รวม']);
             acc.baseOct += parseNumber(row['ฐานข้อมูล สมาชิก ณ 1 ต.ค.']);
             acc.baseJul += parseNumber(row['ฐานข้อมูล สมาชิก ณ 31 ก.ค.']);
-            acc.membersAdded += parseNumber(row['จำนวนสมาชิกที่เพิ่มขึ้น']);
+            acc.membersAdded += parseNumber(row['จำนวนสมาชิกที่เพิ่มขึ้น จากคอลัม A ถึง M']);
             return acc;
         }, { provinceCount: 0, districtCount: 0, subdistrictCount: 0, villageCount: 0, totalOrgs: 0, baseOct: 0, baseJul: 0, membersAdded: 0 });
 
-        const totalPercent1 = totals.totalOrgs > 0 ? (totals.baseOct * 100 / totals.totalOrgs).toFixed(2) : 0;
-        const totalPercent2 = totals.totalOrgs > 0 ? (totals.baseJul * 100 / totals.totalOrgs).toFixed(2) : 0;
+        // คำนวณเปอร์เซ็นต์รวม
+        const totalPercent1 = totals.totalOrgs > 0 ? ((totals.baseOct / totals.totalOrgs) * 100).toFixed(2) : 0;
+        const totalPercent2 = totals.totalOrgs > 0 ? ((totals.baseJul / totals.totalOrgs) * 100).toFixed(2) : 0;
 
         const tableFoot = `
             <tfoot>
-                <tr style="font-weight: bold; background-color: rgba(255, 195, 160, 0.3);">
+                <tr style="font-weight: bold; background-color: rgba(160, 196, 255, 0.3);">
                     <td>รวมทั้งหมด</td>
                     <td>${formatNumberWithCommas(totals.provinceCount)}</td>
                     <td>${formatNumberWithCommas(totals.districtCount)}</td>
@@ -149,8 +159,11 @@ document.addEventListener('DOMContentLoaded', function( ) {
 
         table.innerHTML = tableHead + tableBody + tableFoot;
         dataContainer.appendChild(table);
+
         table.querySelectorAll('th.sortable').forEach(th => {
-            th.addEventListener('click', () => { handleSort(th.dataset.key); });
+            th.addEventListener('click', () => {
+                handleSort(th.dataset.key);
+            });
         });
     }
 
@@ -160,12 +173,15 @@ document.addEventListener('DOMContentLoaded', function( ) {
             dataContainer.innerHTML = '<p>กรุณาเลือกปีงบประมาณเพื่อแสดงข้อมูล</p>';
             return;
         }
+
         let filteredData = allData.filter(row => row.ปีงบ && row.ปีงบ.trim() == selectedYear.trim());
+
         if (currentSort.key) {
             filteredData.sort((a, b) => {
                 const valA = a[currentSort.key];
                 const valB = b[currentSort.key];
                 const isNumeric = !isNaN(parseNumber(valA)) && !isNaN(parseNumber(valB));
+                
                 let comparison = 0;
                 if (isNumeric) {
                     comparison = parseNumber(valA) - parseNumber(valB);
@@ -191,5 +207,6 @@ document.addEventListener('DOMContentLoaded', function( ) {
     // =================================================================
     // 5. การกำหนด Event Listeners
     // =================================================================
+
     yearFilter.addEventListener('change', displayData);
 });
