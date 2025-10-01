@@ -6,24 +6,32 @@ let allData = [];
 let provincialData = [];
 let currentSort = { key: 'province', order: 'asc' };
 
+// --- [แก้ไข] เพิ่มตัวแปรสำหรับ Element ของตัวกรองเปอร์เซ็นต์ ---
 const yearSelect = document.getElementById('year-select' );
 const monthSelect = document.getElementById('month-select');
 const searchInput = document.getElementById('searchInput');
 const cardsContainer = document.getElementById('cardsContainer');
 const grandTotalContainer = document.getElementById('grandTotalContainer');
+const percentageCondition = document.getElementById('percentage-condition');
+const percentageValue = document.getElementById('percentage-value');
 
-// --- [เพิ่ม] ลำดับเดือนตามปีงบประมาณ ---
+
 const FISCAL_MONTHS_ORDER = [
     "ตุลาคม", "พฤศจิกายน", "ธันวาคม", "มกราคม", "กุมภาพันธ์", "มีนาคม",
     "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน"
 ];
 
 document.addEventListener("DOMContentLoaded", function() {
-    yearSelect.addEventListener('change', onFiscalYearSelect); // [แก้ไข]
+    yearSelect.addEventListener('change', onFiscalYearSelect);
     monthSelect.addEventListener('change', onMonthSelect);
     searchInput.addEventListener('input', renderFilteredAndSortedCards);
     document.getElementById('sort-province').addEventListener('click', () => handleSort('province'));
     document.getElementById('sort-percentage').addEventListener('click', () => handleSort('percentage'));
+
+    // --- [แก้ไข] เพิ่ม Event Listeners สำหรับตัวกรองเปอร์เซ็นต์ ---
+    percentageCondition.addEventListener('change', handlePercentageFilterChange);
+    percentageValue.addEventListener('input', renderFilteredAndSortedCards);
+
     loadInitialData();
 });
 
@@ -44,14 +52,14 @@ async function loadInitialData() {
 
             return {
                 month: cols[1],
-                year: parseInt(cols[2]), // แปลงเป็นตัวเลข
+                year: parseInt(cols[2]),
                 province: cols[3],
                 expected: cols[4],
                 returned: cols[5],
             };
         }).filter(Boolean);
 
-        populateFiscalYearFilter(); // [แก้ไข]
+        populateFiscalYearFilter();
 
     } catch (error) {
         showError(error, 'เกิดข้อผิดพลาดในการโหลดข้อมูลเริ่มต้น');
@@ -59,14 +67,13 @@ async function loadInitialData() {
 }
 
 /**
- * [แก้ไข] สร้าง Dropdown สำหรับเลือก "ปีงบประมาณ"
+ * สร้าง Dropdown สำหรับเลือก "ปีงบประมาณ"
  */
 function populateFiscalYearFilter() {
     const fiscalYears = new Set();
 
     allData.forEach(d => {
         const monthIndex = FISCAL_MONTHS_ORDER.indexOf(d.month);
-        // ถ้าเป็นเดือน ต.ค., พ.ย., ธ.ค. (index 0-2) ให้บวกปี พ.ศ. ไป 1
         const fiscalYear = (monthIndex >= 0 && monthIndex <= 2) ? d.year + 1 : d.year;
         fiscalYears.add(fiscalYear);
     });
@@ -83,12 +90,13 @@ function populateFiscalYearFilter() {
 }
 
 /**
- * [แก้ไข] เมื่อผู้ใช้เลือกปีงบประมาณ จะสร้าง Dropdown เดือนที่เกี่ยวข้อง
+ * เมื่อผู้ใช้เลือกปีงบประมาณ จะสร้าง Dropdown เดือนที่เกี่ยวข้อง
  */
 function onFiscalYearSelect() {
     const selectedFiscalYear = parseInt(yearSelect.value);
     cardsContainer.innerHTML = '<p class="loading-text">กรุณาเลือกเดือนเพื่อแสดงข้อมูล</p>';
     grandTotalContainer.innerHTML = '';
+    resetFilters(); // [แก้ไข] รีเซ็ตฟิลเตอร์เมื่อเลือกปีใหม่
 
     if (!selectedFiscalYear) {
         monthSelect.innerHTML = '<option value="">-- เลือกเดือน --</option>';
@@ -96,17 +104,15 @@ function onFiscalYearSelect() {
         return;
     }
 
-    // กรองข้อมูลเฉพาะที่อยู่ในปีงบประมาณที่เลือก
     const dataInFiscalYear = allData.filter(d => {
         const monthIndex = FISCAL_MONTHS_ORDER.indexOf(d.month);
-        if (monthIndex >= 0 && monthIndex <= 2) { // ต.ค. - ธ.ค.
+        if (monthIndex >= 0 && monthIndex <= 2) {
             return d.year === selectedFiscalYear - 1;
-        } else { // ม.ค. - ก.ย.
+        } else {
             return d.year === selectedFiscalYear;
         }
     });
 
-    // หาเดือนที่มีข้อมูลและเรียงตามลำดับปีงบประมาณ
     const monthsInYear = [...new Set(dataInFiscalYear.map(d => d.month))];
     const sortedMonths = FISCAL_MONTHS_ORDER.filter(month => monthsInYear.includes(month));
 
@@ -121,11 +127,12 @@ function onFiscalYearSelect() {
 }
 
 /**
- * [แก้ไข] เมื่อผู้ใช้เลือกเดือน จะกรองข้อมูลตามปีงบประมาณและเดือน
+ * เมื่อผู้ใช้เลือกเดือน จะกรองข้อมูลตามปีงบประมาณและเดือน
  */
 function onMonthSelect() {
     const selectedFiscalYear = parseInt(yearSelect.value);
     const selectedMonth = monthSelect.value;
+    resetFilters(); // [แก้ไข] รีเซ็ตฟิลเตอร์เมื่อเลือกเดือนใหม่
 
     if (!selectedFiscalYear || !selectedMonth) {
         cardsContainer.innerHTML = '<p class="loading-text">กรุณาเลือกปีงบประมาณและเดือนเพื่อแสดงข้อมูล</p>';
@@ -133,14 +140,11 @@ function onMonthSelect() {
         return;
     }
 
-    // คำนวณปี พ.ศ. ที่ถูกต้องจากปีงบประมาณและเดือนที่เลือก
     const monthIndex = FISCAL_MONTHS_ORDER.indexOf(selectedMonth);
     const calendarYear = (monthIndex >= 0 && monthIndex <= 2) ? selectedFiscalYear - 1 : selectedFiscalYear;
 
-    // กรองข้อมูลจาก allData ด้วย ปี พ.ศ. และเดือนที่ถูกต้อง
     const rawFilteredData = allData.filter(d => d.year === calendarYear && d.month === selectedMonth);
 
-    // 1. คำนวณ Grand Total
     const grandTotal = rawFilteredData.reduce((acc, item) => {
         acc.totalExpected += parseFloat(item.expected) || 0;
         acc.totalReturned += parseFloat(item.returned) || 0;
@@ -155,7 +159,6 @@ function onMonthSelect() {
     };
     renderGrandTotalCard(grandTotalData);
 
-    // 2. เตรียมข้อมูลรายจังหวัด
     provincialData = rawFilteredData.map((item, index) => {
         const returned = parseFloat(item.returned) || 0;
         const expected = parseFloat(item.expected) || 0;
@@ -172,8 +175,32 @@ function onMonthSelect() {
     renderFilteredAndSortedCards();
 }
 
+// --- [ส่วนที่เพิ่มเข้ามา] ฟังก์ชันจัดการตัวกรองเปอร์เซ็นต์ ---
 
-// ----- ส่วนที่เหลือเป็นฟังก์ชันแสดงผล (ไม่ต้องแก้ไข) -----
+/**
+ * จัดการเมื่อมีการเปลี่ยนเงื่อนไขการกรองเปอร์เซ็นต์
+ */
+function handlePercentageFilterChange() {
+    if (percentageCondition.value === 'all') {
+        percentageValue.disabled = true;
+        percentageValue.value = ''; // ล้างค่าในช่อง input
+    } else {
+        percentageValue.disabled = false;
+    }
+    renderFilteredAndSortedCards(); // เรียก render ใหม่ทุกครั้งที่เปลี่ยนเงื่อนไข
+}
+
+/**
+ * รีเซ็ตฟิลเตอร์ทั้งหมดกลับไปเป็นค่าเริ่มต้น
+ */
+function resetFilters() {
+    searchInput.value = '';
+    percentageCondition.value = 'all';
+    percentageValue.value = '';
+    percentageValue.disabled = true;
+}
+
+// --- [แก้ไข] ปรับปรุงฟังก์ชันการแสดงผลหลัก ---
 
 function handleSort(key) {
     if (currentSort.key === key) {
@@ -191,12 +218,36 @@ function updateSortButtons() {
     document.getElementById('sort-percentage').classList.toggle('active', currentSort.key === 'percentage');
 }
 
+/**
+ * [แก้ไข] ฟังก์ชันหลักสำหรับกรอง, เรียงลำดับ, และแสดงผลการ์ด
+ */
 function renderFilteredAndSortedCards() {
-    const searchTerm = searchInput.value.toLowerCase();
-    let dataToRender = provincialData.filter(row =>
-        row.province.toLowerCase().includes(searchTerm)
-    );
+    let dataToRender = [...provincialData];
 
+    // 1. กรองด้วยการค้นหาชื่อจังหวัด
+    const searchTerm = searchInput.value.toLowerCase();
+    if (searchTerm) {
+        dataToRender = dataToRender.filter(row =>
+            row.province.toLowerCase().includes(searchTerm)
+        );
+    }
+
+    // 2. [ใหม่] กรองด้วยเงื่อนไขเปอร์เซ็นต์
+    const condition = percentageCondition.value;
+    const value = parseFloat(percentageValue.value);
+
+    if (condition !== 'all' && !isNaN(value)) {
+        dataToRender = dataToRender.filter(row => {
+            switch (condition) {
+                case 'gt': return row.percentage > value;
+                case 'lt': return row.percentage < value;
+                case 'eq': return Math.round(row.percentage) === Math.round(value); // ปัดเศษเพื่อให้หา 'เท่ากับ' ง่ายขึ้น
+                default: return true;
+            }
+        });
+    }
+
+    // 3. เรียงลำดับข้อมูล
     dataToRender.sort((a, b) => {
         let valA = a[currentSort.key];
         let valB = b[currentSort.key];
@@ -207,8 +258,11 @@ function renderFilteredAndSortedCards() {
         }
     });
 
+    // 4. แสดงผลการ์ด
     renderProvincialCards(dataToRender);
 }
+
+// ----- ส่วนที่เหลือเป็นฟังก์ชันแสดงผล (ไม่ต้องแก้ไข) -----
 
 function getStatusColor(percentage) {
     if (percentage > 80) return 'status-green';
@@ -254,8 +308,9 @@ function renderProvincialCards(data) {
     cardsContainer.innerHTML = '';
 
     if (!data || data.length === 0) {
+        // [แก้ไข] ปรับปรุงข้อความให้สื่อความหมายมากขึ้นเมื่อไม่พบข้อมูลจากการกรอง
         if (yearSelect.value && monthSelect.value) {
-            cardsContainer.innerHTML = '<p class="error-text">ไม่พบข้อมูลจังหวัดในเดือนที่เลือก</p>';
+            cardsContainer.innerHTML = '<p class="error-text">ไม่พบข้อมูลตามเงื่อนไขที่กำหนด</p>';
         } else {
             cardsContainer.innerHTML = '<p class="loading-text">กรุณาเลือกปีงบประมาณและเดือนเพื่อแสดงข้อมูล</p>';
         }
