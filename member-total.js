@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // =================================================================
     
     // *** สำคัญ: ใส่ URL ของไฟล์ CSV ที่ได้จากการเผยแพร่ Google Sheet ของคุณที่นี่ ***
-    const googleSheetUrl = 'YOUR_PUBLISHED_GOOGLE_SHEET_CSV_URL';
+    const googleSheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSZceIHi5hcr_J-uV_HBVQXX8Z9NCZOiygswERJzkxb0iZUhm0dvSvj73p7khB8u-g1Kvk-_hZikgpb/pub?gid=0&single=true&output=csv';
 
     // =================================================================
     // 2. การอ้างอิงถึงองค์ประกอบ HTML (DOM Elements)
