@@ -4,15 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
-    <!-- *** จุดแก้ไขที่ 1: เปลี่ยน Title ของหน้าเว็บ *** -->
     <title>รายงานสมาชิกประเภทองค์กร - กองทุนพัฒนาบทบาทสตรี</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;700&display=swap" rel="stylesheet">
 
-    <!-- *** ใช้ CSS ธีมเดิม ไม่มีการเปลี่ยนแปลง *** -->
+    <!-- *** แก้ไข CSS ให้ถูกต้องและกลับไปใช้สีธีมเดิม *** -->
     <style>
         :root {
-            --bg-gradient: linear-gradient(135deg, #a0c4ff 0%, #b3e5fc 100% ); /* เปลี่ยนโทนสีเป็นฟ้า */
+            --bg-gradient: linear-gradient(135deg, #ffc3a0 0%, #ffafbd 100%  );
             --text-light: #ffffff;
             --text-dark: #333;
             --card-bg: rgba(255, 255, 255, 0.9);
@@ -35,12 +34,13 @@
 
         .main-container {
             width: 100%;
-            max-width: 1400px; /* ขยายความกว้างสำหรับตารางที่กว้างขึ้น */
+            max-width: 1400px;
             margin: 20px auto;
             background: var(--card-bg);
             border-radius: 20px;
             padding: 30px 40px;
             box-shadow: 0 12px 24px var(--card-shadow);
+            position: relative; /* <<< เพิ่มส่วนนี้เพื่อแก้ปัญหาปุ่มทับซ้อน */
         }
 
         .header-title {
@@ -76,7 +76,7 @@
             transition: all 0.3s ease;
         }
         .filters select:hover {
-            border-color: #a0c4ff;
+            border-color: #ffafbd;
         }
 
         .data-display-container {
@@ -86,7 +86,7 @@
             align-items: center;
             font-size: 1.1rem;
             color: #666;
-            overflow-x: auto; /* ทำให้ตารางเลื่อนซ้าย-ขวาได้บนจอเล็ก */
+            overflow-x: auto;
         }
 
         table {
@@ -102,12 +102,18 @@
         }
 
         thead th {
-            background-color: rgba(160, 196, 255, 0.2);
+            background-color: rgba(255, 195, 160, 0.2);
             font-weight: 500;
         }
 
         tbody tr:hover {
-            background-color: rgba(179, 229, 252, 0.2);
+            background-color: rgba(255, 175, 189, 0.15);
+        }
+        
+        /* แก้ไขสี footer ให้เข้ากับธีม */
+        tfoot tr {
+            font-weight: bold;
+            background-color: rgba(255, 195, 160, 0.3);
         }
 
         .back-button {
@@ -135,10 +141,10 @@
 
     <div class="main-container">
         <a href="index.html" class="back-button">‹ กลับหน้าหลัก</a>
-        <!-- *** จุดแก้ไขที่ 2: เปลี่ยนหัวข้อหลัก *** -->
         <h1 class="header-title">การเพิ่มจำนวนสมาชิกกองทุนพัฒนาบทบาทสตรี ประเภทองค์กร</h1>
 
         <div class="filters">
+            <!-- *** แก้ไข: ลบ Dropdown ที่ซ้ำซ้อนออก *** -->
             <select id="year-filter">
                 <option value="">-- เลือกปีงบประมาณ --</option>
             </select>
@@ -149,7 +155,6 @@
         </div>
     </div>
 
-    <!-- *** จุดแก้ไขที่ 3: เรียกใช้ไฟล์ JavaScript ใหม่ *** -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
     <script src="Org-total.js"></script>
 </body>

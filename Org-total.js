@@ -3,7 +3,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // 1. การตั้งค่า และตัวแปรสถานะ (State Variables)
     // =================================================================
     
-    // *** จุดแก้ไขที่ 1: เปลี่ยน URL ของ Google Sheet ***
     const googleSheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSZceIHi5hcr_J-uV_HBVQXX8Z9NCZOiygswERJzkxb0iZUhm0dvSvj73p7khB8u-g1Kvk-_hZikgpb/pub?gid=889852624&single=true&output=csv';
 
     const yearFilter = document.getElementById('year-filter' );
@@ -82,7 +81,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const table = document.createElement('table');
         
-        // *** จุดแก้ไขที่ 2: เปลี่ยนหัวตารางให้ตรงกับ Sheet ใหม่ ***
         const tableHead = `
             <thead>
                 <tr>
@@ -101,7 +99,6 @@ document.addEventListener('DOMContentLoaded', function() {
             </thead>
         `;
 
-        // *** จุดแก้ไขที่ 3: เปลี่ยนการแสดงผลข้อมูลในแต่ละแถว ***
         const tableBody = `
             <tbody>
                 ${dataToRender.map(row => `
@@ -122,7 +119,6 @@ document.addEventListener('DOMContentLoaded', function() {
             </tbody>
         `;
 
-        // *** จุดแก้ไขที่ 4: คำนวณผลรวมสำหรับคอลัมน์ใหม่ ***
         const totals = dataToRender.reduce((acc, row) => {
             acc.provinceCount += parseNumber(row['จังหวัด (แห่ง)']);
             acc.districtCount += parseNumber(row['อำเภอ (แห่ง)']);
@@ -135,13 +131,12 @@ document.addEventListener('DOMContentLoaded', function() {
             return acc;
         }, { provinceCount: 0, districtCount: 0, subdistrictCount: 0, villageCount: 0, totalOrgs: 0, baseOct: 0, baseJul: 0, membersAdded: 0 });
 
-        // คำนวณเปอร์เซ็นต์รวม
         const totalPercent1 = totals.totalOrgs > 0 ? ((totals.baseOct / totals.totalOrgs) * 100).toFixed(2) : 0;
         const totalPercent2 = totals.totalOrgs > 0 ? ((totals.baseJul / totals.totalOrgs) * 100).toFixed(2) : 0;
 
         const tableFoot = `
             <tfoot>
-                <tr style="font-weight: bold; background-color: rgba(160, 196, 255, 0.3);">
+                <tr>
                     <td>รวมทั้งหมด</td>
                     <td>${formatNumberWithCommas(totals.provinceCount)}</td>
                     <td>${formatNumberWithCommas(totals.districtCount)}</td>
