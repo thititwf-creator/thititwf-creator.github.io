@@ -15,7 +15,34 @@ document.addEventListener('DOMContentLoaded', function() {
     let allData = [];
 
     // =================================================================
-    // 3. การดึงและประมวลผลข้อมูล (Data Fetching & Processing)
+    // 3. ฟังก์ชันเสริม (Helper Functions)
+    // =================================================================
+
+    /**
+     * *** ฟังก์ชันใหม่: จัดรูปแบบตัวเลขให้มีเครื่องหมายจุลภาค (,) ***
+     * แปลงตัวเลข (หรือข้อความที่เป็นตัวเลข) ให้มี comma คั่นทุกสามหลัก
+     * @param {string | number} num - ตัวเลขที่ต้องการจัดรูปแบบ
+     * @returns {string} - ข้อความตัวเลขที่จัดรูปแบบแล้ว หรือค่าเดิมถ้าไม่ใช่ตัวเลข
+     */
+    function formatNumberWithCommas(num) {
+        // ตรวจสอบว่าค่าที่รับมาเป็น null, undefined หรือเป็นข้อความว่างหรือไม่
+        if (num === null || num === undefined || num === '') {
+            return ''; // ถ้าใช่ ให้คืนค่าว่างไปเลย
+        }
+        // แปลงค่าที่รับมาเป็น String และลบ comma ที่อาจมีอยู่แล้วออก
+        const numStr = String(num).replace(/,/g, '');
+        // ตรวจสอบว่าค่าที่ได้เป็นตัวเลขที่ถูกต้องหรือไม่
+        if (isNaN(parseFloat(numStr))) {
+            return num; // ถ้าไม่ใช่ตัวเลข (เช่น เป็นข้อความ "จังหวัด") ให้คืนค่าเดิมกลับไป
+        }
+        // ใช้ toLocaleString() ซึ่งเป็นวิธีมาตรฐานในการจัดรูปแบบตัวเลขตามภาษาและภูมิภาค
+        // 'en-US' เป็นมาตรฐานที่ใช้ comma คั่นและแสดงผลได้ถูกต้อง
+        return parseFloat(numStr).toLocaleString('en-US');
+    }
+
+
+    // =================================================================
+    // 4. การดึงและประมวลผลข้อมูล (Data Fetching & Processing)
     // =================================================================
 
     dataContainer.innerHTML = '<p>กำลังโหลดข้อมูลจาก Google Sheet...</p>';
@@ -28,7 +55,7 @@ document.addEventListener('DOMContentLoaded', function() {
         complete: function(results) {
             if (results.data && results.data.length > 0) {
                 allData = results.data;
-                console.log("ข้อมูลที่ดึงมาสำเร็จ (ตรวจสอบชื่อคอลัมน์ที่นี่):", allData[0]);
+                console.log("ข้อมูลที่ดึงมาสำเร็จ:", allData[0]);
                 populateYearFilter(allData);
                 dataContainer.innerHTML = '<p>กรุณาเลือกปีงบประมาณเพื่อแสดงข้อมูล</p>';
             } else {
@@ -43,11 +70,10 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // =================================================================
-    // 4. ฟังก์ชันจัดการหน้าเว็บ (UI Functions)
+    // 5. ฟังก์ชันจัดการหน้าเว็บ (UI Functions)
     // =================================================================
 
     function populateYearFilter(data) {
-        // *** จุดแก้ไข: เปลี่ยน "ปงบ" เป็น "ปีงบ" ***
         const years = [...new Set(data.map(row => row.ปีงบ))].sort((a, b) => b - a);
         
         years.forEach(year => {
@@ -68,7 +94,6 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-        // *** จุดแก้ไข: เปลี่ยน "ปงบ" เป็น "ปีงบ" ***
         const filteredData = allData.filter(row => row.ปีงบ && row.ปีงบ.trim() == year.trim());
 
         if (filteredData.length === 0) {
@@ -77,12 +102,12 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         const table = document.createElement('table');
-
+        
         const tableHead = `
             <thead>
                 <tr>
                     <th>จังหวัด</th>
-                    <th>จำนวนสตรีที่มีอายุ 15 ปีขึ้นไป</th>
+                    <th>สตรีที่มีอายุ 15 ปีขึ้นไป</th>
                     <th>ฐานข้อมูล สมาชิก ณ 1 ต.ค.</th>
                     <th>คิดเป็นร้อยละ</th>
                     <th>ฐานข้อมูล สมาชิก ณ ปัจจุบัน</th>
@@ -94,18 +119,19 @@ document.addEventListener('DOMContentLoaded', function() {
             </thead>
         `;
 
+        // *** จุดแก้ไขสำคัญ: เรียกใช้ formatNumberWithCommas() กับคอลัมน์ที่เป็นตัวเลข ***
         const tableBody = `
             <tbody>
                 ${filteredData.map(row => `
                     <tr>
                         <td>${row.จังหวัด || ''}</td>
-                        <td>${row['จำนวนสตรีที่มีอายุ 15 ปีขึ้นไป'] || ''}</td>
-                        <td>${row['ฐานข้อมูล สมาชิก ณ 1 ต.ค.'] || ''}</td>
+                        <td>${formatNumberWithCommas(row['จำนวนสตรีที่มีอายุ 15 ปีขึ้นไป'])}</td>
+                        <td>${formatNumberWithCommas(row['ฐานข้อมูล สมาชิก ณ 1 ต.ค.'])}</td>
                         <td>${row['คิดเป็นร้อยละ'] || ''}</td>
-                        <td>${row['ฐานข้อมูล สมาชิก ณ ปัจจุบัน'] || ''}</td>
+                        <td>${formatNumberWithCommas(row['ฐานข้อมูล สมาชิก ณ ปัจจุบัน'])}</td>
                         <td>${row['คิดเป็นร้อยละ_1'] || ''}</td>
-                        <td>${row['เป้าหมายปี(คน)'] || ''}</td>
-                        <td>${row['จำนวนสมาชิกที่เพิ่มขึ้น'] || ''}</td>
+                        <td>${formatNumberWithCommas(row['เป้าหมายปี(คน)'])}</td>
+                        <td>${formatNumberWithCommas(row['จำนวนสมาชิกที่เพิ่มขึ้น'])}</td>
                         <td>${row['คิดเป็นร้อยละ_2'] || ''}</td> 
                     </tr>
                 `).join('')}
@@ -117,7 +143,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // =================================================================
-    // 5. การกำหนด Event Listeners
+    // 6. การกำหนด Event Listeners
     // =================================================================
 
     yearFilter.addEventListener('change', function() {
