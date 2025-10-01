@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ข้อมูลหนี้ครบกำหนดชำระ</title>
+    
+    <!-- เพิ่ม Google Fonts เพื่อให้ฟอนต์สวยงาม (แนะนำฟอนต์ Sarabun) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap" rel="stylesheet">
+
+    <!-- ========== CSS ========== -->
+    <style>
+        /* กำหนดตัวแปรสีเพื่อการจัดการที่ง่ายขึ้น */
+        :root {
+            --primary-bg-color: #FEF6F6; /* สีพื้นหลังชมพูอ่อน */
+            --container-bg-color: #FFFFFF;
+            --widget-bg-color: #FFF9F9;
+            --text-color: #333;
+            --header-color: #5D4037;
+            --button-bg-color: #FF8A80; /* สีปุ่มชมพูเข้ม */
+            --button-text-color: #FFFFFF;
+            --border-color: #FFCDD2;
+        }
+
+        body {
+            background-color: var(--primary-bg-color );
+            font-family: 'Sarabun', sans-serif;
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .back-link {
+            color: var(--header-color);
+            text-decoration: none;
+            font-weight: bold;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            color: var(--header-color);
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 30px;
+        }
+
+        .filters {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .filters select {
+            padding: 12px 20px;
+            border-radius: 25px;
+            border: 1px solid var(--border-color);
+            background-color: var(--container-bg-color);
+            font-family: 'Sarabun', sans-serif;
+            font-size: 1rem;
+            min-width: 200px;
+            cursor: pointer;
+        }
+
+        .main-widget {
+            background-color: var(--widget-bg-color);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+        
+        .data-display-container {
+            background-color: var(--widget-bg-color);
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 20px;
+            min-height: 150px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            font-size: 1.1rem;
+            color: #888;
+        }
+
+        /* สไตล์สำหรับตารางข้อมูล */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            color: var(--text-color); /* ทำให้สีตัวอักษรในตารางกลับมาเป็นปกติ */
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        thead th {
+            background-color: #FCE4EC; /* สีหัวตารางชมพูอ่อน */
+            color: var(--header-color);
+            font-weight: bold;
+        }
+
+        tbody tr:nth-child(even) {
+            background-color: #FAFAFA;
+        }
+        
+        tbody tr:hover {
+            background-color: #F1F1F1;
+        }
+
+    </style>
+    <!-- ========== END CSS ========== -->
+</head>
+<body>
+    <div class="container">
+        <a href="#" class="back-link">< กลับหน้าหลัก</a>
+        <h1>ข้อมูลหนี้ครบกำหนดชำระ</h1>
+
+        <div class="filters">
+            <select id="year-filter">
+                <option value="">-- เลือกปีงบประมาณ --</option>
+                <!-- ตัวเลือกปีจะถูกสร้างโดย JavaScript -->
+            </select>
+            <select id="month-filter" disabled>
+                <option value="">-- เลือกเดือน --</option>
+                <!-- ตัวเลือกเดือน (ถ้ามี) -->
+            </select>
+        </div>
+
+        <!-- กล่องแสดงผลข้อมูลหลัก -->
+        <div class="data-display-container" id="data-container">
+            <p>กรุณาเลือกปีงบประมาณเพื่อแสดงข้อมูล</p>
+        </div>
+    </div>
+
+    <!-- подключаем библиотеку PapaParse дляอ่านไฟล์ CSV -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+    
+    <!-- ========== JavaScript ========== -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function( ) {
+            // 1. ใส่ URL ของไฟล์ CSV ที่ได้จากการเผยแพร่ Google Sheet ของคุณที่นี่
+            const googleSheetUrl = 'YOUR_PUBLISHED_GOOGLE_SHEET_CSV_URL';
+
+            const yearFilter = document.getElementById('year-filter');
+            const dataContainer = document.getElementById('data-container');
+            let allData = [];
+
+            // แสดงสถานะกำลังโหลด
+            dataContainer.innerHTML = '<p>กำลังโหลดข้อมูลจาก Google Sheet...</p>';
+
+            // 2. ใช้ PapaParse เพื่อดึงและแปลงข้อมูล CSV
+            Papa.parse(googleSheetUrl, {
+                download: true,
+                header: true, // ตั้งค่าให้แถวแรกเป็น Header เพื่ออ้างอิงชื่อคอลัมน์ได้
+                skipEmptyLines: true,
+                complete: function(results) {
+                    allData = results.data;
+                    populateYearFilter(allData);
+                    dataContainer.innerHTML = '<p>กรุณาเลือกปีงบประมาณเพื่อแสดงข้อมูล</p>'; // เปลี่ยนข้อความเมื่อโหลดเสร็จ
+                },
+                error: function(error) {
+                    console.error("เกิดข้อผิดพลาดในการดึงข้อมูล:", error);
+                    dataContainer.innerHTML = '<p style="color: red;">ไม่สามารถโหลดข้อมูลได้ กรุณาตรวจสอบ URL ของ Google Sheet</p>';
+                }
+            });
+
+            // 3. สร้างตัวเลือก "ปี" ใน Dropdown จากข้อมูลที่ดึงมา
+            function populateYearFilter(data) {
+                // ดึงค่าปีทั้งหมดที่ไม่ซ้ำกัน และเรียงจากมากไปน้อย
+                const years = [...new Set(data.map(row => row.ปี))].sort((a, b) => b - a);
+                
+                years.forEach(year => {
+                    if (year) { // ตรวจสอบว่าเป็นค่าที่มีข้อมูล
+                        const option = document.createElement('option');
+                        option.value = year;
+                        option.textContent = year;
+                        yearFilter.appendChild(option);
+                    }
+                });
+            }
+
+            // 4. เพิ่ม Event Listener: เมื่อมีการเลือกปี ให้แสดงข้อมูลที่เกี่ยวข้อง
+            yearFilter.addEventListener('change', function() {
+                const selectedYear = this.value;
+                displayDataForYear(selectedYear);
+            });
+
+            // 5. ฟังก์ชันสำหรับสร้างและแสดงตารางข้อมูลตามปีที่เลือก
+            function displayDataForYear(year) {
+                dataContainer.innerHTML = ''; // ล้างข้อมูลเก่าออกก่อน
+
+                if (!year) {
+                    dataContainer.innerHTML = '<p>กรุณาเลือกปีงบประมาณเพื่อแสดงข้อมูล</p>';
+                    return;
+                }
+
+                const filteredData = allData.filter(row => row.ปี === year);
+
+                if (filteredData.length === 0) {
+                    dataContainer.innerHTML = '<p>ไม่พบข้อมูลสำหรับปีที่เลือก</p>';
+                    return;
+                }
+
+                // สร้างตารางเพื่อแสดงผลข้อมูล
+                const table = document.createElement('table');
+                
+                // สร้างส่วนหัวของตาราง (thead)
+                const tableHead = `
+                    <thead>
+                        <tr>
+                            <th>จังหวัด</th>
+                            <th>สังกัดที่มีอายุ 15 ปีขึ้นไป</th>
+                            <th>เป้าหมาย ปี (คน)</th>
+                            <th>จำนวนสมาชิกที่เพิ่มขึ้น</th>
+                            <th>คิดเป็นร้อยละ</th>
+                        </tr>
+                    </thead>
+                `;
+
+                // สร้างส่วนเนื้อหาของตาราง (tbody)
+                const tableBody = `
+                    <tbody>
+                        ${filteredData.map(row => `
+                            <tr>
+                                <td>${row.จังหวัด || ''}</td>
+                                <td>${row['สังกัดที่มีอายุ 15 ปีขึ้นไป'] || ''}</td>
+                                <td>${row['เป้าหมาย ปี (คน)'] || ''}</td>
+                                <td>${row['จำนวนสมาชิกที่เพิ่มขึ้น'] || ''}</td>
+                                <td>${row['คิดเป็นร้อยละ'] || ''}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                `;
+
+                table.innerHTML = tableHead + tableBody;
+                dataContainer.appendChild(table);
+            }
+        });
+    </script>
+    <!-- ========== END JavaScript ========== -->
+</body>
+</html>
