@@ -1,9 +1,8 @@
-document.addEventListener('DOMContentLoaded', function() {
-    // ... (ส่วนที่ 1, 2, 3 เหมือนเดิมทั้งหมด) ...
+document.addEventListener('DOMContentLoaded', function( ) {
     // =================================================================
     // 1. การตั้งค่า และตัวแปรสถานะ
     // =================================================================
-    const googleSheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSZceIHi5hcr_J-uV_HBVQXX8Z9NCZOiygswERJzkxb0iZUhm0dvSvj73p7khB8u-g1Kvk-_hZikgpb/pub?gid=889852624&single=true&output=csv'; // <--- แก้ไข GID ตรงนี้
+    const googleSheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSZceIHi5hcr_J-uV_HBVQXX8Z9NCZOiygswERJzkxb0iZUhm0dvSvj73p7khB8u-g1Kvk-_hZikgpb/pub?gid=123456789&single=true&output=csv'; // <--- แก้ไข GID ตรงนี้
     const yearFilter = document.getElementById('year-filter' );
     const dataContainer = document.getElementById('data-container');
     let allData = [];
@@ -52,7 +51,17 @@ document.addEventListener('DOMContentLoaded', function() {
     // 4. ฟังก์ชันจัดการหน้าเว็บ
     // =================================================================
 
-    function populateYearFilter(data) { /* ...โค้ดเดิม... */ }
+    function populateYearFilter(data) {
+        const years = [...new Set(data.map(row => row.ปีงบ))].sort((a, b) => b - a);
+        years.forEach(year => {
+            if (year) {
+                const option = document.createElement('option');
+                option.value = year;
+                option.textContent = year;
+                yearFilter.appendChild(option);
+            }
+        });
+    }
 
     function renderTable(dataToRender) {
         dataContainer.innerHTML = '';
@@ -62,7 +71,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         const table = document.createElement('table');
         
-        // *** จุดแก้ไขสำคัญ: สร้างหัวตาราง 2 ชั้น (Merged Headers) ***
+        // *** สร้างหัวตาราง 2 ชั้น (Merged Headers) ***
         const tableHead = `
             <thead>
                 <tr>
@@ -85,12 +94,58 @@ document.addEventListener('DOMContentLoaded', function() {
             </thead>
         `;
 
-        // (ส่วน tableBody และ tableFoot ไม่มีการเปลี่ยนแปลง)
-        const tableBody = `<tbody>${dataToRender.map(row => `<tr><td>${row.จังหวัด || ''}</td><td>${formatNumberWithCommas(row['จังหวัด (แห่ง)'])}</td><td>${formatNumberWithCommas(row['อำเภอ (แห่ง)'])}</td><td>${formatNumberWithCommas(row['ตำบล (แห่ง)'])}</td><td>${formatNumberWithCommas(row['หมู่บ้าน(แห่ง)'])}</td><td>${formatNumberWithCommas(row['รวม'])}</td><td>${formatNumberWithCommas(row['ฐานข้อมูล สมาชิก ณ 1 ต.ค.'])}</td><td>${row['คิดเป็นร้อยละ_1']}</td><td>${formatNumberWithCommas(row['ฐานข้อมูล สมาชิก ณ 31 ก.ค.'])}</td><td>${row['คิดเป็นร้อยละ_2']}</td><td>${formatNumberWithCommas(row['จำนวนสมาชิกที่เพิ่มขึ้น'])}</td></tr>`).join('')}</tbody>`;
-        const totals = dataToRender.reduce((acc, row) => { acc.provinceCount += parseNumber(row['จังหวัด (แห่ง)']); acc.districtCount += parseNumber(row['อำเภอ (แห่ง)']); acc.subdistrictCount += parseNumber(row['ตำบล (แห่ง)']); acc.villageCount += parseNumber(row['หมู่บ้าน(แห่ง)']); acc.totalOrgs += parseNumber(row['รวม']); acc.baseOct += parseNumber(row['ฐานข้อมูล สมาชิก ณ 1 ต.ค.']); acc.baseJul += parseNumber(row['ฐานข้อมูล สมาชิก ณ 31 ก.ค.']); acc.membersAdded += parseNumber(row['จำนวนสมาชิกที่เพิ่มขึ้น']); return acc; }, { provinceCount: 0, districtCount: 0, subdistrictCount: 0, villageCount: 0, totalOrgs: 0, baseOct: 0, baseJul: 0, membersAdded: 0 });
+        const tableBody = `
+            <tbody>
+                ${dataToRender.map(row => `
+                    <tr>
+                        <td>${row.จังหวัด || ''}</td>
+                        <td>${formatNumberWithCommas(row['จังหวัด (แห่ง)'])}</td>
+                        <td>${formatNumberWithCommas(row['อำเภอ (แห่ง)'])}</td>
+                        <td>${formatNumberWithCommas(row['ตำบล (แห่ง)'])}</td>
+                        <td>${formatNumberWithCommas(row['หมู่บ้าน(แห่ง)'])}</td>
+                        <td>${formatNumberWithCommas(row['รวม'])}</td>
+                        <td>${formatNumberWithCommas(row['ฐานข้อมูล สมาชิก ณ 1 ต.ค.'])}</td>
+                        <td>${row['คิดเป็นร้อยละ_1']}</td>
+                        <td>${formatNumberWithCommas(row['ฐานข้อมูล สมาชิก ณ 31 ก.ค.'])}</td>
+                        <td>${row['คิดเป็นร้อยละ_2']}</td>
+                        <td>${formatNumberWithCommas(row['จำนวนสมาชิกที่เพิ่มขึ้น'])}</td>
+                    </tr>
+                `).join('')}
+            </tbody>
+        `;
+
+        const totals = dataToRender.reduce((acc, row) => {
+            acc.provinceCount += parseNumber(row['จังหวัด (แห่ง)']);
+            acc.districtCount += parseNumber(row['อำเภอ (แห่ง)']);
+            acc.subdistrictCount += parseNumber(row['ตำบล (แห่ง)']);
+            acc.villageCount += parseNumber(row['หมู่บ้าน(แห่ง)']);
+            acc.totalOrgs += parseNumber(row['รวม']);
+            acc.baseOct += parseNumber(row['ฐานข้อมูล สมาชิก ณ 1 ต.ค.']);
+            acc.baseJul += parseNumber(row['ฐานข้อมูล สมาชิก ณ 31 ก.ค.']);
+            acc.membersAdded += parseNumber(row['จำนวนสมาชิกที่เพิ่มขึ้น']);
+            return acc;
+        }, { provinceCount: 0, districtCount: 0, subdistrictCount: 0, villageCount: 0, totalOrgs: 0, baseOct: 0, baseJul: 0, membersAdded: 0 });
+
         const totalPercent1 = totals.totalOrgs > 0 ? (totals.baseOct * 100 / totals.totalOrgs).toFixed(2) : 0;
         const totalPercent2 = totals.totalOrgs > 0 ? (totals.baseJul * 100 / totals.totalOrgs).toFixed(2) : 0;
-        const tableFoot = `<tfoot><tr style="font-weight: bold; background-color: rgba(255, 195, 160, 0.3);"><td>รวมทั้งหมด</td><td>${formatNumberWithCommas(totals.provinceCount)}</td><td>${formatNumberWithCommas(totals.districtCount)}</td><td>${formatNumberWithCommas(totals.subdistrictCount)}</td><td>${formatNumberWithCommas(totals.villageCount)}</td><td>${formatNumberWithCommas(totals.totalOrgs)}</td><td>${formatNumberWithCommas(totals.baseOct)}</td><td>${totalPercent1}</td><td>${formatNumberWithCommas(totals.baseJul)}</td><td>${totalPercent2}</td><td>${formatNumberWithCommas(totals.membersAdded)}</td></tr></tfoot>`;
+
+        const tableFoot = `
+            <tfoot>
+                <tr style="font-weight: bold; background-color: rgba(255, 195, 160, 0.3);">
+                    <td>รวมทั้งหมด</td>
+                    <td>${formatNumberWithCommas(totals.provinceCount)}</td>
+                    <td>${formatNumberWithCommas(totals.districtCount)}</td>
+                    <td>${formatNumberWithCommas(totals.subdistrictCount)}</td>
+                    <td>${formatNumberWithCommas(totals.villageCount)}</td>
+                    <td>${formatNumberWithCommas(totals.totalOrgs)}</td>
+                    <td>${formatNumberWithCommas(totals.baseOct)}</td>
+                    <td>${totalPercent1}</td>
+                    <td>${formatNumberWithCommas(totals.baseJul)}</td>
+                    <td>${totalPercent2}</td>
+                    <td>${formatNumberWithCommas(totals.membersAdded)}</td>
+                </tr>
+            </tfoot>
+        `;
 
         table.innerHTML = tableHead + tableBody + tableFoot;
         dataContainer.appendChild(table);
@@ -99,16 +154,42 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    function displayData() { /* ...โค้ดเดิม... */ }
-    function handleSort(key) { /* ...โค้ดเดิม... */ }
+    function displayData() {
+        const selectedYear = yearFilter.value;
+        if (!selectedYear) {
+            dataContainer.innerHTML = '<p>กรุณาเลือกปีงบประมาณเพื่อแสดงข้อมูล</p>';
+            return;
+        }
+        let filteredData = allData.filter(row => row.ปีงบ && row.ปีงบ.trim() == selectedYear.trim());
+        if (currentSort.key) {
+            filteredData.sort((a, b) => {
+                const valA = a[currentSort.key];
+                const valB = b[currentSort.key];
+                const isNumeric = !isNaN(parseNumber(valA)) && !isNaN(parseNumber(valB));
+                let comparison = 0;
+                if (isNumeric) {
+                    comparison = parseNumber(valA) - parseNumber(valB);
+                } else {
+                    comparison = String(valA).localeCompare(String(valB), 'th');
+                }
+                return currentSort.direction === 'asc' ? comparison : -comparison;
+            });
+        }
+        renderTable(filteredData);
+    }
+
+    function handleSort(key) {
+        if (currentSort.key === key) {
+            currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
+        } else {
+            currentSort.key = key;
+            currentSort.direction = 'asc';
+        }
+        displayData();
+    }
 
     // =================================================================
     // 5. การกำหนด Event Listeners
     // =================================================================
     yearFilter.addEventListener('change', displayData);
-
-    // (ใส่โค้ดฟังก์ชันที่ไม่ได้แสดงแบบเต็มอีกครั้งเพื่อความสมบูรณ์)
-    function populateYearFilter(data) { const years = [...new Set(data.map(row => row.ปีงบ))].sort((a, b) => b - a); years.forEach(year => { if (year) { const option = document.createElement('option'); option.value = year; option.textContent = year; yearFilter.appendChild(option); } }); }
-    function displayData() { const selectedYear = yearFilter.value; if (!selectedYear) { dataContainer.innerHTML = '<p>กรุณาเลือกปีงบประมาณเพื่อแสดงข้อมูล</p>'; return; } let filteredData = allData.filter(row => row.ปีงบ && row.ปีงบ.trim() == selectedYear.trim()); if (currentSort.key) { filteredData.sort((a, b) => { const valA = a[currentSort.key]; const valB = b[currentSort.key]; const isNumeric = !isNaN(parseNumber(valA)) && !isNaN(parseNumber(valB)); let comparison = 0; if (isNumeric) { comparison = parseNumber(valA) - parseNumber(valB); } else { comparison = String(valA).localeCompare(String(valB), 'th'); } return currentSort.direction === 'asc' ? comparison : -comparison; }); } renderTable(filteredData); }
-    function handleSort(key) { if (currentSort.key === key) { currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc'; } else { currentSort.key = key; currentSort.direction = 'asc'; } displayData(); }
 });
