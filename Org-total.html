@@ -3,14 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
     <title>การเพิ่มจำนวนสมาชิกกองทุนพัฒนาบทบาทสตรี (องค์กร)</title>
-    
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;700&display=swap" rel="stylesheet">
-
     <style>
+        /* ... (โค้ด CSS ส่วนใหญ่เหมือนเดิม ) ... */
         :root {
-            --bg-gradient: linear-gradient(135deg, #ffc3a0 0%, #ffafbd 100%  );
+            --bg-gradient: linear-gradient(135deg, #ffc3a0 0%, #ffafbd 100% );
             --text-light: #ffffff;
             --text-dark: #333;
             --card-bg: rgba(255, 255, 255, 0.9);
@@ -26,7 +24,7 @@
         }
         .main-container {
             width: 100%;
-            max-width: 1200px;
+            max-width: 1400px; 
             margin: 20px auto;
             background: var(--card-bg);
             border-radius: 20px;
@@ -79,13 +77,16 @@
             color: var(--text-dark);
         }
         th, td {
-            padding: 15px;
+            padding: 12px 15px; /* ปรับ padding เล็กน้อย */
             text-align: left;
             border-bottom: 1px solid #eee;
+            white-space: nowrap;
         }
         thead th {
             background-color: rgba(255, 195, 160, 0.2);
             font-weight: 500;
+            text-align: center; /* *** ใหม่: จัดกลางสำหรับหัวตาราง *** */
+            vertical-align: middle; /* *** ใหม่: จัดให้อยู่ตรงกลางแนวตั้ง *** */
         }
         th.sortable { cursor: pointer; transition: background-color 0.2s ease; }
         th.sortable:hover { background-color: rgba(255, 175, 189, 0.3); }
@@ -108,26 +109,20 @@
     </style>
 </head>
 <body>
-
+    <!-- ... (ส่วน body ไม่มีการเปลี่ยนแปลง) ... -->
     <div class="main-container">
         <a href="index.html" class="back-button">‹ กลับหน้าหลัก</a>
-        
-        <!-- *** จุดแก้ไข: เปลี่ยนหัวข้อหลักสำหรับหน้าองค์กร *** -->
         <h1 class="header-title">การเพิ่มจำนวนสมาชิกกองทุนพัฒนาบทบาทสตรี ประเภทองค์กร</h1>
-
         <div class="filters">
             <select id="year-filter">
                 <option value="">-- เลือกปีงบประมาณ --</option>
             </select>
         </div>
-
         <div class="data-display-container" id="data-container">
             <p>กรุณาเลือกปีงบประมาณเพื่อแสดงข้อมูล</p>
         </div>
     </div>
-
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
-    <!-- *** จุดแก้ไข: เปลี่ยนไปเรียกใช้ไฟล์ JS ของหน้าองค์กร *** -->
     <script src="Org-total.js"></script>
 </body>
 </html>
