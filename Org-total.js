@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', function( ) {
     // =================================================================
     // 1. การตั้งค่า และตัวแปรสถานะ
     // =================================================================
-    const googleSheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSZceIHi5hcr_J-uV_HBVQXX8Z9NCZOiygswERJzkxb0iZUhm0dvSvj73p7khB8u-g1Kvk-_hZikgpb/pub?gid=123456789&single=true&output=csv'; // <--- แก้ไข GID ตรงนี้
+    const googleSheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSZceIHi5hcr_J-uV_HBVQXX8Z9NCZOiygswERJzkxb0iZUhm0dvSvj73p7khB8u-g1Kvk-_hZikgpb/pub?gid=889852624&single=true&output=csv'; // <--- แก้ไข GID ตรงนี้
     const yearFilter = document.getElementById('year-filter' );
     const dataContainer = document.getElementById('data-container');
     let allData = [];
