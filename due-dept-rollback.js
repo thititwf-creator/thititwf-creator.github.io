@@ -148,7 +148,7 @@ function onMonthSelect() {
     }, { totalExpected: 0, totalReturned: 0 });
 
     const grandTotalData = {
-        province: `ภาพรวม ${selectedMonth} (ปีงบประมาณ ${selectedFiscalYear})`,
+        province: `ภาพรวมเดือน ${selectedMonth} (ปีงบประมาณ ${selectedFiscalYear})`,
         totalExpected: grandTotal.totalExpected,
         totalReturned: grandTotal.totalReturned,
         percentage: calculatePercentageValue(grandTotal.totalReturned, grandTotal.totalExpected)
