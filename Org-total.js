@@ -42,7 +42,23 @@ document.addEventListener('DOMContentLoaded', function() {
         skipEmptyLines: true,
         complete: function(results) {
             if (results.data && results.data.length > 0) {
-                allData = results.data;
+                
+                // *** จุดแก้ไขที่ 1: คำนวณค่า "จำนวนสมาชิกที่เพิ่มขึ้น" ใหม่ ***
+                // วนลูปข้อมูลทุกแถวเพื่อสร้างค่าที่ถูกต้อง
+                allData = results.data.map(row => {
+                    const baseOct = parseNumber(row['ฐานข้อมูล สมาชิก ณ 1 ต.ค.']); // คอลัมน์ I
+                    const baseJul = parseNumber(row['ฐานข้อมูล สมาชิก ณ 31 ก.ค.']); // คอลัมน์ K
+                    
+                    // คำนวณค่าใหม่ตามสูตร K - I
+                    const membersAdded = baseJul - baseOct;
+
+                    // สร้าง property ใหม่ หรือเขียนทับค่าเดิมใน object ของแถว
+                    // ใช้ชื่อ key ที่ไม่ซ้ำกับ header เดิมเพื่อป้องกันความสับสน
+                    row.calculatedMembersAdded = membersAdded;
+                    
+                    return row;
+                });
+
                 populateYearFilter(allData);
                 dataContainer.innerHTML = '<p>กรุณาเลือกปีงบประมาณเพื่อแสดงข้อมูล</p>';
             } else {
@@ -94,7 +110,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     <th>คิดเป็นร้อยละ</th>
                     <th class="sortable" data-key="ฐานข้อมูล สมาชิก ณ 31 ก.ค.">ฐานข้อมูล ณ 31 ก.ค.</th>
                     <th>คิดเป็นร้อยละ</th>
-                    <th class="sortable" data-key="จำนวนสมาชิกที่เพิ่มขึ้น จากคอลัม A ถึง M">จำนวนที่เพิ่มขึ้น</th>
+                    <th class="sortable" data-key="calculatedMembersAdded">จำนวนที่เพิ่มขึ้น</th>
                 </tr>
             </thead>
         `;
@@ -113,7 +129,8 @@ document.addEventListener('DOMContentLoaded', function() {
                         <td>${row['คิดเป็นร้อยละ_1'] || ''}</td>
                         <td>${formatNumberWithCommas(row['ฐานข้อมูล สมาชิก ณ 31 ก.ค.'])}</td>
                         <td>${row['คิดเป็นร้อยละ_2'] || ''}</td>
-                        <td>${formatNumberWithCommas(row['จำนวนสมาชิกที่เพิ่มขึ้น จากคอลัม A ถึง M'])}</td>
+                        <!-- *** จุดแก้ไขที่ 2: แสดงผลค่าที่คำนวณใหม่ *** -->
+                        <td>${formatNumberWithCommas(row.calculatedMembersAdded)}</td>
                     </tr>
                 `).join('')}
             </tbody>
@@ -127,7 +144,8 @@ document.addEventListener('DOMContentLoaded', function() {
             acc.totalOrgs += parseNumber(row['รวม']);
             acc.baseOct += parseNumber(row['ฐานข้อมูล สมาชิก ณ 1 ต.ค.']);
             acc.baseJul += parseNumber(row['ฐานข้อมูล สมาชิก ณ 31 ก.ค.']);
-            acc.membersAdded += parseNumber(row['จำนวนสมาชิกที่เพิ่มขึ้น จากคอลัม A ถึง M']);
+            // *** จุดแก้ไขที่ 3: คำนวณผลรวมจากค่าที่คำนวณใหม่ ***
+            acc.membersAdded += parseNumber(row.calculatedMembersAdded);
             return acc;
         }, { provinceCount: 0, districtCount: 0, subdistrictCount: 0, villageCount: 0, totalOrgs: 0, baseOct: 0, baseJul: 0, membersAdded: 0 });
 
@@ -147,6 +165,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     <td>${totalPercent1}</td>
                     <td>${formatNumberWithCommas(totals.baseJul)}</td>
                     <td>${totalPercent2}</td>
+                    <!-- *** จุดแก้ไขที่ 4: แสดงผลรวมของค่าที่คำนวณใหม่ *** -->
                     <td>${formatNumberWithCommas(totals.membersAdded)}</td>
                 </tr>
             </tfoot>
@@ -173,8 +192,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
         if (currentSort.key) {
             filteredData.sort((a, b) => {
-                const valA = a[currentSort.key];
-                const valB = b[currentSort.key];
+                // *** จุดแก้ไขที่ 5: ใช้ parseNumber กับค่าที่อาจเป็นตัวเลขที่คำนวณขึ้นมาใหม่ ***
+                const valA = currentSort.key === 'calculatedMembersAdded' ? a.calculatedMembersAdded : a[currentSort.key];
+                const valB = currentSort.key === 'calculatedMembersAdded' ? b.calculatedMembersAdded : b[currentSort.key];
+                
                 const isNumeric = !isNaN(parseNumber(valA)) && !isNaN(parseNumber(valB));
                 
                 let comparison = 0;
