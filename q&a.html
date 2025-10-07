@@ -109,6 +109,38 @@
             text-align: center;
             width: 100%;
         }
+        
+        /* === CSS ใหม่: สำหรับปุ่มกรองประเภท === */
+        .category-buttons-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 25px;
+            padding: 0 10px;
+        }
+        .category-btn {
+            padding: 8px 18px;
+            font-family: 'Kanit', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 500;
+            border: 2px solid rgba(255, 255, 255, 0.6);
+            background-color: rgba(255, 255, 255, 0.4);
+            color: #555;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .category-btn:hover {
+            background-color: rgba(255, 255, 255, 0.8);
+            border-color: #ff8a8a;
+        }
+        .category-btn.active {
+            background-color: #ff8a8a;
+            color: white;
+            border-color: #ff8a8a;
+            box-shadow: 0 2px 8px rgba(255, 138, 138, 0.5);
+        }
 
         /* --- Modal Styles --- */
         .modal {
@@ -187,6 +219,10 @@
 
         <div class="search-wrapper">
             <input type="search" id="searchInput" class="search-box" placeholder="พิมพ์เพื่อค้นหาคำถาม..." disabled>
+        </div>
+
+         <div id="categoryButtons" class="category-buttons-container">
+            <!-- ปุ่มจะถูกสร้างโดย JavaScript ที่นี่ -->
         </div>
 
         <div class="faq-container" id="faqContainer">
