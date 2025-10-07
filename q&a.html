@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>กองทุนพัฒนาบทบาทสตรี - คำถามที่พบบ่อย</title>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/2.1.0/showdown.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <style>
+        /* --- General Styles --- */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Kanit', sans-serif;
+            background: linear-gradient(135deg, #ffc3a0 0%, #ffafbd 100% );
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .main-container {
+            width: 100%;
+            max-width: 900px;
+            text-align: center;
+        }
+        .header-logo {
+            width: 100px;
+            height: 100px;
+            object-fit: contain;
+            margin-bottom: 15px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.5);
+            padding: 5px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+        }
+        .header-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 15px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        /* --- Search Box Styles --- */
+        .search-wrapper {
+            margin-bottom: 25px;
+            padding: 0 10px;
+        }
+        .search-box {
+            width: 100%;
+            padding: 15px 20px;
+            font-size: 1rem;
+            font-family: 'Kanit', sans-serif;
+            border-radius: 50px;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            background-color: rgba(255, 255, 255, 0.7);
+            color: #555;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+        .search-box:focus {
+            outline: none;
+            border-color: #ff8a8a;
+            background-color: #fff;
+        }
+        .search-box::placeholder {
+            color: #999;
+        }
+
+        /* --- FAQ Container Styles --- */
+        .faq-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            background: rgba(255, 255, 255, 0.85);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.2);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            min-height: 100px;
+            text-align: left;
+        }
+        .faq-item {
+            background-color: #ffffff;
+            color: #555;
+            border: none;
+            border-radius: 15px;
+            padding: 15px 20px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        .faq-item:hover {
+            background-color: #ff8a8a;
+            color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(255, 138, 138, 0.4);
+        }
+        .faq-item.hidden {
+            display: none;
+        }
+        .loading-text, .error-text, .no-results-text {
+            color: #555;
+            font-size: 1.2rem;
+            text-align: center;
+            width: 100%;
+        }
+
+        /* --- Modal Styles --- */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: auto;
+            padding: 30px;
+            border: 1px solid #888;
+            width: 90%;
+            max-width: 700px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            position: relative;
+            animation: fadeIn 0.3s;
+        }
+        .close-button {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            position: absolute;
+            top: 10px;
+            right: 20px;
+        }
+        .close-button:hover, .close-button:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .modal-question {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #d9534f;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 10px;
+        }
+        .modal-answer {
+            font-size: 1.1rem;
+            color: #333;
+            line-height: 1.7;
+        }
+        .modal-answer img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin-top: 15px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .modal-answer p { margin-bottom: 1em; }
+        .modal-answer ul, .modal-answer ol { margin-left: 25px; margin-bottom: 1em; }
+        @keyframes fadeIn { from {opacity: 0; transform: scale(0.95);} to {opacity: 1; transform: scale(1);} }
+        @media (max-width: 768px) { .header-title { font-size: 2rem; } .modal-content { width: 95%; } }
+        @media (max-width: 480px) { body { padding: 15px; } .header-logo { width: 80px; height: 80px; } .header-title { font-size: 1.8rem; } .faq-container { padding: 20px; } .modal-question { font-size: 1.3rem; } .modal-answer { font-size: 1rem; } }
+    </style>
+</head>
+<body>
+
+    <div class="main-container">
+        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQZtkPBp_xmIFgEEmX2cyScE1QzabzZbtNdbQ&s" alt="Logo" class="header-logo">
+        <h1 class="header-title">คำถามที่พบบ่อย</h1>
+
+        <div class="search-wrapper">
+            <input type="search" id="searchInput" class="search-box" placeholder="พิมพ์เพื่อค้นหาคำถาม..." disabled>
+        </div>
+
+        <div class="faq-container" id="faqContainer">
+            <p class="loading-text">กำลังโหลดคำถาม...</p>
+        </div>
+    </div>
+
+    <div id="qaModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h2 id="modalQuestion" class="modal-question"></h2>
+            <div id="modalAnswer" class="modal-answer"></div>
+        </div>
+    </div>
+
+    <!-- เรียกใช้ไฟล์ JavaScript ภายนอก -->
+    <script src="q&a.js"></script>
+
+</body>
+</html>
