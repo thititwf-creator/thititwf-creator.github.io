@@ -88,12 +88,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     <th rowspan = "2">จังหวัด</th>
                     <th rowspan = "2">สตรีที่มีอายุ 15 ปีขึ้นไป</th>
                     <th colspan = "4">ข้อมูลจำนวนสมาชิกกองทุนพัฒนาบทบาทสตรี (คน)</th>
-                    <th >คิดเป็นร้อยละ</th>
-                    <th class="sortable" data-key="ฐานข้อมูล สมาชิก ณ 30 ก.ย.">ฐานข้อมูล สมาชิก ณ 30 ก.ย.</th>
-                    <th>คิดเป็นร้อยละ</th>
-                    <th class="sortable" data-key="เป้าหมายปี(คน)">เป้าหมายปี(คน)</th>
-                    <th class="sortable" data-key="จำนวนสมาชิกที่เพิ่มขึ้น">จำนวนสมาชิกที่เพิ่มขึ้น</th>
-                    <th>คิดเป็นร้อยละ</th>
+                    <th colspan = "3">การดำเนินงาน ปี</th>
                 </tr>
 
                 <tr>
