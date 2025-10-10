@@ -85,6 +85,18 @@ document.addEventListener('DOMContentLoaded', function() {
         const tableHead = `
             <thead>
                 <tr>
+                    <th colspan = "">จังหวัด</th>
+                    <th class="sortable" data-key="สตรีที่มีอายุ 15 ปีขึ้นไป">สตรีที่มีอายุ 15 ปีขึ้นไป</th>
+                    <th colspan = "4">ข้อมูลจำนวนสมาชิกกองทุนพัฒนาบทบาทสตรี (คน)</th>
+                    <th >คิดเป็นร้อยละ</th>
+                    <th class="sortable" data-key="ฐานข้อมูล สมาชิก ณ 30 ก.ย.">ฐานข้อมูล สมาชิก ณ 30 ก.ย.</th>
+                    <th>คิดเป็นร้อยละ</th>
+                    <th class="sortable" data-key="เป้าหมายปี(คน)">เป้าหมายปี(คน)</th>
+                    <th class="sortable" data-key="จำนวนสมาชิกที่เพิ่มขึ้น">จำนวนสมาชิกที่เพิ่มขึ้น</th>
+                    <th>คิดเป็นร้อยละ</th>
+                </tr>
+
+                <tr>
                     <th class="sortable" data-key="จังหวัด">จังหวัด</th>
                     <th class="sortable" data-key="สตรีที่มีอายุ 15 ปีขึ้นไป">สตรีที่มีอายุ 15 ปีขึ้นไป</th>
                     <th class="sortable" data-key="ฐานข้อมูล สมาชิก ณ 1 ต.ค.">ฐานข้อมูล สมาชิก ณ 1 ต.ค.</th>
