@@ -114,7 +114,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     <th class="sortable" data-key="รวม">รวม</th>
                     <th class="sortable" data-key="ฐานข้อมูล สมาชิก ณ 1 ต.ค.">ฐานข้อมูล ณ 1 ต.ค.</th>
                     <th>คิดเป็นร้อยละ</th>
-                    <th class="sortable" data-key="ฐานข้อมูล สมาชิก ณ 31 ก.ค.">ฐานข้อมูล ณ 31 ก.ค.</th>
+                    <th class="sortable" data-key="ฐานข้อมูล สมาชิก ณ 31 ก.ค.">ฐานข้อมูล ณ 31 ก.ย./ปัจจุบัน</th>
                     <th>คิดเป็นร้อยละ</th>
                     <th class="sortable" data-key="calculatedMembersAdded">จำนวนที่เพิ่มขึ้น</th>
                 </tr>
