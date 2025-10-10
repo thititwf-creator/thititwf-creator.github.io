@@ -85,10 +85,10 @@ document.addEventListener('DOMContentLoaded', function() {
         const tableHead = `
             <thead>
                 <tr>
-                    <th rowspan = "2">จังหวัด</th>
-                    <th rowspan = "2">สตรีที่มีอายุ 15 ปีขึ้นไป</th>
+                    <th rowspan = "2"></th>
+                    <th rowspan = "2"></th>
                     <th colspan = "4">ข้อมูลจำนวนสมาชิกกองทุนพัฒนาบทบาทสตรี (คน)</th>
-                    <th colspan = "3">การดำเนินงาน</th>
+                    <th colspan = "5">การดำเนินงาน</th>
                 </tr>
 
                 <tr>
