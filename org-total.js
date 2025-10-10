@@ -100,7 +100,13 @@ document.addEventListener('DOMContentLoaded', function() {
         const tableHead = `
             <thead>
                 <tr>
-                    <th class="sortable" data-key="จังหวัด">จังหวัด</th>
+                    <th rowspan = "2" class="sortable" data-key="จังหวัด">จังหวัด</th>
+                    <th colspan = "5" >ฐานข้อมูลคณะกรรมการพัฒนาสตรีทุกระดับ</th>
+                    <th colspan = "4" > ข้อมูลจำนวนสมาชิกกองทุนพัฒนาบทบาทสตรี (องค์กร)</th>
+                    <th rowspan = "2" class="sortable" data-key="calculatedMembersAdded">จำนวนที่เพิ่มขึ้น</th>
+                </tr>
+
+                <tr>
                     <th class="sortable" data-key="จังหวัด (แห่ง)">จังหวัด (แห่ง)</th>
                     <th class="sortable" data-key="อำเภอ (แห่ง)">อำเภอ (แห่ง)</th>
                     <th class="sortable" data-key="ตำบล (แห่ง)">ตำบล (แห่ง)</th>
