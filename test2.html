@@ -6,6 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap" rel="stylesheet">
 <style>
+/* --- (CSS ทั้งหมดเหมือนเดิม ไม่มีการเปลี่ยนแปลง ) --- */
 body {
   font-family: 'Sarabun', sans-serif;
   margin: 0;
@@ -15,7 +16,7 @@ body {
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  background: linear-gradient(to bottom right, #ffe6f0, #ffd1e6 );
+  background: linear-gradient(to bottom right, #ffe6f0, #ffd1e6);
 }
 .container {
   width: 100%;
@@ -74,19 +75,17 @@ tr.summary-row td {
   color: #880e4f;
   text-align: right;
 }
-
-/* --- ▼▼▼ CSS สำหรับ Modal (เพิ่มใหม่) ▼▼▼ --- */
 .modal {
-  display: none; /* ซ่อนไว้เป็นค่าเริ่มต้น */
-  position: fixed; /* อยู่กับที่แม้จะเลื่อนหน้าจอ */
-  z-index: 1000; /* ให้แสดงอยู่หน้าสุด */
+  display: none; 
+  position: fixed;
+  z-index: 1000;
   left: 0;
   top: 0;
   width: 100%;
   height: 100%;
-  overflow: auto; /* ให้เลื่อนได้ถ้าเนื้อหาเยอะ */
-  background-color: rgba(0,0,0,0.5); /* พื้นหลังสีดำโปร่งแสง */
-  padding-top: 60px; /* ระยะห่างจากด้านบน */
+  overflow: auto;
+  background-color: rgba(0,0,0,0.5);
+  padding-top: 60px;
 }
 .modal-content {
   background-color: #fff;
@@ -126,22 +125,42 @@ tr.summary-row td {
 .modal-body {
     margin-top: 15px;
 }
-/* ทำให้ TD ที่ต้องการคลิกได้ มีลักษณะเหมือนลิงก์ */
 .clickable-kpi {
     cursor: pointer;
-    color: #d81b60; /* สีชมพูเข้ม */
+    color: #d81b60;
     font-weight: bold;
     text-decoration: underline;
 }
 .clickable-kpi:hover {
-    color: #880e4f; /* สีเข้มขึ้นเมื่อเมาส์ชี้ */
+    color: #880e4f;
 }
-/* --- ▲▲▲ จบส่วน CSS สำหรับ Modal ▲▲▲ --- */
-
+/* --- ▼▼▼ CSS สำหรับตารางใน Modal (เพิ่มใหม่) ▼▼▼ --- */
+#evidenceTable {
+    width: 100%;
+    margin-top: 20px;
+    border-collapse: collapse;
+}
+#evidenceTable th, #evidenceTable td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+#evidenceTable th {
+    background-color: #f2f2f2;
+    color: #333;
+}
+#evidenceTable td:nth-child(2) {
+    text-align: center;
+    font-size: 1.2rem;
+}
+.status-true { color: green; }
+.status-false { color: red; }
+/* --- ▲▲▲ จบส่วน CSS สำหรับตารางใน Modal ▲▲▲ --- */
 </style>
 </head>
 <body>
 <div class="container">
+  <!-- (ส่วน Header และ Logos เหมือนเดิม) -->
   <div class="header">
     <h1>สรุปผลการดำเนินงานตามตัวชี้วัดของกองทุนพัฒนาบทบาทสตรี</h1>
     <p>กรมการพัฒนาชุมชน ประจำปีบัญชี 2568 จำนวน 6 ด้าน 15 ตัวชี้วัด ข้อมูล ณ วันที่ 15 กันยายน 2568</p>
@@ -150,7 +169,6 @@ tr.summary-row td {
     <img src="https://i.postimg.cc/507bjy9Z/cdd.png" alt="CDD Logo">
     <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQZtkPBp_xmIFgEEmX2cyScE1QzabzZbtNdbQ&s" alt="Women Fund Logo">
   </div>
-
   <table id="kpiTable">
     <thead>
       <tr>
@@ -169,18 +187,20 @@ tr.summary-row td {
   </table>
 </div>
 
-<!-- --- ▼▼▼ HTML ของ Modal (เพิ่มใหม่ ) ▼▼▼ --- -->
+<!-- --- ▼▼▼ HTML ของ Modal (ปรับปรุงใหม่ ) ▼▼▼ --- -->
 <div id="myModal" class="modal">
   <div class="modal-content">
     <span class="close-button">&times;</span>
     <div class="modal-header">
       <h2>รายละเอียดตัวชี้วัดที่ 1.1</h2>
+      <p><strong>ชื่อ:</strong> ร้อยละของการรับชำระคืนเงินกู้ยืม (น้ำหนักร้อยละ 8)</p>
     </div>
     <div class="modal-body">
-      <p><strong>ชื่อเต็ม:</strong> ร้อยละของการรับชำระคืนเงินกู้ยืม (น้ำหนักร้อยละ 8)</p>
-      <p><strong>คำอธิบาย:</strong> วัดผลความสามารถในการบริหารจัดการหนี้ของสมาชิกกองทุนฯ เพื่อให้เกิดความยั่งยืนทางการเงิน</p>
-      <p><strong>สูตรการคำนวณ:</strong> (จำนวนเงินที่รับชำระคืนจริง / จำนวนเงินที่ครบกำหนดชำระ) * 100</p>
-      <p><em>เนื้อหาส่วนนี้เป็นเพียงตัวอย่าง สามารถปรับแก้หรือดึงข้อมูลแบบไดนามิกมาแสดงได้</em></p>
+      <p><strong>รายการตรวจสอบหลักฐาน (Checklist)</strong></p>
+      <!-- พื้นที่สำหรับแสดงตารางหลักฐาน จะถูกสร้างโดย JavaScript -->
+      <div id="evidence-container">
+        <p><i>กำลังโหลดข้อมูลหลักฐาน...</i></p>
+      </div>
     </div>
   </div>
 </div>
@@ -188,37 +208,87 @@ tr.summary-row td {
 
 
 <script>
-// --- ▼▼▼ JavaScript สำหรับควบคุม Modal (เพิ่มใหม่) ▼▼▼ ---
+// --- ส่วนควบคุม Modal (เหมือนเดิม) ---
 const modal = document.getElementById('myModal');
 const closeBtn = document.querySelector('.close-button');
 
-// ฟังก์ชันเปิด Modal
-function openModal() {
-  modal.style.display = "block";
-}
-
-// ฟังก์ชันปิด Modal
 function closeModal() {
   modal.style.display = "none";
 }
-
-// เมื่อคลิกที่ปุ่มปิด (X)
-closeBtn.onclick = function() {
-  closeModal();
-}
-
-// เมื่อคลิกพื้นที่นอก Modal
+closeBtn.onclick = function() { closeModal(); }
 window.onclick = function(event) {
-  if (event.target == modal) {
-    closeModal();
-  }
+  if (event.target == modal) { closeModal(); }
 }
-// --- ▲▲▲ จบส่วน JavaScript สำหรับควบคุม Modal ▲▲▲ ---
 
+// --- ▼▼▼ ฟังก์ชันใหม่สำหรับดึงข้อมูลหลักฐานจาก CSV ▼▼▼ ---
+async function loadEvidenceData() {
+    // ！！！สำคัญ: ให้เปลี่ยน URL ด้านล่างนี้เป็นลิงก์ CSV ของคุณ ！！！
+    const evidenceSheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSLP2abdmfs82BBhiCZg16caXGOzNo7o_3NMrETEc5NttXgwaVW4JaJwx6Ez0wXRhRm-ZGSAPL8J1vR/pub?gid=0&single=true&output=csv";
+    
+    const container = document.getElementById('evidence-container' );
+    container.innerHTML = '<p><i>กำลังโหลดข้อมูลหลักฐาน...</i></p>'; // แสดงสถานะทุกครั้งที่โหลด
 
+    try {
+        const response = await fetch(evidenceSheetUrl);
+        if (!response.ok) throw new Error('ไม่สามารถเชื่อมต่อกับ Google Sheet ได้');
+        
+        const csvText = await response.text();
+        const rows = csvText.trim().split('\n');
+        
+        // สร้างตาราง
+        const table = document.createElement('table');
+        table.id = 'evidenceTable';
+
+        // สร้าง Header ของตาราง
+        const headerRow = rows[0].split(',');
+        const thead = document.createElement('thead');
+        thead.innerHTML = `<tr><th>${headerRow[0]}</th><th>${headerRow[1]}</th></tr>`;
+        table.appendChild(thead);
+
+        // สร้าง Body ของตาราง
+        const tbody = document.createElement('tbody');
+        // วนลูปตั้งแต่แถวที่ 2 (index=1) เพราะแถวแรกคือหัวตาราง
+        for (let i = 1; i < rows.length; i++) {
+            const cells = rows[i].split(',');
+            const evidence = cells[0].trim();
+            const status = cells[1].trim().toUpperCase(); // ทำให้เป็นตัวพิมพ์ใหญ่เพื่อความแน่นอน
+
+            let statusSymbol;
+            let statusClass;
+
+            if (status === 'TRUE') {
+                statusSymbol = '✓'; // เครื่องหมายติ๊กถูก
+                statusClass = 'status-true';
+            } else {
+                statusSymbol = '✗'; // เครื่องหมายกากบาท
+                statusClass = 'status-false';
+            }
+
+            const tr = document.createElement('tr');
+            tr.innerHTML = `<td>${evidence}</td><td class="${statusClass}">${statusSymbol}</td>`;
+            tbody.appendChild(tr);
+        }
+        table.appendChild(tbody);
+
+        // แสดงตารางใน container
+        container.innerHTML = '';
+        container.appendChild(table);
+
+    } catch (error) {
+        container.innerHTML = `<p style="color:red;"><strong>เกิดข้อผิดพลาด:</strong> ${error.message}</p>`;
+        console.error("ผิดพลาดขณะโหลดข้อมูลหลักฐาน:", error);
+    }
+}
+
+// --- ▼▼▼ แก้ไขฟังก์ชัน openModal ให้เรียกใช้ฟังก์ชันโหลดข้อมูล ▼▼▼ ---
+function openModal() {
+  modal.style.display = "block";
+  loadEvidenceData(); // เรียกใช้ฟังก์ชันโหลดข้อมูลทุกครั้งที่เปิด Modal
+}
+
+// --- ฟังก์ชันหลักในการโหลดข้อมูลตาราง (ปรับปรุงเล็กน้อย) ---
 async function loadAndDisplayData() {
   const webAppUrl = "https://script.google.com/macros/s/AKfycbzw1jHwCTESst-B9Pmv-pOlD98vxVenxole4yvOReZ5UJnOmXHMyhD39S7_QMmQt28FOA/exec"; 
-
   const tbody = document.querySelector('#kpiTable tbody' );
 
   try {
@@ -245,13 +315,12 @@ async function loadAndDisplayData() {
       `;
       tbody.appendChild(tr);
 
-      // --- ▼▼▼ ตรวจสอบและเพิ่ม Event Listener (แก้ไข/เพิ่มใหม่) ▼▼▼ ---
+      // ตรวจสอบและเพิ่ม Event Listener (เหมือนเดิม)
       if (kpiText.includes('ตัวชี้วัดที่ 1.1')) {
-        const kpiCell = tr.querySelector('td:nth-child(2)'); // เลือกคอลัมน์ที่ 2 (ตัวชี้วัด)
-        kpiCell.classList.add('clickable-kpi'); // เพิ่ม class เพื่อให้มีสไตล์เหมือนลิงก์
-        kpiCell.addEventListener('click', openModal); // เพิ่ม Event คลิกเพื่อเปิด Modal
+        const kpiCell = tr.querySelector('td:nth-child(2)');
+        kpiCell.classList.add('clickable-kpi');
+        kpiCell.addEventListener('click', openModal);
       }
-      // --- ▲▲▲ จบส่วนการเพิ่ม Event Listener ▲▲▲ ---
     });
 
     if (data.summaryData && data.summaryData.label) {
@@ -272,7 +341,7 @@ async function loadAndDisplayData() {
   }
 }
 
-// เรียกใช้ฟังก์ชันหลักเมื่อหน้าเว็บโหลด
+// เรียกใช้ฟังก์ชันหลัก
 loadAndDisplayData();
 </script>
 
