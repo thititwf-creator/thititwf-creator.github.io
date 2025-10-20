@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<title>สรุปผลตัวชี้วัดกองทุนพัฒนาบทบาทสตรี</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap" rel="stylesheet">
+<style>
+body {
+  font-family: 'Sarabun', sans-serif;
+  margin: 0;
+  min-height: 100vh;
+  padding: 20px;
+  box-sizing: border-box;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  background: linear-gradient(to bottom right, #ffe6f0, #ffd1e6 );
+}
+.container {
+  width: 100%;
+  max-width: 1200px;
+  background-color: rgba(255, 255, 255, 0.9);
+  border-radius: 25px;
+  padding: 30px;
+  box-shadow: 0 8px 25px rgba(233, 30, 99, 0.3);
+}
+.header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+.header h1 {
+  color: deeppink;
+  margin: 0;
+  font-size: 2rem;
+}
+.header p {
+  color: #880e4f;
+  margin-top: 5px;
+  font-weight: bold;
+}
+.logos {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+.logos img { height: 60px; }
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+}
+th, td {
+  border: 1px solid #f0a5bc; 
+  padding: 8px 12px;
+  text-align: center;
+}
+th {
+  background-color: #f8bbd0;
+  color: #880e4f;
+}
+tr:nth-child(even) {
+  background-color: rgba(255,182,193,0.2);
+}
+tr:nth-child(odd) {
+  background-color: rgba(255,192,203,0.1);
+}
+tr.summary-row {
+  background-color: #f48fb1 !important;
+  font-weight: bold;
+}
+tr.summary-row td {
+  color: #880e4f;
+  text-align: right;
+}
+
+/* --- ▼▼▼ CSS สำหรับ Modal (เพิ่มใหม่) ▼▼▼ --- */
+.modal {
+  display: none; /* ซ่อนไว้เป็นค่าเริ่มต้น */
+  position: fixed; /* อยู่กับที่แม้จะเลื่อนหน้าจอ */
+  z-index: 1000; /* ให้แสดงอยู่หน้าสุด */
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto; /* ให้เลื่อนได้ถ้าเนื้อหาเยอะ */
+  background-color: rgba(0,0,0,0.5); /* พื้นหลังสีดำโปร่งแสง */
+  padding-top: 60px; /* ระยะห่างจากด้านบน */
+}
+.modal-content {
+  background-color: #fff;
+  margin: 5% auto;
+  padding: 25px;
+  border: 1px solid #888;
+  width: 80%;
+  max-width: 600px;
+  border-radius: 15px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+  position: relative;
+  animation-name: animatetop;
+  animation-duration: 0.4s
+}
+@keyframes animatetop {
+  from {top: -300px; opacity: 0}
+  to {top: 0; opacity: 1}
+}
+.close-button {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+  position: absolute;
+  top: 10px;
+  right: 20px;
+}
+.close-button:hover,
+.close-button:focus {
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
+}
+.modal-header h2 {
+    color: deeppink;
+}
+.modal-body {
+    margin-top: 15px;
+}
+/* ทำให้ TD ที่ต้องการคลิกได้ มีลักษณะเหมือนลิงก์ */
+.clickable-kpi {
+    cursor: pointer;
+    color: #d81b60; /* สีชมพูเข้ม */
+    font-weight: bold;
+    text-decoration: underline;
+}
+.clickable-kpi:hover {
+    color: #880e4f; /* สีเข้มขึ้นเมื่อเมาส์ชี้ */
+}
+/* --- ▲▲▲ จบส่วน CSS สำหรับ Modal ▲▲▲ --- */
+
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>สรุปผลการดำเนินงานตามตัวชี้วัดของกองทุนพัฒนาบทบาทสตรี</h1>
+    <p>กรมการพัฒนาชุมชน ประจำปีบัญชี 2568 จำนวน 6 ด้าน 15 ตัวชี้วัด ข้อมูล ณ วันที่ 15 กันยายน 2568</p>
+  </div>
+  <div class="logos">
+    <img src="https://i.postimg.cc/507bjy9Z/cdd.png" alt="CDD Logo">
+    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQZtkPBp_xmIFgEEmX2cyScE1QzabzZbtNdbQ&s" alt="Women Fund Logo">
+  </div>
+
+  <table id="kpiTable">
+    <thead>
+      <tr>
+        <th>ด้าน</th>
+        <th>ตัวชี้วัด</th>
+        <th>หน่วยวัด</th>
+        <th>เป้าหมาย</th>
+        <th>ผลงาน</th>
+        <th>คะแนน</th>
+        <th>คาดการณ์ กันยายน</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td colspan="7" style="font-style: italic;">กำลังโหลดข้อมูล...</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- --- ▼▼▼ HTML ของ Modal (เพิ่มใหม่ ) ▼▼▼ --- -->
+<div id="myModal" class="modal">
+  <div class="modal-content">
+    <span class="close-button">&times;</span>
+    <div class="modal-header">
+      <h2>รายละเอียดตัวชี้วัดที่ 1.1</h2>
+    </div>
+    <div class="modal-body">
+      <p><strong>ชื่อเต็ม:</strong> ร้อยละของการรับชำระคืนเงินกู้ยืม (น้ำหนักร้อยละ 8)</p>
+      <p><strong>คำอธิบาย:</strong> วัดผลความสามารถในการบริหารจัดการหนี้ของสมาชิกกองทุนฯ เพื่อให้เกิดความยั่งยืนทางการเงิน</p>
+      <p><strong>สูตรการคำนวณ:</strong> (จำนวนเงินที่รับชำระคืนจริง / จำนวนเงินที่ครบกำหนดชำระ) * 100</p>
+      <p><em>เนื้อหาส่วนนี้เป็นเพียงตัวอย่าง สามารถปรับแก้หรือดึงข้อมูลแบบไดนามิกมาแสดงได้</em></p>
+    </div>
+  </div>
+</div>
+<!-- --- ▲▲▲ จบส่วน HTML ของ Modal ▲▲▲ --- -->
+
+
+<script>
+// --- ▼▼▼ JavaScript สำหรับควบคุม Modal (เพิ่มใหม่) ▼▼▼ ---
+const modal = document.getElementById('myModal');
+const closeBtn = document.querySelector('.close-button');
+
+// ฟังก์ชันเปิด Modal
+function openModal() {
+  modal.style.display = "block";
+}
+
+// ฟังก์ชันปิด Modal
+function closeModal() {
+  modal.style.display = "none";
+}
+
+// เมื่อคลิกที่ปุ่มปิด (X)
+closeBtn.onclick = function() {
+  closeModal();
+}
+
+// เมื่อคลิกพื้นที่นอก Modal
+window.onclick = function(event) {
+  if (event.target == modal) {
+    closeModal();
+  }
+}
+// --- ▲▲▲ จบส่วน JavaScript สำหรับควบคุม Modal ▲▲▲ ---
+
+
+async function loadAndDisplayData() {
+  const webAppUrl = "https://script.google.com/macros/s/AKfycbzw1jHwCTESst-B9Pmv-pOlD98vxVenxole4yvOReZ5UJnOmXHMyhD39S7_QMmQt28FOA/exec"; 
+
+  const tbody = document.querySelector('#kpiTable tbody' );
+
+  try {
+    const response = await fetch(webAppUrl);
+    if (!response.ok) throw new Error(`เกิดข้อผิดพลาดจาก Server: ${response.status}`);
+    const data = await response.json();
+
+    tbody.innerHTML = ''; 
+
+    if (data.error) throw new Error(`ข้อผิดพลาดจาก Apps Script: ${data.error}`);
+
+    data.mainData.forEach(row => {
+      const tr = document.createElement('tr');
+      const kpiText = row['ตัวชี้วัด'] || '';
+      
+      tr.innerHTML = `
+        <td>${row['ด้าน'] || ''}</td>
+        <td style="text-align:left">${kpiText}</td>
+        <td>${row['หน่วยวัด'] || ''}</td>
+        <td>${row['เป้าหมาย'] || ''}</td>
+        <td>${row['ผลงาน'] || ''}</td>
+        <td>${row['คะแนน'] || ''}</td>
+        <td>${row['คาดการณ์ กันยายน'] || ''}</td>
+      `;
+      tbody.appendChild(tr);
+
+      // --- ▼▼▼ ตรวจสอบและเพิ่ม Event Listener (แก้ไข/เพิ่มใหม่) ▼▼▼ ---
+      if (kpiText.includes('ตัวชี้วัดที่ 1.1')) {
+        const kpiCell = tr.querySelector('td:nth-child(2)'); // เลือกคอลัมน์ที่ 2 (ตัวชี้วัด)
+        kpiCell.classList.add('clickable-kpi'); // เพิ่ม class เพื่อให้มีสไตล์เหมือนลิงก์
+        kpiCell.addEventListener('click', openModal); // เพิ่ม Event คลิกเพื่อเปิด Modal
+      }
+      // --- ▲▲▲ จบส่วนการเพิ่ม Event Listener ▲▲▲ ---
+    });
+
+    if (data.summaryData && data.summaryData.label) {
+      const summary = data.summaryData;
+      const tr = document.createElement('tr');
+      tr.className = 'summary-row';
+      tr.innerHTML = `
+        <td colspan="4" style="padding-right: 20px;">${summary.label}</td>
+        <td colspan="2">${summary.value}</td>
+        <td>${summary.forecast}</td>
+      `;
+      tbody.appendChild(tr);
+    }
+
+  } catch (error) {
+    console.error('ไม่สามารถดึงข้อมูลได้:', error);
+    tbody.innerHTML = `<tr><td colspan="7" style="color:red;"><strong>เกิดข้อผิดพลาด:</strong> ${error.message}</td></tr>`;
+  }
+}
+
+// เรียกใช้ฟังก์ชันหลักเมื่อหน้าเว็บโหลด
+loadAndDisplayData();
+</script>
+
+</body>
+</html>
