@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     // --- Global Variables & State ---
     // ใส่ URL ของ Web App ที่คุณคัดลอกมาใหม่ตรงนี้!
-    const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbxMr_WkWeaNwFuJC4YlOcdK4qLCEQodT__GITOFn3_vLXdknFUxejkJSefy29-JiEZCXA/exec';
+    const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbyiWe45-Ck6u9VOA1-AHKcphFc1izs4XmoQDcn3-H5NekVKMmp3bshNdtHFfPpLMgUtcQ/exec';
 
     // --- DOM Elements (เหมือนเดิม ) ---
     const loginSection = document.getElementById('login-section');
@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const loginText = document.getElementById('login-text');
     const logoutButton = document.getElementById('logout-button');
     const userNameDisplay = document.getElementById('user-name-display');
-    
+
     const provinceSelect = document.getElementById('province-select');
     const startDateInput = document.getElementById('start-date');
     const endDateInput = document.getElementById('end-date');
@@ -32,28 +32,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ฟังก์ชันสำหรับเรียก API ของ Google Apps Script
     async function callGasApi(action, params = {}) {
-        const url = new URL(GAS_API_URL);
-        url.searchParams.append('action', action);
-        for (const key in params) {
-            url.searchParams.append(key, params[key]);
+        // ... (ส่วน fetch เหมือนเดิม) ...
+        const result = await response.json();
+        if (!result.success) {
+            throw new Error(result.message || 'An unknown error occurred in the API.');
         }
 
-        try {
-            const response = await fetch(url, { method: 'GET' });
-            if (!response.ok) {
-                throw new Error(`Network response was not ok: ${response.statusText}`);
-            }
-            const result = await response.json();
-            if (!result.success) {
-                throw new Error(result.message || 'An unknown error occurred in the API.');
-            }
-            return result.data;
-        } catch (error) {
-            console.error(`Failed to call GAS API action "${action}":`, error);
-            showError(`เกิดข้อผิดพลาดในการสื่อสารกับเซิร์ฟเวอร์: ${error.message}`);
-            throw error; // Re-throw to stop further execution
+        // *** เพิ่มเงื่อนไขตรงนี้ ***
+        if (action === 'login') {
+            return result; // สำหรับ login, ส่งกลับทั้งก้อน { success: true, name: '...' }
         }
+
+        return result.data; // สำหรับ action อื่นๆ, ส่งกลับเฉพาะ data
     }
+
 
     // Show/Hide main sections
     function showLogin() {
@@ -69,7 +61,7 @@ document.addEventListener('DOMContentLoaded', () => {
         userNameDisplay.textContent = userName;
         initializeMainApp();
     }
-    
+
     function showError(message) {
         errorAlert.textContent = message;
         errorAlert.style.display = 'block';
@@ -81,7 +73,7 @@ document.addEventListener('DOMContentLoaded', () => {
         event.preventDefault();
         const username = usernameInput.value.trim();
         const password = passwordInput.value.trim();
-        
+
         loginButton.disabled = true;
         loginText.style.display = 'none';
         loginSpinner.style.display = 'inline-block';
@@ -131,7 +123,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Error is already shown by callGasApi
         }
     }
-    
+
     function convertBeToAd(beDate) {
         if (!beDate || beDate.split('/').length !== 3) return null;
         const [day, month, beYearStr] = beDate.split('/');
@@ -149,7 +141,7 @@ document.addEventListener('DOMContentLoaded', () => {
             showError("กรุณาเลือกจังหวัดและกรอกช่วงวันที่ให้ครบถ้วน");
             return;
         }
-        
+
         errorAlert.style.display = 'none';
         loadingSpinner.style.display = 'block';
         resultsTable.style.display = 'none';
@@ -199,19 +191,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 <td>${item.contract}</td><td>${item.year}</td><td>${item.projectName}</td>
                 <td>${item.proposerName}</td><td style="text-align: right;">${item.count}</td>
                 <td>${new Date(item.firstDueDate).toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' })}</td>
-                <td style="text-align: right;">${item.totalExpected.toLocaleString('th-TH', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
-                <td style="text-align: right;">${item.totalReturned.toLocaleString('th-TH', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                <td style="text-align: right;">${item.totalExpected.toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                <td style="text-align: right;">${item.totalReturned.toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
             `;
         });
-        
+
         const percentage = grandTotalExpected > 0 ? (grandTotalReturned * 100) / grandTotalExpected : 0;
         summaryBox.innerHTML = `
             <div class="summary-item"><div class="label">จำนวนสัญญา</div><div class="value">${data.length}</div></div>
-            <div class="summary-item"><div class="label">รวมเงินต้นคาดว่าจะได้</div><div class="value">${grandTotalExpected.toLocaleString('th-TH', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div></div>
-            <div class="summary-item"><div class="label">รวมเงินต้นรับคืน</div><div class="value">${grandTotalReturned.toLocaleString('th-TH', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div></div>
+            <div class="summary-item"><div class="label">รวมเงินต้นคาดว่าจะได้</div><div class="value">${grandTotalExpected.toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div></div>
+            <div class="summary-item"><div class="label">รวมเงินต้นรับคืน</div><div class="value">${grandTotalReturned.toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div></div>
             <div class="summary-item"><div class="label">คิดเป็นร้อยละ</div><div class="value highlight">${percentage.toFixed(2)} %</div></div>
         `;
-        
+
         resultsTable.querySelector('thead').innerHTML = `
             <tr><th>ลำดับ</th><th>จังหวัด</th><th>อำเภอ</th><th>ตำบล</th><th>เลขที่สัญญา</th><th>ปีงบประมาณ</th><th>ชื่อโครงการ</th><th>ชื่อผู้เสนอ</th><th>จำนวนงวด</th><th>กำหนดชำระ</th><th>เงินต้นคาดว่าจะได้</th><th>เงินต้นรับคืน</th></tr>
         `;
