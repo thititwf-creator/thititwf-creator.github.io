@@ -1,9 +1,9 @@
 document.addEventListener('DOMContentLoaded', () => {
     // --- Global Variables & State ---
-    let allContractsData = [];
-    let allUsers = [];
+    // ใส่ URL ของ Web App ที่คุณคัดลอกมาใหม่ตรงนี้!
+    const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbxMr_WkWeaNwFuJC4YlOcdK4qLCEQodT__GITOFn3_vLXdknFUxejkJSefy29-JiEZCXA/exec';
 
-    // --- DOM Elements ---
+    // --- DOM Elements (เหมือนเดิม ) ---
     const loginSection = document.getElementById('login-section');
     const mainSection = document.getElementById('main-section');
     const loginForm = document.getElementById('login-form');
@@ -20,7 +20,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const startDateInput = document.getElementById('start-date');
     const endDateInput = document.getElementById('end-date');
     const searchButton = document.getElementById('search-button');
-    const resultsContainer = document.getElementById('results-container');
     const loadingSpinner = document.getElementById('loading-spinner');
     const errorAlert = document.getElementById('error-alert');
     const summaryBox = document.getElementById('summary-box');
@@ -31,18 +30,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Functions ---
 
-    // Function to fetch data from JSON files
-    async function fetchData(url) {
+    // ฟังก์ชันสำหรับเรียก API ของ Google Apps Script
+    async function callGasApi(action, params = {}) {
+        const url = new URL(GAS_API_URL);
+        url.searchParams.append('action', action);
+        for (const key in params) {
+            url.searchParams.append(key, params[key]);
+        }
+
         try {
-            const response = await fetch(url);
+            const response = await fetch(url, { method: 'GET' });
             if (!response.ok) {
                 throw new Error(`Network response was not ok: ${response.statusText}`);
             }
-            return await response.json();
+            const result = await response.json();
+            if (!result.success) {
+                throw new Error(result.message || 'An unknown error occurred in the API.');
+            }
+            return result.data;
         } catch (error) {
-            console.error(`Failed to fetch data from ${url}:`, error);
-            showError(`ไม่สามารถโหลดข้อมูลสำคัญได้: ${error.message}`);
-            return null;
+            console.error(`Failed to call GAS API action "${action}":`, error);
+            showError(`เกิดข้อผิดพลาดในการสื่อสารกับเซิร์ฟเวอร์: ${error.message}`);
+            throw error; // Re-throw to stop further execution
         }
     }
 
@@ -68,7 +77,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- Login/Logout Logic ---
-    function handleLogin(event) {
+    async function handleLogin(event) {
         event.preventDefault();
         const username = usernameInput.value.trim();
         const password = passwordInput.value.trim();
@@ -78,27 +87,24 @@ document.addEventListener('DOMContentLoaded', () => {
         loginSpinner.style.display = 'inline-block';
         loginErrorMsg.style.display = 'none';
 
-        const user = allUsers.find(u => u.username === username && u.password.toString() === password);
-
-        setTimeout(() => { // Simulate network delay
-            if (user) {
-                sessionStorage.setItem('isLoggedIn', 'true');
-                sessionStorage.setItem('userName', user.name);
-                showMainApp(user.name);
-            } else {
-                loginErrorMsg.textContent = 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง';
-                loginErrorMsg.style.display = 'block';
-            }
+        try {
+            const result = await callGasApi('login', { username, password });
+            sessionStorage.setItem('isLoggedIn', 'true');
+            sessionStorage.setItem('userName', result.name);
+            showMainApp(result.name);
+        } catch (error) {
+            loginErrorMsg.textContent = error.message;
+            loginErrorMsg.style.display = 'block';
+        } finally {
             loginButton.disabled = false;
             loginText.style.display = 'inline-block';
             loginSpinner.style.display = 'none';
-        }, 500);
+        }
     }
 
     function handleLogout() {
         sessionStorage.removeItem('isLoggedIn');
         sessionStorage.removeItem('userName');
-        // Reset UI
         usernameInput.value = '';
         passwordInput.value = '';
         loginErrorMsg.style.display = 'none';
@@ -106,39 +112,36 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- Main App Logic ---
-    function initializeMainApp() {
-        // Initialize date pickers
+    async function initializeMainApp() {
         $('.form-control[type="text"]').datepicker({
-            format: 'dd/mm/yyyy',
-            language: 'th',
-            autoclose: true,
-            todayHighlight: true,
-            orientation: 'bottom'
+            format: 'dd/mm/yyyy', language: 'th',
+            autoclose: true, todayHighlight: true, orientation: 'bottom'
         });
 
-        // Populate provinces
-        const provinces = [...new Set(allContractsData.map(item => item.province).filter(p => p))].sort();
-        provinceSelect.innerHTML = '<option value="ทุกจังหวัด">-- ทุกจังหวัด --</option>';
-        provinces.forEach(province => {
-            const option = document.createElement('option');
-            option.value = province;
-            option.textContent = province;
-            provinceSelect.appendChild(option);
-        });
+        try {
+            const provinces = await callGasApi('getProvinces');
+            provinceSelect.innerHTML = '<option value="ทุกจังหวัด">-- ทุกจังหวัด --</option>';
+            provinces.forEach(province => {
+                const option = document.createElement('option');
+                option.value = province;
+                option.textContent = province;
+                provinceSelect.appendChild(option);
+            });
+        } catch (error) {
+            // Error is already shown by callGasApi
+        }
     }
     
     function convertBeToAd(beDate) {
         if (!beDate || beDate.split('/').length !== 3) return null;
-        const parts = beDate.split('/');
-        const day = parts[0];
-        const month = parts[1];
-        const beYear = parseInt(parts[2], 10);
+        const [day, month, beYearStr] = beDate.split('/');
+        const beYear = parseInt(beYearStr, 10);
         if (isNaN(beYear)) return null;
         const adYear = beYear - 543;
         return `${adYear}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
     }
 
-    function handleSearch() {
+    async function handleSearch() {
         const startDateAd = convertBeToAd(startDateInput.value);
         const endDateAd = convertBeToAd(endDateInput.value);
 
@@ -153,64 +156,25 @@ document.addEventListener('DOMContentLoaded', () => {
         summaryBox.style.display = 'none';
         searchAndExportContainer.style.display = 'none';
 
-        setTimeout(() => { // Simulate processing
+        try {
             const params = {
                 province: provinceSelect.value,
-                startDate: new Date(startDateAd),
-                endDate: new Date(endDateAd)
+                startDate: startDateAd,
+                endDate: endDateAd
             };
-            params.endDate.setHours(23, 59, 59, 999); // Include the whole end day
-
-            const filtered = getFilteredContracts(params);
-            renderResults(filtered);
+            const contracts = await callGasApi('getContracts', params);
+            renderResults(contracts);
+        } catch (error) {
+            // Error is already shown by callGasApi
+        } finally {
             loadingSpinner.style.display = 'none';
-        }, 500);
-    }
-
-    function getFilteredContracts(params) {
-        const filteredData = allContractsData.filter(row => {
-            const dueDate = new Date(row.dueDate);
-            const isProvinceMatch = (params.province === "ทุกจังหวัด" || row.province === params.province);
-            const isDateMatch = (dueDate >= params.startDate && dueDate <= params.endDate);
-            return isProvinceMatch && isDateMatch;
-        });
-
-        // Grouping logic (same as your Apps Script)
-        const groupedByContract = filteredData.reduce((acc, row) => {
-            const contractId = row.contractId;
-            if (!acc[contractId]) {
-                acc[contractId] = {
-                    province: row.province,
-                    amphoe: row.amphoe,
-                    tambon: row.tambon,
-                    contract: contractId,
-                    year: row.year,
-                    projectName: row.projectName,
-                    proposerName: row.proposerName,
-                    firstDueDate: new Date(row.dueDate),
-                    count: 0,
-                    totalExpected: 0,
-                    totalReturned: 0,
-                };
-            }
-            if (new Date(row.dueDate) < acc[contractId].firstDueDate) {
-                acc[contractId].firstDueDate = new Date(row.dueDate);
-            }
-            acc[contractId].count++;
-            acc[contractId].totalExpected += parseFloat(row.expectedAmount || 0);
-            acc[contractId].totalReturned += parseFloat(row.returnedAmount || 0);
-            return acc;
-        }, {});
-
-        return Object.values(groupedByContract).map(item => {
-            item.firstDueDate = item.firstDueDate.toISOString().split('T')[0];
-            return item;
-        });
+        }
     }
 
     function renderResults(data) {
+        // ฟังก์ชันนี้เหมือนเดิม ไม่ต้องแก้ไข
         resultsBody.innerHTML = '';
-        if (data.length === 0) {
+        if (!data || data.length === 0) {
             resultsTable.style.display = 'table';
             const row = resultsBody.insertRow();
             const cell = row.insertCell();
@@ -231,35 +195,25 @@ document.addEventListener('DOMContentLoaded', () => {
             const row = resultsBody.insertRow();
             row.innerHTML = `
                 <th scope="row">${index + 1}</th>
-                <td>${item.province || ''}</td>
-                <td>${item.amphoe || ''}</td>
-                <td>${item.tambon || ''}</td>
-                <td>${item.contract}</td>
-                <td>${item.year}</td>
-                <td>${item.projectName}</td>
-                <td>${item.proposerName}</td>
-                <td style="text-align: right;">${item.count}</td>
-                <td>${new Date(item.firstDueDate).toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' })}</td>
-                <td style="text-align: right;">${item.totalExpected.toFixed(2)}</td>
-                <td style="text-align: right;">${item.totalReturned.toFixed(2)}</td>
+                <td>${item.province || ''}</td><td>${item.amphoe || ''}</td><td>${item.tambon || ''}</td>
+                <td>${item.contract}</td><td>${item.year}</td><td>${item.projectName}</td>
+                <td>${item.proposerName}</td><td style="text-align: right;">${item.count}</td>
+                <td>${new Date(item.firstDueDate).toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' })}</td>
+                <td style="text-align: right;">${item.totalExpected.toLocaleString('th-TH', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                <td style="text-align: right;">${item.totalReturned.toLocaleString('th-TH', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
             `;
         });
         
-        // Update summary
         const percentage = grandTotalExpected > 0 ? (grandTotalReturned * 100) / grandTotalExpected : 0;
         summaryBox.innerHTML = `
             <div class="summary-item"><div class="label">จำนวนสัญญา</div><div class="value">${data.length}</div></div>
-            <div class="summary-item"><div class="label">รวมเงินต้นคาดว่าจะได้</div><div class="value">${grandTotalExpected.toFixed(2)}</div></div>
-            <div class="summary-item"><div class="label">รวมเงินต้นรับคืน</div><div class="value">${grandTotalReturned.toFixed(2)}</div></div>
+            <div class="summary-item"><div class="label">รวมเงินต้นคาดว่าจะได้</div><div class="value">${grandTotalExpected.toLocaleString('th-TH', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div></div>
+            <div class="summary-item"><div class="label">รวมเงินต้นรับคืน</div><div class="value">${grandTotalReturned.toLocaleString('th-TH', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div></div>
             <div class="summary-item"><div class="label">คิดเป็นร้อยละ</div><div class="value highlight">${percentage.toFixed(2)} %</div></div>
         `;
         
         resultsTable.querySelector('thead').innerHTML = `
-            <tr>
-                <th>ลำดับ</th><th>จังหวัด</th><th>อำเภอ</th><th>ตำบล</th><th>เลขที่สัญญา</th>
-                <th>ปีงบประมาณ</th><th>ชื่อโครงการ</th><th>ชื่อผู้เสนอ</th><th>จำนวนงวด</th>
-                <th>กำหนดชำระ</th><th>เงินต้นคาดว่าจะได้</th><th>เงินต้นรับคืน</th>
-            </tr>
+            <tr><th>ลำดับ</th><th>จังหวัด</th><th>อำเภอ</th><th>ตำบล</th><th>เลขที่สัญญา</th><th>ปีงบประมาณ</th><th>ชื่อโครงการ</th><th>ชื่อผู้เสนอ</th><th>จำนวนงวด</th><th>กำหนดชำระ</th><th>เงินต้นคาดว่าจะได้</th><th>เงินต้นรับคืน</th></tr>
         `;
 
         summaryBox.style.display = 'flex';
@@ -267,29 +221,10 @@ document.addEventListener('DOMContentLoaded', () => {
         searchAndExportContainer.style.display = 'flex';
     }
 
-
     // --- Initial Load ---
-    async function init() {
-        // Check session storage first
+    function init() {
         const isLoggedIn = sessionStorage.getItem('isLoggedIn') === 'true';
         const userName = sessionStorage.getItem('userName');
-
-        // Fetch data in parallel
-        const [usersData, contractsData] = await Promise.all([
-            fetchData('./data/users.json'),
-            fetchData('./data/contracts.json')
-        ]);
-
-        if (!usersData || !contractsData) {
-            showLogin(); // Show login but with an error state
-            loginErrorMsg.textContent = 'ไม่สามารถโหลดข้อมูลพื้นฐานได้ กรุณาลองรีเฟรชหน้า';
-            loginErrorMsg.style.display = 'block';
-            loginButton.disabled = true;
-            return;
-        }
-        
-        allUsers = usersData;
-        allContractsData = contractsData;
 
         if (isLoggedIn && userName) {
             showMainApp(userName);
@@ -297,7 +232,6 @@ document.addEventListener('DOMContentLoaded', () => {
             showLogin();
         }
 
-        // Attach event listeners
         loginForm.addEventListener('submit', handleLogin);
         logoutButton.addEventListener('click', handleLogout);
         searchButton.addEventListener('click', handleSearch);
