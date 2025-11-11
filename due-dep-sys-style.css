@@ -1,0 +1,164 @@
+/* --- General Styles --- */
+body {
+    font-family: 'Kanit', sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100% );
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    padding: 20px;
+}
+
+/* --- Login Section Styles --- */
+.login-container {
+    background: rgba(255, 255, 255, 0.9);
+    padding: 40px;
+    border-radius: 20px;
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.2);
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+}
+.login-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 25px;
+}
+.btn-login {
+    width: 100%;
+    padding: 12px;
+    border-radius: 50px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    background-color: #764ba2;
+    border: none;
+}
+.btn-login:hover {
+    background-color: #667eea;
+}
+
+/* --- Main Section Styles --- */
+.main-container {
+    width: 100%;
+    max-width: 1400px;
+    text-align: center;
+}
+.main-container body { /* Override body style for main view */
+     background: linear-gradient(135deg, #ffc3a0 0%, #ffafbd 100%);
+}
+
+.user-info-container {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    z-index: 1050;
+}
+.user-info-container .dropdown-toggle {
+    background-color: rgba(255, 255, 255, 0.3);
+    color: white;
+    border: none;
+    border-radius: 50px;
+    font-weight: 500;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+.user-info-container .dropdown-menu {
+    border-radius: 10px;
+    border: none;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.header-logo {
+    width: 100px;
+    height: 100px;
+    object-fit: contain;
+    margin-bottom: 15px;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.5);
+    padding: 5px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+.header-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 20px;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+.content-container {
+    background: rgba(255, 255, 255, 0.95);
+    padding: 30px;
+    border-radius: 20px;
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.2);
+    text-align: left;
+}
+.form-label {
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: #555;
+}
+.form-control, .form-select {
+    border-radius: 50px;
+    padding: 12px 20px;
+    font-size: 1rem;
+}
+.search-button {
+    width: 100%;
+    padding: 12px 20px;
+    font-size: 1.2rem;
+    font-weight: 700;
+    border-radius: 50px;
+    background-color: #ff8a8a;
+    color: white;
+    border: none;
+}
+#summary-box {
+    background-color: #fff9f9;
+    border: 2px solid #ffc3a0;
+    border-radius: 15px;
+    padding: 20px;
+    margin-top: 25px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    gap: 15px;
+}
+.summary-item {
+    text-align: center;
+    padding: 10px;
+    flex-grow: 1;
+}
+.summary-item .label {
+    font-size: 0.9rem;
+    color: #777;
+}
+.summary-item .value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #d9534f;
+}
+.summary-item .value.highlight {
+    color: #5cb85c;
+}
+.table-responsive {
+    overflow-x: auto;
+}
+.results-table {
+    width: 100%;
+    margin-top: 15px;
+    font-size: 0.9rem;
+}
+.results-table th, .results-table td {
+    white-space: nowrap;
+}
+.results-table thead {
+    background-color: #ff8a8a;
+    color: white;
+}
+#search-and-export-container {
+    display: flex;
+    gap: 15px;
+    margin-top: 25px;
+    align-items: center;
+}
