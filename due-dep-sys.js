@@ -32,19 +32,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ฟังก์ชันสำหรับเรียก API ของ Google Apps Script
     async function callGasApi(action, params = {}) {
-        // ... (ส่วน fetch เหมือนเดิม) ...
-        const result = await response.json();
-        if (!result.success) {
-            throw new Error(result.message || 'An unknown error occurred in the API.');
-        }
-
-        // *** เพิ่มเงื่อนไขตรงนี้ ***
-        if (action === 'login') {
-            return result; // สำหรับ login, ส่งกลับทั้งก้อน { success: true, name: '...' }
-        }
-
-        return result.data; // สำหรับ action อื่นๆ, ส่งกลับเฉพาะ data
+    // ... (ส่วน fetch เหมือนเดิม) ...
+    const result = await response.json();
+    if (!result.success) {
+        throw new Error(result.message || 'An unknown error occurred in the API.');
     }
+    
+    // *** เพิ่มเงื่อนไขตรงนี้ ***
+    if (action === 'login') {
+        return result; // สำหรับ login, ส่งกลับทั้งก้อน { success: true, name: '...' }
+    }
+
+    return result.data; // สำหรับ action อื่นๆ, ส่งกลับเฉพาะ data
+}
 
 
     // Show/Hide main sections
