@@ -1,6 +1,6 @@
 // --- 1. การตั้งค่า API Endpoint ---
 // **สำคัญ:** กรุณาแทนที่ YOUR_GAS_WEB_APP_URL_HERE ด้วย URL ของ Google Apps Script Web App ที่คุณ Deploy แล้ว
-const GAS_API_URL = "https://script.google.com/macros/s/AKfycbxqdy3XrfGly82pJOdWtqAyNUMyXBPs3likDcwpGfKIcbkxqPScOZINj4nMloFi6EI-/exechttps://script.google.com/macros/s/AKfycbzQGpWU-Fc3ee__fZYNhmqJ-8UE-OZsga853a4O7cBsS9neyZJVHglBTsZ-ztNu6aZ9gw/exec"; 
+const GAS_API_URL = "https://script.google.com/macros/s/AKfycbzQGpWU-Fc3ee__fZYNhmqJ-8UE-OZsga853a4O7cBsS9neyZJVHglBTsZ-ztNu6aZ9gw/exec"; 
 
 // --- 2. ฟังก์ชันช่วยเหลือสำหรับการเรียก API ---
 async function fetchApi(action, payload = {}) {
