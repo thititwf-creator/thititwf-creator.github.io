@@ -3,12 +3,11 @@ const DATA_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQWpaZQQWx
 const USER_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQlJk96U5j7X2xFIdJjebn5jISoEC6XKF8IcZz20dQf8SmE46NpKshDRN3if3Wb54MNAn5ZJj2YLwDd/pub?gid=0&single=true&output=csv";
 
 // --- การตั้งค่าสำหรับบันทึก Log ผ่าน Google Form ---
-const LOG_FORM_ACTION_URL = "https://docs.google.com/forms/d/e/SOME_LONG_ID/formResponse"; // <--- ใส่ URL ของ Form ที่คัดลอกมา
-const LOG_FORM_USER_ENTRY_ID = "entry.123456789"; // <--- ใส่ Entry ID ของช่อง userName
+const LOG_FORM_ACTION_URL = "https://docs.google.com/forms/d/e/SOME_LONG_ID/formResponse";
+const LOG_FORM_USER_ENTRY_ID = "entry.123456789";
 
 // --- Element Variables ---
-// (ส่วนนี้เหมือนเดิมทั้งหมด )
-const loginPage = document.getElementById('login-page');
+const loginPage = document.getElementById('login-page' );
 const mainApp = document.getElementById('main-app');
 const usernameInput = document.getElementById('username');
 const passwordInput = document.getElementById('password');
@@ -43,7 +42,6 @@ let filteredContractsData = [];
 
 // --- Functions ---
 
-// (ฟังก์ชัน fetchCsvData, logUserActivity, handleLogin, handleLogout, showMainApp, showLoginPage, initializeMainApp เหมือนเดิม)
 async function fetchCsvData(url) {
     try {
         const response = await fetch(url, { cache: 'no-store' });
@@ -144,11 +142,11 @@ async function initializeMainApp() {
     loadingSpinner.style.display = 'none';
     if (allContractsData.length > 0) {
         const notes = {
-            note1: allContractsData[0]['หมายเหตุ1'] || '',
-            note2: allContractsData[0]['หมายเหตุ2'] || ''
+            note1: allContractsData[0]['note1'] || '',
+            note2: allContractsData[0]['note2'] || ''
         };
         displayNotes(notes);
-        const provinces = [...new Set(allContractsData.map(row => row['จังหวัด']).filter(p => p))].sort();
+        const provinces = [...new Set(allContractsData.map(row => row['province']).filter(p => p))].sort();
         populateProvinces(provinces);
     } else {
         showError({ message: "ไม่พบข้อมูลสัญญาในระบบ" });
@@ -179,7 +177,7 @@ function formatCurrency(number) {
 function formatDate(dateString) {
     if (!dateString) return '';
     const date = new Date(dateString);
-    return new Intl.DateTimeFormat('en-GB', { // ใช้ en-GB เพื่อให้ได้ format DD/MM/YYYY
+    return new Intl.DateTimeFormat('en-GB', {
         year: 'numeric',
         month: '2-digit',
         day: '2-digit',
@@ -187,7 +185,6 @@ function formatDate(dateString) {
     }).format(date);
 }
 
-// --- จุดแก้ไขหลัก: ปรับปรุงฟังก์ชัน handleSearch ---
 function handleSearch() {
     const startDateString = startDateInput.value;
     const endDateString = endDateInput.value;
@@ -197,12 +194,14 @@ function handleSearch() {
         return;
     }
 
-    // ฟังก์ชันเล็กๆ สำหรับแปลง DD/MM/YYYY เป็น Date Object
     const parseDMY = (dateString) => {
+        if (!dateString) return null;
         const parts = dateString.split('/');
         if (parts.length !== 3) return null;
-        // new Date(year, monthIndex, day)
-        return new Date(parseInt(parts[2], 10), parseInt(parts[1], 10) - 1, parseInt(parts[0], 10));
+        const year = parseInt(parts[2], 10);
+        // แปลงปี พ.ศ. เป็น ค.ศ. หากจำเป็น
+        const finalYear = year > 2500 ? year - 543 : year;
+        return new Date(finalYear, parseInt(parts[1], 10) - 1, parseInt(parts[0], 10));
     };
 
     const start = parseDMY(startDateString);
@@ -223,11 +222,12 @@ function handleSearch() {
     loadingSpinner.style.display = 'block';
 
     const filteredRawData = allContractsData.filter(row => {
-        const rowProvince = row['จังหวัด'];
-        const dueDateValue = row['วันที่ครบกำหนดชำระ']; // คาดว่าเป็น DD/MM/YYYY
+        const rowProvince = row['province'];
+        // *** จุดแก้ไขสำคัญ: เปลี่ยนชื่อคอลัมน์เป็น 'dueDate' ***
+        const dueDateValue = row['dueDate']; 
         if (!rowProvince || !dueDateValue) return false;
         
-        const dueDate = parseDMY(dueDateValue); // ใช้ฟังก์ชันเดียวกันในการแปลง
+        const dueDate = parseDMY(dueDateValue);
 
         if (!dueDate || isNaN(dueDate.getTime())) return false;
         
@@ -237,20 +237,21 @@ function handleSearch() {
     });
 
     const groupedByContract = filteredRawData.reduce((acc, row) => {
-        const contractId = row['เลขที่สัญญา'];
-        const dueDate = parseDMY(row['วันที่ครบกำหนดชำระ']); // ใช้ฟังก์ชันเดียวกันในการแปลง
+        const contractId = row['contract'];
+        // *** จุดแก้ไขสำคัญ: เปลี่ยนชื่อคอลัมน์เป็น 'dueDate' ***
+        const dueDate = parseDMY(row['dueDate']);
 
-        if (!dueDate) return acc; // ข้ามแถวที่วันที่ผิดพลาด
+        if (!dueDate) return acc;
 
         if (!acc[contractId]) {
             acc[contractId] = {
-                province: row['จังหวัด'],
-                amphoe: row['อำเภอ'],
-                tambon: row['ตำบล'],
+                province: row['province'],
+                amphoe: row['amphoe'],
+                tambon: row['tambon'],
                 contract: contractId,
-                year: row['ปีงบประมาณ'],
-                projectName: row['ชื่อโครงการ'],
-                proposerName: row['ชื่อผู้เสนอ'],
+                year: row['year'],
+                projectName: row['projectName'],
+                proposerName: row['proposerName'],
                 firstDueDate: dueDate,
                 count: 0,
                 totalExpected: 0,
@@ -263,8 +264,8 @@ function handleSearch() {
         }
 
         acc[contractId].count += 1;
-        acc[contractId].totalExpected += parseFloat(row['เงินต้นที่คาดว่าจะได้รับ'] || 0);
-        acc[contractId].totalReturned += parseFloat(row['เงินต้นรับคืน'] || 0);
+        acc[contractId].totalExpected += parseFloat(row['totalExpected'] || 0);
+        acc[contractId].totalReturned += parseFloat(row['totalReturned'] || 0);
         return acc;
     }, {});
 
@@ -277,7 +278,6 @@ function handleSearch() {
     filterAndRenderTable();
 }
 
-// (ฟังก์ชัน filterAndRenderTable, renderTable, showError, exportTableToExcel เหมือนเดิม)
 function filterAndRenderTable() {
     const searchText = searchInTableInput.value.trim().toLowerCase();
     if (searchText === '') {
@@ -374,8 +374,6 @@ function exportTableToExcel() {
     }
 }
 
-
-// --- Event Listeners ---
 document.addEventListener("DOMContentLoaded", () => {
     const isLoggedIn = sessionStorage.getItem('isLoggedIn') === 'true';
     const userName = sessionStorage.getItem('userName');
