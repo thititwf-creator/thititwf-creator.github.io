@@ -1,12 +1,11 @@
-// --- ค่าคงที่และ URL ของ Google Sheet (ที่เผยแพร่เป็น CSV ) ---
-const SHEET_ID = "1xk8u4AWnjs00f3R-J9KAK7oo09nFGxu7z-kn4uUwpBI";
-const SHEET_NAME = "Sheet1";
-const USER_SHEET_ID = "1vNIKbtV2S7Si9aHUrg3NPJcyjNDENcRuufSp_rgFW9o";
-const USER_SHEET_NAME = "Sheet1";
+// --- ค่าคงที่และ URL ของ Google Sheet (ที่เผยแพร่เป็น CSV) ---
+const DATA_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQWpaZQQWx8Yob4W2SEOeKKiWQpOjN3--qiRHF35DW-lDaDWLS1FJOJGMpd-BT8TN36VBfX28Jhog9m/pub?gid=1184749988&single=true&output=csv";
+const USER_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQlJk96U5j7X2xFIdJjebn5jISoEC6XKF8IcZz20dQf8SmE46NpKshDRN3if3Wb54MNAn5ZJj2YLwDd/pub?gid=0&single=true&output=csv";
 
-// สร้าง URL สำหรับดึง CSV
-const DATA_CSV_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${SHEET_NAME}`;
-const USER_CSV_URL = `https://docs.google.com/spreadsheets/d/${USER_SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${USER_SHEET_NAME}`;
+// --- การตั้งค่าสำหรับบันทึก Log ผ่าน Google Form ---
+// *** กรุณากรอกข้อมูลจาก Google Form ของคุณที่นี่ ***
+const LOG_FORM_ACTION_URL = "https://docs.google.com/forms/d/e/SOME_LONG_ID/formResponse"; // <--- ใส่ URL ของ Form ที่คัดลอกมา
+const LOG_FORM_USER_ENTRY_ID = "entry.123456789"; // <--- ใส่ Entry ID ของช่อง userName
 
 // --- Element Variables ---
 const loginPage = document.getElementById('login-page');
@@ -39,16 +38,16 @@ const exportButton = document.getElementById('export-button');
 const noteContainer = document.getElementById('note-container');
 const noteText = document.getElementById('note-text');
 
-let allContractsData = []; // ข้อมูลดิบทั้งหมดที่ดึงมา
-let groupedContractsData = []; // ข้อมูลที่ผ่านการจัดกลุ่มแล้ว
-let filteredContractsData = []; // ข้อมูลที่แสดงในตาราง (หลังจากการค้นหาในตาราง)
+let allContractsData = [];
+let groupedContractsData = [];
+let filteredContractsData = [];
 
 // --- Functions ---
 
 // ฟังก์ชันสำหรับดึงและ Parse ข้อมูล CSV
 async function fetchCsvData(url) {
     try {
-        const response = await fetch(url);
+        const response = await fetch(url, { cache: 'no-store' }); // เพิ่ม no-store เพื่อดึงข้อมูลใหม่เสมอ
         if (!response.ok) {
             throw new Error(`Network response was not ok: ${response.statusText}`);
         }
@@ -67,6 +66,30 @@ async function fetchCsvData(url) {
         return [];
     }
 }
+
+// ฟังก์ชันบันทึก Log การเข้าใช้งานผ่าน Google Form
+async function logUserActivity(userName) {
+    // ตรวจสอบว่ามีการตั้งค่า URL และ Entry ID หรือไม่
+    if (LOG_FORM_ACTION_URL.includes("SOME_LONG_ID") || LOG_FORM_USER_ENTRY_ID.includes("entry.123456789")) {
+        console.warn("Log function is not configured. Please set LOG_FORM_ACTION_URL and LOG_FORM_USER_ENTRY_ID.");
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append(LOG_FORM_USER_ENTRY_ID, userName);
+
+    try {
+        await fetch(LOG_FORM_ACTION_URL, {
+            method: 'POST',
+            body: formData,
+            mode: 'no-cors' // สำคัญมาก: ต้องใช้ no-cors เพราะ Google Form จะไม่ส่ง response กลับมา
+        });
+        console.log("Log submitted for user:", userName);
+    } catch (error) {
+        console.error("Error submitting log:", error);
+    }
+}
+
 
 // ฟังก์ชันจัดการการ Login
 async function handleLogin() {
@@ -87,10 +110,14 @@ async function handleLogin() {
     const users = await fetchCsvData(USER_CSV_URL);
     const user = users.find(u => u.username === username && String(u.password) === String(password));
 
-    if (user) {
+    if (user && user.name) {
         // Login สำเร็จ
         sessionStorage.setItem('isLoggedIn', 'true');
         sessionStorage.setItem('userName', user.name);
+
+        // เรียกใช้ฟังก์ชันบันทึก Log
+        await logUserActivity(user.name);
+
         showMainApp(user.name);
     } else {
         // Login ไม่สำเร็จ
@@ -102,14 +129,13 @@ async function handleLogin() {
     }
 }
 
-// ฟังก์ชันจัดการการ Logout
+// (ฟังก์ชันอื่นๆ ที่เหลือเหมือนเดิมทั้งหมด)
 function handleLogout() {
     sessionStorage.removeItem('isLoggedIn');
     sessionStorage.removeItem('userName');
     showLoginPage();
 }
 
-// ฟังก์ชันแสดงหน้าหลัก
 function showMainApp(userName) {
     document.body.classList.remove('login-body');
     loginPage.style.display = 'none';
@@ -118,7 +144,6 @@ function showMainApp(userName) {
     initializeMainApp();
 }
 
-// ฟังก์ชันแสดงหน้า Login
 function showLoginPage() {
     document.body.classList.add('login-body');
     mainApp.style.display = 'none';
@@ -130,22 +155,17 @@ function showLoginPage() {
     passwordInput.value = '';
 }
 
-// ฟังก์ชันเริ่มต้นการทำงานของหน้าหลัก
 async function initializeMainApp() {
-    // โหลดข้อมูลสัญญาและจังหวัด
     loadingSpinner.style.display = 'block';
     allContractsData = await fetchCsvData(DATA_CSV_URL);
     loadingSpinner.style.display = 'none';
 
     if (allContractsData.length > 0) {
-        // ดึงข้อมูล Note จากแถวแรก
         const notes = {
             note1: allContractsData[0]['หมายเหตุ1'] || '',
             note2: allContractsData[0]['หมายเหตุ2'] || ''
         };
         displayNotes(notes);
-
-        // ดึงรายชื่อจังหวัดที่ไม่ซ้ำกัน
         const provinces = [...new Set(allContractsData.map(row => row['จังหวัด']).filter(p => p))].sort();
         populateProvinces(provinces);
     } else {
@@ -223,7 +243,6 @@ function handleSearch() {
         const dueDateValue = row['วันที่ครบกำหนดชำระ'];
         if (!rowProvince || !dueDateValue) return false;
 
-        // แปลง dd/mm/yyyy เป็น Date object
         const dateParts = dueDateValue.split('/');
         if (dateParts.length !== 3) return false;
         const dueDate = new Date(+dateParts[2], dateParts[1] - 1, +dateParts[0]);
@@ -271,7 +290,7 @@ function handleSearch() {
     });
 
     loadingSpinner.style.display = 'none';
-    filterAndRenderTable(); // เริ่มต้นด้วยการแสดงข้อมูลทั้งหมดที่กรองมา
+    filterAndRenderTable();
 }
 
 function filterAndRenderTable() {
@@ -348,7 +367,6 @@ function exportTableToExcel() {
     filteredContractsData.forEach((item, index) => {
         dataForExport.push([
             String(index + 1), String(item.province || ''), String(item.amphoe || ''),
-            // (ต่อจากโค้ดเดิม)
             String(item.tambon || ''), String(item.contract || ''), String(item.year || ''),
             String(item.projectName || ''), String(item.proposerName || ''),
             String(item.count || '0'), formatDate(item.firstDueDate),
@@ -356,16 +374,12 @@ function exportTableToExcel() {
         ]);
     });
 
-    // ใช้ PapaParse เพื่อสร้าง CSV string
     const csv = Papa.unparse(dataForExport);
-
-    // สร้าง Blob จาก CSV string
-    // เพิ่ม BOM (Byte Order Mark) เพื่อให้ Excel เปิดไฟล์ภาษาไทยได้ถูกต้อง
     const bom = new Uint8Array([0xEF, 0xBB, 0xBF]);
     const blob = new Blob([bom, csv], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement("a");
 
-    if (link.download !== undefined) { // ตรวจสอบว่าเบราว์เซอร์รองรับ attribute 'download' หรือไม่
+    if (link.download !== undefined) {
         const url = URL.createObjectURL(blob);
         const fileName = `ข้อมูลสัญญา_${new Date().toISOString().slice(0, 10)}.csv`;
         link.setAttribute("href", url);
@@ -377,11 +391,8 @@ function exportTableToExcel() {
     }
 }
 
-
-// --- Event Listeners ---
 // --- Event Listeners ---
 document.addEventListener("DOMContentLoaded", () => {
-    // ตรวจสอบสถานะการ Login จาก Session Storage
     const isLoggedIn = sessionStorage.getItem('isLoggedIn') === 'true';
     const userName = sessionStorage.getItem('userName');
 
@@ -391,8 +402,6 @@ document.addEventListener("DOMContentLoaded", () => {
         showLoginPage();
     }
 
-    // --- จุดแก้ไข ---
-    // ตั้งค่า Date Picker ให้เฉพาะเจาะจงกับ ID ของ input ที่ต้องการ
     $('#start-date, #end-date').datepicker({
         format: 'dd/mm/yyyy',
         language: 'th',
@@ -401,19 +410,16 @@ document.addEventListener("DOMContentLoaded", () => {
         orientation: 'bottom'
     });
 
-    // กำหนด Event Listener สำหรับปุ่มต่างๆ
     loginButton.addEventListener('click', handleLogin);
     logoutButton.addEventListener('click', handleLogout);
     searchButton.addEventListener('click', handleSearch);
     searchInTableInput.addEventListener('input', filterAndRenderTable);
     exportButton.addEventListener('click', exportTableToExcel);
 
-    // เพิ่มการดักจับการกด Enter ในช่อง password เพื่อ Login
-    passwordInput.addEventListener('keypress', function(event) {
+    passwordInput.addEventListener('keypress', function (event) {
         if (event.key === 'Enter') {
-            event.preventDefault(); // ป้องกันการ submit form แบบปกติ
+            event.preventDefault();
             handleLogin();
         }
     });
 });
-
