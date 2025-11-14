@@ -379,6 +379,7 @@ function exportTableToExcel() {
 
 
 // --- Event Listeners ---
+// --- Event Listeners ---
 document.addEventListener("DOMContentLoaded", () => {
     // ตรวจสอบสถานะการ Login จาก Session Storage
     const isLoggedIn = sessionStorage.getItem('isLoggedIn') === 'true';
@@ -390,8 +391,9 @@ document.addEventListener("DOMContentLoaded", () => {
         showLoginPage();
     }
 
-    // ตั้งค่า Date Picker
-    $('.form-control[type="text"]').datepicker({
+    // --- จุดแก้ไข ---
+    // ตั้งค่า Date Picker ให้เฉพาะเจาะจงกับ ID ของ input ที่ต้องการ
+    $('#start-date, #end-date').datepicker({
         format: 'dd/mm/yyyy',
         language: 'th',
         autoclose: true,
@@ -407,10 +409,11 @@ document.addEventListener("DOMContentLoaded", () => {
     exportButton.addEventListener('click', exportTableToExcel);
 
     // เพิ่มการดักจับการกด Enter ในช่อง password เพื่อ Login
-    passwordInput.addEventListener('keypress', function (event) {
+    passwordInput.addEventListener('keypress', function(event) {
         if (event.key === 'Enter') {
             event.preventDefault(); // ป้องกันการ submit form แบบปกติ
             handleLogin();
         }
     });
 });
+
