@@ -3,11 +3,11 @@ const DATA_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQWpaZQQWx
 const USER_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQlJk96U5j7X2xFIdJjebn5jISoEC6XKF8IcZz20dQf8SmE46NpKshDRN3if3Wb54MNAn5ZJj2YLwDd/pub?gid=0&single=true&output=csv";
 
 // --- การตั้งค่าสำหรับบันทึก Log ผ่าน Google Form ---
-// *** กรุณากรอกข้อมูลจาก Google Form ของคุณที่นี่ ***
 const LOG_FORM_ACTION_URL = "https://docs.google.com/forms/d/e/SOME_LONG_ID/formResponse"; // <--- ใส่ URL ของ Form ที่คัดลอกมา
 const LOG_FORM_USER_ENTRY_ID = "entry.123456789"; // <--- ใส่ Entry ID ของช่อง userName
 
 // --- Element Variables ---
+// (ส่วนนี้เหมือนเดิมทั้งหมด )
 const loginPage = document.getElementById('login-page');
 const mainApp = document.getElementById('main-app');
 const usernameInput = document.getElementById('username');
@@ -18,7 +18,6 @@ const loginSpinner = document.getElementById('login-spinner');
 const errorMessageDiv = document.getElementById('error-message');
 const logoutButton = document.getElementById('logout-button');
 const userNameDisplay = document.getElementById('user-name-display');
-
 const provinceSelect = document.getElementById('province-select');
 const startDateInput = document.getElementById('start-date');
 const endDateInput = document.getElementById('end-date');
@@ -44,10 +43,10 @@ let filteredContractsData = [];
 
 // --- Functions ---
 
-// ฟังก์ชันสำหรับดึงและ Parse ข้อมูล CSV
+// (ฟังก์ชัน fetchCsvData, logUserActivity, handleLogin, handleLogout, showMainApp, showLoginPage, initializeMainApp เหมือนเดิม)
 async function fetchCsvData(url) {
     try {
-        const response = await fetch(url, { cache: 'no-store' }); // เพิ่ม no-store เพื่อดึงข้อมูลใหม่เสมอ
+        const response = await fetch(url, { cache: 'no-store' });
         if (!response.ok) {
             throw new Error(`Network response was not ok: ${response.statusText}`);
         }
@@ -67,22 +66,18 @@ async function fetchCsvData(url) {
     }
 }
 
-// ฟังก์ชันบันทึก Log การเข้าใช้งานผ่าน Google Form
 async function logUserActivity(userName) {
-    // ตรวจสอบว่ามีการตั้งค่า URL และ Entry ID หรือไม่
     if (LOG_FORM_ACTION_URL.includes("SOME_LONG_ID") || LOG_FORM_USER_ENTRY_ID.includes("entry.123456789")) {
         console.warn("Log function is not configured. Please set LOG_FORM_ACTION_URL and LOG_FORM_USER_ENTRY_ID.");
         return;
     }
-
     const formData = new FormData();
     formData.append(LOG_FORM_USER_ENTRY_ID, userName);
-
     try {
         await fetch(LOG_FORM_ACTION_URL, {
             method: 'POST',
             body: formData,
-            mode: 'no-cors' // สำคัญมาก: ต้องใช้ no-cors เพราะ Google Form จะไม่ส่ง response กลับมา
+            mode: 'no-cors'
         });
         console.log("Log submitted for user:", userName);
     } catch (error) {
@@ -90,37 +85,26 @@ async function logUserActivity(userName) {
     }
 }
 
-
-// ฟังก์ชันจัดการการ Login
 async function handleLogin() {
     const username = usernameInput.value;
     const password = passwordInput.value;
-
     if (!username || !password) {
         errorMessageDiv.textContent = 'กรุณากรอกชื่อผู้ใช้และรหัสผ่าน';
         errorMessageDiv.style.display = 'block';
         return;
     }
-
     loginButton.disabled = true;
     loginText.style.display = 'none';
     loginSpinner.style.display = 'inline-block';
     errorMessageDiv.style.display = 'none';
-
     const users = await fetchCsvData(USER_CSV_URL);
     const user = users.find(u => u.username === username && String(u.password) === String(password));
-
     if (user && user.name) {
-        // Login สำเร็จ
         sessionStorage.setItem('isLoggedIn', 'true');
         sessionStorage.setItem('userName', user.name);
-
-        // เรียกใช้ฟังก์ชันบันทึก Log
         await logUserActivity(user.name);
-
         showMainApp(user.name);
     } else {
-        // Login ไม่สำเร็จ
         errorMessageDiv.textContent = 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง';
         errorMessageDiv.style.display = 'block';
         loginButton.disabled = false;
@@ -129,7 +113,6 @@ async function handleLogin() {
     }
 }
 
-// (ฟังก์ชันอื่นๆ ที่เหลือเหมือนเดิมทั้งหมด)
 function handleLogout() {
     sessionStorage.removeItem('isLoggedIn');
     sessionStorage.removeItem('userName');
@@ -159,7 +142,6 @@ async function initializeMainApp() {
     loadingSpinner.style.display = 'block';
     allContractsData = await fetchCsvData(DATA_CSV_URL);
     loadingSpinner.style.display = 'none';
-
     if (allContractsData.length > 0) {
         const notes = {
             note1: allContractsData[0]['หมายเหตุ1'] || '',
@@ -173,16 +155,7 @@ async function initializeMainApp() {
     }
 }
 
-function convertBeToAd(beDate) {
-    if (!beDate || beDate.split('/').length !== 3) return null;
-    const parts = beDate.split('/');
-    const day = parts[0];
-    const month = parts[1];
-    const beYear = parseInt(parts[2], 10);
-    if (isNaN(beYear)) return null;
-    const adYear = beYear - 543;
-    return `${adYear}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
-}
+// --- จุดแก้ไข: ลบฟังก์ชัน convertBeToAd ออกไป ---
 
 function displayNotes(notes) {
     if (notes && (notes.note1 || notes.note2)) {
@@ -208,6 +181,7 @@ function formatCurrency(number) {
 function formatDate(dateString) {
     if (!dateString) return '';
     const date = new Date(dateString);
+    // ปรับ Format ให้เป็น DD/MM/YYYY เพื่อให้สอดคล้องกับ Datepicker
     return new Intl.DateTimeFormat('th-TH', {
         year: 'numeric',
         month: '2-digit',
@@ -216,14 +190,31 @@ function formatDate(dateString) {
     }).format(date);
 }
 
+// --- จุดแก้ไข: ปรับปรุงฟังก์ชัน handleSearch ---
 function handleSearch() {
-    const startDateBe = startDateInput.value;
-    const endDateBe = endDateInput.value;
-    const startDateAd = convertBeToAd(startDateBe);
-    const endDateAd = convertBeToAd(endDateBe);
+    const startDateString = startDateInput.value; // รับค่า DD/MM/YYYY (ค.ศ.)
+    const endDateString = endDateInput.value;   // รับค่า DD/MM/YYYY (ค.ศ.)
 
-    if (!provinceSelect.value || !startDateAd || !endDateAd) {
-        showError({ message: "กรุณาเลือกจังหวัดและกรอกช่วงวันที่ให้ครบถ้วนในรูปแบบ วว/ดด/ปปปป" });
+    if (!provinceSelect.value || !startDateString || !endDateString) {
+        showError({ message: "กรุณาเลือกจังหวัดและกรอกช่วงวันที่ให้ครบถ้วน" });
+        return;
+    }
+
+    // แปลง DD/MM/YYYY เป็น Date object
+    const startParts = startDateString.split('/');
+    const endParts = endDateString.split('/');
+    
+    if (startParts.length !== 3 || endParts.length !== 3) {
+        showError({ message: "รูปแบบวันที่ไม่ถูกต้อง กรุณาใช้ DD/MM/YYYY" });
+        return;
+    }
+
+    const start = new Date(+startParts[2], startParts[1] - 1, +startParts[0]);
+    const end = new Date(+endParts[2], endParts[1] - 1, +endParts[0]);
+    end.setHours(23, 59, 59, 999); // ตั้งเวลาสิ้นสุดของวัน
+
+    if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+        showError({ message: "วันที่ไม่ถูกต้อง กรุณาตรวจสอบอีกครั้ง" });
         return;
     }
 
@@ -234,15 +225,12 @@ function handleSearch() {
     searchInTableInput.value = '';
     loadingSpinner.style.display = 'block';
 
-    const start = new Date(startDateAd);
-    const end = new Date(endDateAd);
-    end.setHours(23, 59, 59, 999);
-
+    // (ส่วนที่เหลือของฟังก์ชัน handleSearch และฟังก์ชันอื่นๆ เหมือนเดิม)
     const filteredRawData = allContractsData.filter(row => {
         const rowProvince = row['จังหวัด'];
         const dueDateValue = row['วันที่ครบกำหนดชำระ'];
         if (!rowProvince || !dueDateValue) return false;
-
+        
         const dateParts = dueDateValue.split('/');
         if (dateParts.length !== 3) return false;
         const dueDate = new Date(+dateParts[2], dateParts[1] - 1, +dateParts[0]);
@@ -293,6 +281,7 @@ function handleSearch() {
     filterAndRenderTable();
 }
 
+// (ฟังก์ชัน filterAndRenderTable, renderTable, showError, exportTableToExcel เหมือนเดิม)
 function filterAndRenderTable() {
     const searchText = searchInTableInput.value.trim().toLowerCase();
     if (searchText === '') {
@@ -373,15 +362,13 @@ function exportTableToExcel() {
             String(item.totalExpected || '0.00'), String(item.totalReturned || '0.00')
         ]);
     });
-
     const csv = Papa.unparse(dataForExport);
     const bom = new Uint8Array([0xEF, 0xBB, 0xBF]);
     const blob = new Blob([bom, csv], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement("a");
-
     if (link.download !== undefined) {
         const url = URL.createObjectURL(blob);
-        const fileName = `ข้อมูลสัญญา_${new Date().toISOString().slice(0, 10)}.csv`;
+        const fileName = `ข้อมูลสัญญา_${new Date().toISOString().slice(0,10)}.csv`;
         link.setAttribute("href", url);
         link.setAttribute("download", fileName);
         link.style.visibility = 'hidden';
@@ -390,6 +377,7 @@ function exportTableToExcel() {
         document.body.removeChild(link);
     }
 }
+
 
 // --- Event Listeners ---
 document.addEventListener("DOMContentLoaded", () => {
@@ -402,12 +390,13 @@ document.addEventListener("DOMContentLoaded", () => {
         showLoginPage();
     }
 
+    // --- จุดแก้ไข: ตั้งค่า Date Picker เป็น ค.ศ. ---
     $('#start-date, #end-date').datepicker({
-        format: 'dd/mm/yyyy',
-        language: 'th',
+        format: 'dd/mm/yyyy', // รูปแบบยังคงเป็น วัน/เดือน/ปี
         autoclose: true,
         todayHighlight: true,
         orientation: 'bottom'
+        // ไม่ต้องใส่ language: 'th'
     });
 
     loginButton.addEventListener('click', handleLogin);
@@ -416,7 +405,7 @@ document.addEventListener("DOMContentLoaded", () => {
     searchInTableInput.addEventListener('input', filterAndRenderTable);
     exportButton.addEventListener('click', exportTableToExcel);
 
-    passwordInput.addEventListener('keypress', function (event) {
+    passwordInput.addEventListener('keypress', function(event) {
         if (event.key === 'Enter') {
             event.preventDefault();
             handleLogin();
