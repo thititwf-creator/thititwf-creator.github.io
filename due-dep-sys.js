@@ -155,8 +155,6 @@ async function initializeMainApp() {
     }
 }
 
-// --- จุดแก้ไข: ลบฟังก์ชัน convertBeToAd ออกไป ---
-
 function displayNotes(notes) {
     if (notes && (notes.note1 || notes.note2)) {
         noteText.textContent = `${notes.note1} ${notes.note2}`.trim();
@@ -181,8 +179,7 @@ function formatCurrency(number) {
 function formatDate(dateString) {
     if (!dateString) return '';
     const date = new Date(dateString);
-    // ปรับ Format ให้เป็น DD/MM/YYYY เพื่อให้สอดคล้องกับ Datepicker
-    return new Intl.DateTimeFormat('th-TH', {
+    return new Intl.DateTimeFormat('en-GB', { // ใช้ en-GB เพื่อให้ได้ format DD/MM/YYYY
         year: 'numeric',
         month: '2-digit',
         day: '2-digit',
@@ -190,33 +187,33 @@ function formatDate(dateString) {
     }).format(date);
 }
 
-// --- จุดแก้ไข: ปรับปรุงฟังก์ชัน handleSearch ---
+// --- จุดแก้ไขหลัก: ปรับปรุงฟังก์ชัน handleSearch ---
 function handleSearch() {
-    const startDateString = startDateInput.value; // รับค่า DD/MM/YYYY (ค.ศ.)
-    const endDateString = endDateInput.value;   // รับค่า DD/MM/YYYY (ค.ศ.)
+    const startDateString = startDateInput.value;
+    const endDateString = endDateInput.value;
 
     if (!provinceSelect.value || !startDateString || !endDateString) {
         showError({ message: "กรุณาเลือกจังหวัดและกรอกช่วงวันที่ให้ครบถ้วน" });
         return;
     }
 
-    // แปลง DD/MM/YYYY เป็น Date object
-    const startParts = startDateString.split('/');
-    const endParts = endDateString.split('/');
-    
-    if (startParts.length !== 3 || endParts.length !== 3) {
+    // ฟังก์ชันเล็กๆ สำหรับแปลง DD/MM/YYYY เป็น Date Object
+    const parseDMY = (dateString) => {
+        const parts = dateString.split('/');
+        if (parts.length !== 3) return null;
+        // new Date(year, monthIndex, day)
+        return new Date(parseInt(parts[2], 10), parseInt(parts[1], 10) - 1, parseInt(parts[0], 10));
+    };
+
+    const start = parseDMY(startDateString);
+    const end = parseDMY(endDateString);
+
+    if (!start || !end || isNaN(start.getTime()) || isNaN(end.getTime())) {
         showError({ message: "รูปแบบวันที่ไม่ถูกต้อง กรุณาใช้ DD/MM/YYYY" });
         return;
     }
-
-    const start = new Date(+startParts[2], startParts[1] - 1, +startParts[0]);
-    const end = new Date(+endParts[2], endParts[1] - 1, +endParts[0]);
-    end.setHours(23, 59, 59, 999); // ตั้งเวลาสิ้นสุดของวัน
-
-    if (isNaN(start.getTime()) || isNaN(end.getTime())) {
-        showError({ message: "วันที่ไม่ถูกต้อง กรุณาตรวจสอบอีกครั้ง" });
-        return;
-    }
+    
+    end.setHours(23, 59, 59, 999);
 
     resultsTable.style.display = 'none';
     summaryBox.style.display = 'none';
@@ -225,17 +222,15 @@ function handleSearch() {
     searchInTableInput.value = '';
     loadingSpinner.style.display = 'block';
 
-    // (ส่วนที่เหลือของฟังก์ชัน handleSearch และฟังก์ชันอื่นๆ เหมือนเดิม)
     const filteredRawData = allContractsData.filter(row => {
         const rowProvince = row['จังหวัด'];
-        const dueDateValue = row['วันที่ครบกำหนดชำระ'];
+        const dueDateValue = row['วันที่ครบกำหนดชำระ']; // คาดว่าเป็น DD/MM/YYYY
         if (!rowProvince || !dueDateValue) return false;
         
-        const dateParts = dueDateValue.split('/');
-        if (dateParts.length !== 3) return false;
-        const dueDate = new Date(+dateParts[2], dateParts[1] - 1, +dateParts[0]);
+        const dueDate = parseDMY(dueDateValue); // ใช้ฟังก์ชันเดียวกันในการแปลง
 
-        if (isNaN(dueDate.getTime())) return false;
+        if (!dueDate || isNaN(dueDate.getTime())) return false;
+        
         const isProvinceMatch = (provinceSelect.value === "ทุกจังหวัด" || rowProvince === provinceSelect.value);
         const isDateMatch = (dueDate >= start && dueDate <= end);
         return isProvinceMatch && isDateMatch;
@@ -243,8 +238,9 @@ function handleSearch() {
 
     const groupedByContract = filteredRawData.reduce((acc, row) => {
         const contractId = row['เลขที่สัญญา'];
-        const dateParts = row['วันที่ครบกำหนดชำระ'].split('/');
-        const dueDate = new Date(+dateParts[2], dateParts[1] - 1, +dateParts[0]);
+        const dueDate = parseDMY(row['วันที่ครบกำหนดชำระ']); // ใช้ฟังก์ชันเดียวกันในการแปลง
+
+        if (!dueDate) return acc; // ข้ามแถวที่วันที่ผิดพลาด
 
         if (!acc[contractId]) {
             acc[contractId] = {
@@ -390,13 +386,11 @@ document.addEventListener("DOMContentLoaded", () => {
         showLoginPage();
     }
 
-    // --- จุดแก้ไข: ตั้งค่า Date Picker เป็น ค.ศ. ---
     $('#start-date, #end-date').datepicker({
-        format: 'dd/mm/yyyy', // รูปแบบยังคงเป็น วัน/เดือน/ปี
+        format: 'dd/mm/yyyy',
         autoclose: true,
         todayHighlight: true,
         orientation: 'bottom'
-        // ไม่ต้องใส่ language: 'th'
     });
 
     loginButton.addEventListener('click', handleLogin);
