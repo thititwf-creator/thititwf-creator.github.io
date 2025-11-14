@@ -3,34 +3,168 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบค้นหาข้อมูลสัญญา</title>
+    <title>ค้นหาและสรุปข้อมูลสัญญาที่จะครบกำหนดชำระ</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="due-dep-sys-style.css">
+    <style>
+        /* --- CSS ทั้งหมดรวมอยู่ที่นี่ --- */
+        .user-info-container {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 1050;
+        }
+        .user-info-container .dropdown-toggle {
+            background-color: rgba(255, 255, 255, 0.3 );
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-weight: 500;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .user-info-container .dropdown-toggle::after {
+            display: none;
+        }
+        .user-info-container .dropdown-menu {
+            border-radius: 10px;
+            border: none;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .user-info-container .dropdown-item {
+            cursor: pointer;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Kanit', sans-serif;
+            background: linear-gradient(135deg, #ffc3a0 0%, #ffafbd 100%);
+            display: flex; justify-content: flex-start; align-items: center;
+            flex-direction: column; min-height: 100vh; margin: 0; padding: 20px;
+        }
+        .main-container { width: 100%; max-width: 1400px; text-align: center; }
+        .header-logo {
+            width: 100px; height: 100px; object-fit: contain; margin-bottom: 15px;
+            border-radius: 50%; background-color: rgba(255, 255, 255, 0.5);
+            padding: 5px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+        }
+        .header-title {
+            font-size: 2.5rem; font-weight: 700; color: white;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        #note-container {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1rem;
+            font-weight: 500;
+            margin-bottom: 20px;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+            background-color: rgba(0, 0, 0, 0.1);
+            padding: 8px 15px;
+            border-radius: 50px;
+            display: inline-block;
+        }
+        .content-container {
+            background: rgba(255, 255, 255, 0.9); padding: 30px; border-radius: 20px;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.2);
+            backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.18);
+            text-align: left;
+        }
+        .form-label { font-size: 1.2rem; font-weight: 500; color: #555; margin-bottom: 10px; }
+        .form-control, .form-select {
+            font-family: 'Kanit', sans-serif; font-size: 1rem; padding: 12px 15px;
+            border-radius: 50px; border: 1px solid #ccc;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05); width: 100%;
+        }
+        .form-control:focus, .form-select:focus {
+            border-color: #ff8a8a; box-shadow: 0 0 0 0.25rem rgba(255, 138, 138, 0.3);
+        }
+        .search-button {
+            width: 100%; padding: 12px 20px; font-size: 1.2rem; font-weight: 700;
+            border: none; border-radius: 50px; background-color: #ff8a8a; color: white;
+            cursor: pointer; transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 138, 138, 0.4);
+        }
+        .search-button:hover { background-color: #ff6b6b; transform: translateY(-2px); }
+        
+        #summary-box {
+            background-color: #fff9f9; border: 2px solid #ffc3a0; border-radius: 15px;
+            padding: 20px; margin-top: 25px; display: flex; flex-wrap: wrap;
+            justify-content: space-around; gap: 15px;
+        }
+        .summary-item { text-align: center; padding: 10px; flex-grow: 1; }
+        .summary-item .label { font-size: 0.9rem; color: #777; margin-bottom: 5px; }
+        .summary-item .value { font-size: 1.5rem; font-weight: 700; color: #d9534f; }
+        .summary-item .value.highlight { color: #5cb85c; }
+
+        .table-responsive { overflow-x: auto; }
+        .results-table {
+            width: 100%; margin-top: 15px; border-collapse: collapse; background-color: white;
+            border-radius: 10px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            font-size: 0.9rem;
+        }
+        .results-table th, .results-table td { padding: 10px 12px; text-align: left; border-bottom: 1px solid #ddd; vertical-align: middle; white-space: nowrap; }
+        .results-table td:nth-child(7), .results-table td:nth-child(8) { white-space: normal; }
+        .results-table th:nth-child(n+10), .results-table td:nth-child(n+10) { text-align: right; }
+        .results-table thead { background-color: #ff8a8a; color: white; font-weight: 500; }
+        .results-table tbody tr:hover { background-color: #fff0f0; }
+        .row { display: flex; flex-wrap: wrap; gap: 20px; }
+        .col { flex: 1; min-width: 200px; }
+        
+        #search-and-export-container {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+            align-items: center;
+        }
+        #search-in-table { flex-grow: 1; }
+        #export-button {
+            background-color: #28a745;
+            border-color: #28a745;
+            color: white;
+            font-weight: 500;
+            border-radius: 50px;
+            padding: 10px 20px;
+            white-space: nowrap;
+        }
+        #export-button:hover { background-color: #218838; }
+
+        /* Login Page Specific Styles */
+        .login-body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            justify-content: center;
+        }
+        .login-container {
+            background: rgba(255, 255, 255, 0.9); padding: 40px; border-radius: 20px;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.2); width: 100%;
+            max-width: 400px; text-align: center;
+        }
+        .login-title { font-size: 2rem; font-weight: 700; color: #333; margin-bottom: 25px; }
+        .btn-login { width: 100%; padding: 12px; border-radius: 50px; font-size: 1.1rem; font-weight: 700; background-color: #764ba2; border: none; }
+        .btn-login:hover { background-color: #667eea; }
+        #error-message { margin-top: 15px; }
+    </style>
 </head>
 <body>
-
-    <!-- ส่วน Login -->
-    <div id="login-section" class="login-container">
+    <!-- ส่วน Login Page -->
+    <div id="login-page" class="login-container" style="display: none;">
         <h1 class="login-title">เข้าสู่ระบบ</h1>
-        <form id="login-form">
+        <form onsubmit="return false;">
             <div class="mb-3">
                 <input type="text" class="form-control" id="username" placeholder="ชื่อผู้ใช้" required>
             </div>
             <div class="mb-4">
                 <input type="password" class="form-control" id="password" placeholder="รหัสผ่าน" required>
             </div>
-            <button type="submit" class="btn btn-primary btn-login" id="login-button">
+            <button type="button" class="btn btn-primary btn-login" id="login-button">
                 <span id="login-text">เข้าสู่ระบบ</span>
                 <span id="login-spinner" class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="display: none;"></span>
             </button>
         </form>
-        <div id="login-error-message" class="alert alert-danger mt-3" style="display: none;"></div>
+        <div id="error-message" class="alert alert-danger" style="display: none;"></div>
     </div>
 
-    <!-- ส่วนข้อมูลหลัก (ซ่อนไว้ตอนแรก ) -->
-    <div id="main-section" class="main-container" style="display: none;">
+    <!-- ส่วน Main Application Page -->
+    <div id="main-app" style="display: none; width: 100%;">
         <div class="dropdown user-info-container">
             <button class="btn dropdown-toggle" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
               สวัสดี, <span id="user-name-display"></span>
@@ -40,54 +174,91 @@
             </ul>
         </div>
 
-        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQZtkPBp_xmIFgEEmX2cyScE1QzabzZbtNdbQ&s" alt="Logo" class="header-logo">
-        <h1 class="header-title">ระบบค้นหาและสรุปข้อมูลสัญญาที่จะครบกำหนดชำระ</h1>
-        
-        <div class="content-container">
-            <div class="row mb-3">
-                <div class="col">
-                    <label for="province-select" class="form-label">จังหวัด:</label>
-                    <select id="province-select" class="form-select">
-                        <option selected>กำลังโหลดรายชื่อจังหวัด...</option>
-                    </select>
-                </div>
-            </div>
-            <div class="row mb-4">
-                <div class="col">
-                    <label for="start-date" class="form-label">กำหนดชำระ ตั้งแต่วันที่:</label>
-                    <input type="text" id="start-date" class="form-control" placeholder="เช่น 01/01/2567">
-                </div>
-                <div class="col">
-                    <label for="end-date" class="form-label">ถึงวันที่:</label>
-                    <input type="text" id="end-date" class="form-control" placeholder="เช่น 31/01/2567">
-                </div>
-            </div>
-            <button id="search-button" class="search-button">ค้นหาข้อมูล</button>
+        <div class="main-container">
+            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQZtkPBp_xmIFgEEmX2cyScE1QzabzZbtNdbQ&s" alt="Logo" class="header-logo">
+            <h1 class="header-title">ระบบค้นหาและสรุปข้อมูลสัญญาที่จะครบกำหนดชำระ</h1>
             
-            <div id="results-container" class="mt-4">
-                <div id="loading-spinner" class="text-center p-4" style="display: none;">
-                    <div class="spinner-border text-primary" role="status">
-                        <span class="visually-hidden">Loading...</span>
+            <div id="note-container" style="display: none;">
+                <span id="note-text"></span>
+            </div>
+
+            <div class="content-container">
+                <div class="row mb-3">
+                    <div class="col">
+                        <label for="province-select" class="form-label">จังหวัด:</label>
+                        <select id="province-select" class="form-select">
+                            <option selected>กำลังโหลดรายชื่อจังหวัด...</option>
+                        </select>
                     </div>
-                    <p class="mt-2">กำลังโหลดข้อมูล...</p>
                 </div>
-                <div id="error-alert" class="alert alert-danger" style="display:none;"></div>
+                <div class="row mb-4">
+                    <div class="col">
+                        <label for="start-date" class="form-label">กำหนดชำระ ตั้งแต่วันที่:</label>
+                        <input type="text" id="start-date" class="form-control" placeholder="เช่น 01/01/2567">
+                    </div>
+                    <div class="col">
+                        <label for="end-date" class="form-label">ถึงวันที่:</label>
+                        <input type="text" id="end-date" class="form-control" placeholder="เช่น 31/01/2567">
+                    </div>
+                </div>
+                <button id="search-button" class="search-button">ค้นหาข้อมูล</button>
                 
-                <div id="summary-box" style="display: none;">
-                    <!-- Summary items will be injected by JS -->
-                </div>
+                <div id="results-container" class="mt-4">
+                    <div id="loading-spinner" style="display: none;">
+                        <div class="d-flex justify-content-center align-items-center p-4">
+                            <div class="spinner-border" style="width: 2.5rem; height: 2.5rem; color: #ff8a8a;" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <strong class="ms-3 text-muted">กรุณารอสักครู่กำลังโหลดข้อมูล...</strong>
+                        </div>
+                    </div>
+                    <div id="error-alert" class="alert alert-danger" style="display:none;"></div>
+                    
+                    <div id="summary-box" style="display: none;">
+                        <div class="summary-item">
+                            <div class="label">จำนวนสัญญาที่พบ</div>
+                            <div id="summary-contracts" class="value">0</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="label">รวมเงินต้นที่คาดว่าจะได้</div>
+                            <div id="summary-expected" class="value">0.00</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="label">รวมเงินต้นรับคืน</div>
+                            <div id="summary-returned" class="value">0.00</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="label">คิดเป็นร้อยละ</div>
+                            <div id="summary-percentage" class="value highlight">0.00 %</div>
+                        </div>
+                    </div>
 
-                <div id="search-and-export-container" style="display: none;">
-                    <input type="text" id="search-in-table" class="form-control" placeholder="พิมพ์เพื่อค้นหาในตาราง...">
-                </div>
+                    <div id="search-and-export-container" style="display: none;">
+                        <input type="text" id="search-in-table" class="form-control" placeholder="พิมพ์เพื่อค้นหาในตาราง...">
+                        <button id="export-button" class="btn">ส่งออกข้อมูล (Excel )</button>
+                    </div>
 
-                <div class="table-responsive">
-                    <table id="results-table" class="results-table" style="display:none;">
-                        <thead>
-                            <!-- Headers will be injected by JS -->
-                        </thead>
-                        <tbody id="results-body"></tbody>
-                    </table>
+                    <div class="table-responsive">
+                        <table id="results-table" class="results-table" style="display:none;">
+                            <thead>
+                                <tr>
+                                    <th scope="col">ลำดับ</th>
+                                    <th scope="col">จังหวัด</th>
+                                    <th scope="col">อำเภอ</th>
+                                    <th scope="col">ตำบล</th>
+                                    <th scope="col">เลขที่สัญญา</th>
+                                    <th scope="col">ปีงบประมาณ</th>
+                                    <th scope="col">ชื่อโครงการ</th>
+                                    <th scope="col">ชื่อผู้เสนอ</th>
+                                    <th scope="col">จำนวนงวด</th>
+                                    <th scope="col">กำหนดชำระ</th>
+                                    <th scope="col">เงินต้นที่คาดว่าจะได้</th>
+                                    <th scope="col">เงินต้นรับคืน</th>
+                                </tr>
+                            </thead>
+                            <tbody id="results-body"></tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -97,6 +268,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/locales/bootstrap-datepicker.th.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.2/papaparse.min.js"></script>
     <script src="due-dep-sys.js"></script>
 </body>
 </html>
