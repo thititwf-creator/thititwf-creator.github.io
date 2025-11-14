@@ -136,17 +136,19 @@ function showLoginPage() {
     passwordInput.value = '';
 }
 
+// *** จุดแก้ไข ***
 async function initializeMainApp() {
     loadingSpinner.style.display = 'block';
     allContractsData = await fetchCsvData(DATA_CSV_URL);
     loadingSpinner.style.display = 'none';
     if (allContractsData.length > 0) {
         const notes = {
-            note1: allContractsData[0]['note1'] || '',
-            note2: allContractsData[0]['note2'] || ''
+            note1: allContractsData[0].note1 || '',
+            note2: allContractsData[0].note2 || ''
         };
         displayNotes(notes);
-        const provinces = [...new Set(allContractsData.map(row => row['province']).filter(p => p))].sort();
+        // แก้ไขการอ้างอิงชื่อคอลัมน์ที่นี่
+        const provinces = [...new Set(allContractsData.map(row => row.province).filter(p => p))].sort();
         populateProvinces(provinces);
     } else {
         showError({ message: "ไม่พบข้อมูลสัญญาในระบบ" });
@@ -199,7 +201,6 @@ function handleSearch() {
         const parts = dateString.split('/');
         if (parts.length !== 3) return null;
         const year = parseInt(parts[2], 10);
-        // แปลงปี พ.ศ. เป็น ค.ศ. หากจำเป็น
         const finalYear = year > 2500 ? year - 543 : year;
         return new Date(finalYear, parseInt(parts[1], 10) - 1, parseInt(parts[0], 10));
     };
@@ -222,9 +223,8 @@ function handleSearch() {
     loadingSpinner.style.display = 'block';
 
     const filteredRawData = allContractsData.filter(row => {
-        const rowProvince = row['province'];
-        // *** จุดแก้ไขสำคัญ: เปลี่ยนชื่อคอลัมน์เป็น 'dueDate' ***
-        const dueDateValue = row['dueDate']; 
+        const rowProvince = row.province;
+        const dueDateValue = row.dueDate; 
         if (!rowProvince || !dueDateValue) return false;
         
         const dueDate = parseDMY(dueDateValue);
@@ -237,21 +237,20 @@ function handleSearch() {
     });
 
     const groupedByContract = filteredRawData.reduce((acc, row) => {
-        const contractId = row['contract'];
-        // *** จุดแก้ไขสำคัญ: เปลี่ยนชื่อคอลัมน์เป็น 'dueDate' ***
-        const dueDate = parseDMY(row['dueDate']);
+        const contractId = row.contract;
+        const dueDate = parseDMY(row.dueDate);
 
         if (!dueDate) return acc;
 
         if (!acc[contractId]) {
             acc[contractId] = {
-                province: row['province'],
-                amphoe: row['amphoe'],
-                tambon: row['tambon'],
+                province: row.province,
+                amphoe: row.amphoe,
+                tambon: row.tambon,
                 contract: contractId,
-                year: row['year'],
-                projectName: row['projectName'],
-                proposerName: row['proposerName'],
+                year: row.year,
+                projectName: row.projectName,
+                proposerName: row.proposerName,
                 firstDueDate: dueDate,
                 count: 0,
                 totalExpected: 0,
@@ -264,8 +263,8 @@ function handleSearch() {
         }
 
         acc[contractId].count += 1;
-        acc[contractId].totalExpected += parseFloat(row['totalExpected'] || 0);
-        acc[contractId].totalReturned += parseFloat(row['totalReturned'] || 0);
+        acc[contractId].totalExpected += parseFloat(row.totalExpected || 0);
+        acc[contractId].totalReturned += parseFloat(row.totalReturned || 0);
         return acc;
     }, {});
 
