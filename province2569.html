@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <title>CDD Women Fund Province 2569</title>
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap" rel="stylesheet" />
+
   <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css" />
   <link rel="stylesheet" href="https://cdn.datatables.net/fixedheader/3.4.0/css/fixedHeader.dataTables.min.css" />
 
@@ -52,16 +53,16 @@
     </div>
 
     <div style="text-align:right;font-weight:bold;color:navy;margin-top:1rem;font-size:1.2rem;">
-      <span id="update-date">ข้อมูล ณ วันที่ 10 พฤศจิกายน 2568</span>
+      <span id="update-date">ข้อมูล ณ วันที่ -</span>
     </div>
 
     <!-- Summary Cards -->
     <div class="cards">
       <div class="card pink">จำนวนโครงการ<div class="value" id="num-projects">-</div></div>
       <div class="card light-pink">เงินอนุมัติ<div class="value" id="approved-money">-</div></div>
-      <div class="card orange">ลูกหนี้คงเหลือ ณ 1 ต.ค. 2568 (A)<div class="value" id="debt-start">-</div>ลูกหนี้คงเหลือ ณ ปัจจุบัน (ก)<div class="value" id="debt-now">-</div></div>
-      <div class="card deep-pink">หนี้ที่เกินกำหนดชำระ (B)<div class="value" id="overdue">-</div>ร้อยละหนี้เกินกำหนด<div class="value" id="percent-overdue">-</div></div>
-      <div class="card deep-pink">ลูกหนี้ที่ได้ดำเนินการตามกฎหมาย (ง)<div class="value" id="legal">-</div></div>
+      <div class="card orange">ลูกหนี้คงเหลือ ณ 1 ต.ค. 2568<div class="value" id="debt-start">-</div>ลูกหนี้ปัจจุบัน<div class="value" id="debt-now">-</div></div>
+      <div class="card deep-pink">หนี้เกินกำหนด<div class="value" id="overdue">-</div>ร้อยละ<div class="value" id="percent-overdue">-</div></div>
+      <div class="card deep-pink">ดำเนินการตามกฎหมาย<div class="value" id="legal">-</div></div>
     </div>
 
     <h3>ตัวกรองข้อมูล</h3>
@@ -87,17 +88,18 @@
     </table>
   </div>
 
+  <!-- JS -->
   <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
   <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
   <script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbwwxjRdiPSd7SOuZAOO5OmWi5NHCBMOf3d1923ik9QBY7iiZ0gJl6ppcQQUHGrxuLRTAg/exec";
+    const API_URL = "https://script.google.com/macros/s/AKfycbwwxjRdiPSd7SOuZAOO5OmWi5NHCBMOf3d1923ik9QBY7iiZ0gJl6ppcQQUHGrxuLRTAg/exec";  // ⭐ ใส่ URL Apps Script ของคุณตรงนี้ ⭐
+
     let allData = [], dataTable, originalSummary = null;
 
     const formatNumber = v => isNaN(parseFloat(v)) ? "-" : parseFloat(v).toLocaleString("th-TH", { minimumFractionDigits: 2 });
     const formatPercent = v => isNaN(parseFloat(v)) ? "-" : `${parseFloat(v).toFixed(2)}%`;
-    const formatDate = v => (!v || v === "-") ? "-" : new Date(v).toLocaleDateString("th-TH");
 
     $(document).ready(async function () {
       const province = new URLSearchParams(window.location.search).get("province");
@@ -118,6 +120,7 @@
       try {
         const res = await fetch(`${API_URL}?province=${encodeURIComponent(province)}`);
         const json = await res.json();
+
         if (json.error) throw new Error(json.error);
 
         allData = json.data || [];
@@ -126,6 +129,7 @@
         updateSummaryCards(json.summary);
         renderTable(allData);
         setupFilters(allData);
+
       } catch (err) {
         alert("เกิดข้อผิดพลาด: " + err.message);
       }
@@ -133,34 +137,37 @@
 
     function renderTable(data) {
       const headers = Object.keys(data[0] || {});
-      const thead = $("#detailsTable thead").empty().append(`<tr>${headers.map(h => `<th>${h}</th>`).join("")}</tr>`);
+      $("#detailsTable thead").html(`<tr>${headers.map(h => `<th>${h}</th>`).join("")}</tr>`);
       const tbody = $("#detailsTable tbody").empty();
 
       data.forEach(row => {
-        tbody.append(`<tr>${headers.map(h => `<td>${formatValue(row[h])}</td>`).join("")}</tr>`);
+        tbody.append(`<tr>${headers.map(h => `<td>${row[h] ?? "-"}</td>`).join("")}</tr>`);
       });
 
-      if ($.fn.DataTable.isDataTable("#detailsTable")) $("#detailsTable").DataTable().destroy();
-      dataTable = $("#detailsTable").DataTable({ scrollX: true, pageLength: 10 });
-    }
+      if ($.fn.DataTable.isDataTable("#detailsTable")) {
+        $("#detailsTable").DataTable().destroy();
+      }
 
-    function formatValue(v) {
-      if (v == null || v === "") return "-";
-      if (typeof v === "number") return formatNumber(v);
-      if (String(v).includes("%")) return v;
-      return v;
+      dataTable = $("#detailsTable").DataTable({ scrollX: true, pageLength: 10 });
     }
 
     function setupFilters(data) {
       const keys = ["อำเภอ/เขต", "ตำบล", "ปีงบประมาณ", "สถานะโครงการ"];
       const container = $("#filter-section").empty();
+
       keys.forEach(k => {
         const values = [...new Set(data.map(r => r[k]).filter(Boolean))].sort();
-        const select = $(`<select data-key="${k}"><option value="">-- ทั้งหมด --</option>${values.map(v => `<option>${v}</option>`).join("")}</select>`);
-        container.append(`<div class='filter-item'><label>${k}</label></div>`).append(select);
+        container.append(`
+          <div class="filter-item">
+            <label>${k}</label>
+            <select data-key="${k}">
+              <option value="">-- ทั้งหมด --</option>
+              ${values.map(v => `<option value="${v}">${v}</option>`).join("")}
+            </select>
+          </div>
+        `);
       });
 
-      // เมื่อมีการเปลี่ยน filter → อัปเดตการ์ด + ตาราง
       $("#filter-section select").on("change", function () {
         let filtered = [...allData];
 
@@ -176,7 +183,7 @@
     }
 
     function updateSummaryCards(s) {
-      $("#num-projects").text(s.totalProjects.toLocaleString("th-TH"));
+      $("#num-projects").text((s.totalProjects || 0).toLocaleString("th-TH"));
       $("#approved-money").text(formatNumber(s.approvedMoney));
       $("#debt-start").text(formatNumber(s.debtStart));
       $("#debt-now").text(formatNumber(s.debtNow));
@@ -186,36 +193,34 @@
       $("#update-date").text("ข้อมูล ณ วันที่ " + s.updateDate);
     }
 
-    // ⭐ อัปเดตการ์ดจากข้อมูลที่ถูกกรอง
     function updateSummaryFromFiltered(data) {
       if (!data || data.length === 0) {
-        $("#num-projects").text("-");
-        $("#approved-money").text("-");
-        $("#debt-start").text("-");
-        $("#debt-now").text("-");
-        $("#overdue").text("-");
-        $("#legal").text("-");
-        $("#percent-overdue").text("-");
+        updateSummaryCards({
+          totalProjects: 0, approvedMoney: 0, debtStart: 0, debtNow: 0,
+          overdue: 0, legal: 0, percentOverdue: 0,
+          updateDate: originalSummary.updateDate
+        });
         return;
       }
 
-      const sum = (key) => data.reduce((acc, r) => acc + (parseFloat(r[key]) || 0), 0);
+      const sum = key => data.reduce((acc, r) => acc + (parseFloat(r[key]) || 0), 0);
 
-      const totalProjects = data.length;
-      const approvedMoney = sum("เงินอนุมัติ");
-      const debtStart = sum("ลูกหนี้คงเหลือ_1ตค68");
-      const debtNow = sum("ลูกหนี้คงเหลือ_ปัจจุบัน");
-      const overdue = sum("หนี้เกินกำหนด");
-      const legal = sum("ดำเนินการกฎหมาย");
-      const percentOverdue = debtNow > 0 ? (overdue / debtNow) * 100 : 0;
+      const result = {
+        totalProjects: data.length,
+        approvedMoney: sum("เงินอนุมัติ"),
+        debtStart: sum("ลูกหนี้คงเหลือ ณ 1 ต.ค. 2568 (A)"),
+        debtNow: sum("ลูกหนี้คงเหลือ ณ ปัจจุบัน (ก)"),
+        overdue: sum("จำนวนหนี้ที่เกินกำหนดชำระ (B)"),
+        legal: sum("ลูกหนี้ที่ได้ดำเนินการตามกฎหมาย (ง)"),
+        percentOverdue: 0,
+        updateDate: originalSummary.updateDate
+      };
 
-      $("#num-projects").text(totalProjects.toLocaleString("th-TH"));
-      $("#approved-money").text(formatNumber(approvedMoney));
-      $("#debt-start").text(formatNumber(debtStart));
-      $("#debt-now").text(formatNumber(debtNow));
-      $("#overdue").text(formatNumber(overdue));
-      $("#legal").text(formatNumber(legal));
-      $("#percent-overdue").text(percentOverdue.toFixed(2) + "%");
+      if (result.debtNow > 0) {
+        result.percentOverdue = (result.overdue / result.debtNow) * 100;
+      }
+
+      updateSummaryCards(result);
     }
 
     function downloadData() {
