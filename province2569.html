@@ -152,35 +152,77 @@
     }
 
     function setupFilters(data) {
-      const keys = ["อำเภอ/เขต", "ตำบล", "ปีงบประมาณ", "สถานะโครงการ"];
-      const container = $("#filter-section").empty();
+  const keys = ["อำเภอ/เขต", "ตำบล", "ปีงบประมาณ", "สถานะโครงการ"];
+  const container = $("#filter-section").empty();
 
-      keys.forEach(k => {
-        const values = [...new Set(data.map(r => r[k]).filter(Boolean))].sort();
-        container.append(`
-          <div class="filter-item">
-            <label>${k}</label>
-            <select data-key="${k}">
-              <option value="">-- ทั้งหมด --</option>
-              ${values.map(v => `<option value="${v}">${v}</option>`).join("")}
-            </select>
-          </div>
-        `);
+  // สร้าง select สำหรับแต่ละ key
+  keys.forEach(k => {
+    container.append(`
+      <div class="filter-item">
+        <label>${k}</label>
+        <select data-key="${k}">
+          <option value="">-- ทั้งหมด --</option>
+        </select>
+      </div>
+    `);
+  });
+
+  const selects = $("#filter-section select");
+
+  function updateSelectOptions(filteredData) {
+    selects.each(function () {
+      const key = $(this).data("key");
+      const currentVal = $(this).val();
+
+      // กำหนดค่าตัวเลือกใหม่ตาม filteredData
+      let options = [...new Set(filteredData.map(r => r[key]).filter(Boolean))].sort();
+      const html = `<option value="">-- ทั้งหมด --</option>` + options.map(v => `<option value="${v}">${v}</option>`).join("");
+      $(this).html(html);
+
+      // ถ้าค่าที่เลือกยังมีอยู่ ให้คงค่าไว้
+      if (options.includes(currentVal)) {
+        $(this).val(currentVal);
+      }
+    });
+  }
+
+  function filterData() {
+    let filtered = [...allData];
+    const filterObj = {};
+
+    selects.each(function () {
+      const key = $(this).data("key");
+      const val = $(this).val();
+      if (val) filterObj[key] = val;
+    });
+
+    // ตัวกรอง cascading: กรองทุกช่องยกเว้นปีงบประมาณและสถานะโครงการ
+    filtered = filtered.filter(r => {
+      return Object.keys(filterObj).every(k => {
+        if (k === "ปีงบประมาณ" || k === "สถานะโครงการ") return true;
+        return r[k] === filterObj[k];
       });
+    });
 
-      $("#filter-section select").on("change", function () {
-        let filtered = [...allData];
+    // กรองปีงบประมาณและสถานะโครงการใน filtered
+    if (filterObj["ปีงบประมาณ"]) filtered = filtered.filter(r => r["ปีงบประมาณ"] == filterObj["ปีงบประมาณ"]);
+    if (filterObj["สถานะโครงการ"]) filtered = filtered.filter(r => r["สถานะโครงการ"] == filterObj["สถานะโครงการ"]);
 
-        $("#filter-section select").each(function () {
-          const key = $(this).data("key");
-          const val = $(this).val();
-          if (val) filtered = filtered.filter(r => r[key] === val);
-        });
+    renderTable(filtered);
+    updateSummaryFromFiltered(filtered);
 
-        renderTable(filtered);
-        updateSummaryFromFiltered(filtered);
-      });
-    }
+    // ปรับตัวเลือก select ให้เป็นไปตาม filteredData (ยกเว้นปีงบและสถานะ)
+    const dependentData = filtered.map(r => ({ ...r }));
+    updateSelectOptions(dependentData);
+  }
+
+  // เติม initial options
+  updateSelectOptions(data);
+
+  // event listener
+  selects.on("change", filterData);
+}
+
 
     function updateSummaryCards(s) {
       $("#num-projects").text((s.totalProjects || 0).toLocaleString("th-TH"));
