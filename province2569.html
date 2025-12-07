@@ -201,6 +201,13 @@
             </div>
         </div>
 
+        <div class="card light-pink">
+            หนี้ปกติ (จำนวนโครงการ)
+            <div class="value" id="normal-count">-</div>
+            จำนวนเงินรวม (หนี้ยังไม่ถึงกำหนดชำระ)
+            <div class="value" id="normal-amount">-</div>
+        </div>
+
         <h3>ตัวกรองข้อมูล</h3>
         <div id="filter-section" class="filter-container"></div>
 
@@ -356,7 +363,31 @@
             $("#legal").text(formatNumber(s.legal));
             $("#percent-overdue").text(formatPercent(s.percentOverdue));
             $("#update-date").text("ข้อมูล ณ วันที่ " + s.updateDate);
+
+            // ⭐ คำนวณหนี้ปกติ
+            const normal = calculateNormalDebt(allData);
+            $("#normal-count").text(normal.count.toLocaleString("th-TH"));
+            $("#normal-amount").text(formatNumber(normal.amount));
         }
+
+        function calculateNormalDebt(data) {
+            let filtered = data.filter(r =>
+                parseFloat(r["ลูกหนี้คงเหลือ ณ ปัจจุบัน (ก)"]) > 0 &&
+                parseFloat(r["หนี้ยังไม่ถึงกำหนดชำระ (ข)"]) > 0 &&
+                parseFloat(r["การไกล่เกลี่ยที่สามารถใช้บังคับคดีได้ (ค)"]) == 0 &&
+                parseFloat(r["ลูกหนี้ที่ได้ดำเนินการตามกฎหมาย (ง)"]) == 0 &&
+                parseFloat(r["จำนวนหนี้ที่เกินกำหนดชำระ (B)"]) == 0
+            );
+
+            let count = filtered.length;
+            let amount = filtered.reduce(
+                (sum, r) => sum + (parseFloat(r["หนี้ยังไม่ถึงกำหนดชำระ (ข)"]) || 0),
+                0
+            );
+
+            return { count, amount };
+        }
+
 
         function updateSummaryFromFiltered(data) {
             if (!data || data.length === 0) {
@@ -385,7 +416,14 @@
                 result.percentOverdue = (result.overdue / result.debtNow) * 100;
             }
 
+
             updateSummaryCards(result);
+            // ⭐ อัปเดตหนี้ปกติเมื่อมีการกรอง
+            const normal = calculateNormalDebt(data);
+            $("#normal-count").text(normal.count.toLocaleString("th-TH"));
+            $("#normal-amount").text(formatNumber(normal.amount));
+
+
         }
 
         function downloadData() {
