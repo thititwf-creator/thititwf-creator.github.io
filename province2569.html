@@ -186,53 +186,170 @@
         </div>
 
         <!-- Summary Cards -->
-        <div class="cards">
-            <div class="card pink">จำนวนโครงการ<div class="value" id="num-projects">-</div>
-            </div>
-            <div class="card light-pink">เงินอนุมัติ<div class="value" id="approved-money">-</div>
-            </div>
-            <div class="card orange">ลูกหนี้คงเหลือ ณ 1 ต.ค. 2568<div class="value" id="debt-start">-</div>
-                ลูกหนี้ปัจจุบัน<div class="value" id="debt-now">-</div>
-            </div>
-            <div class="card deep-pink">หนี้เกินกำหนด<div class="value" id="overdue">-</div>ร้อยละ<div class="value"
-                    id="percent-overdue">-</div>
-            </div>
-            <div class="card deep-pink">ดำเนินการตามกฎหมาย<div class="value" id="legal">-</div>
-            </div>
-            <div class="card light-pink">
-                หนี้ปกติ (จำนวนโครงการ)
-                <div class="value" id="normal-count">-</div>
-                จำนวนเงินรวม (หนี้ยังไม่ถึงกำหนดชำระ)
-                <div class="value" id="normal-amount">-</div>
-            </div>
-            หนี้ปรับโครงสร้าง (ค)
-            <div class="value" id="restructure-count">-</div>
-            <div class="value" id="restructure-sum">-</div>
-        </div>
+        <div class="row g-3">
 
-
-
-        <h3>ตัวกรองข้อมูล</h3>
-        <div id="filter-section" class="filter-container"></div>
-
-        <div class="filter-container">
-            <div class="filter-item">
-                <label for="downloadType">ดาวน์โหลดข้อมูล:</label>
-                <select id="downloadType">
-                    <option value="excel">Excel</option>
-                </select>
-            </div>
-            <div class="action-button-container">
-                <button id="btnDownload">ดาวน์โหลด</button>
-                <button id="btnResetFilter">ล้างตัวกรอง</button>
+    <!-- โครงการทั้งหมด -->
+    <div class="col-md-3">
+        <div class="card text-white bg-primary shadow-sm">
+            <div class="card-body">
+                <h6 class="card-title">จำนวนโครงการทั้งหมด</h6>
+                <h3 id="num-projects" class="fw-bold">0</h3>
             </div>
         </div>
+    </div>
 
-        <h3>ตารางรายละเอียดข้อมูลโครงการรายอำเภอ</h3>
-        <table id="detailsTable" class="display" style="width:100%">
-            <thead></thead>
-            <tbody></tbody>
-        </table>
+    <!-- เงินอนุมัติ -->
+    <div class="col-md-3">
+        <div class="card text-white bg-info shadow-sm">
+            <div class="card-body">
+                <h6 class="card-title">เงินอนุมัติ</h6>
+                <h3 id="approved-money" class="fw-bold">0</h3>
+            </div>
+        </div>
+    </div>
+
+    <!-- ลูกหนี้ต้นปี -->
+    <div class="col-md-3">
+        <div class="card text-white bg-secondary shadow-sm">
+            <div class="card-body">
+                <h6 class="card-title">ลูกหนี้คงเหลือ ณ 1 ต.ค. 2568 (A)</h6>
+                <h3 id="debt-start" class="fw-bold">0</h3>
+            </div>
+        </div>
+    </div>
+
+    <!-- ลูกหนี้ปัจจุบัน -->
+    <div class="col-md-3">
+        <div class="card text-white bg-dark shadow-sm">
+            <div class="card-body">
+                <h6 class="card-title">ลูกหนี้คงเหลือปัจจุบัน (ก)</h6>
+                <h3 id="debt-now" class="fw-bold">0</h3>
+            </div>
+        </div>
+    </div>
+
+    <!-- หนี้เกินกำหนด -->
+    <div class="col-md-3">
+        <div class="card text-white bg-danger shadow-sm">
+            <div class="card-body">
+                <h6 class="card-title">หนี้เกินกำหนดชำระ (B)</h6>
+                <h3 id="overdue" class="fw-bold">0</h3>
+            </div>
+        </div>
+    </div>
+
+    <!-- เปอร์เซ็นต์หนี้เกินกำหนด -->
+    <div class="col-md-3">
+        <div class="card text-white bg-warning shadow-sm">
+            <div class="card-body">
+                <h6 class="card-title">% หนี้เกินกำหนด</h6>
+                <h3 id="percent-overdue" class="fw-bold">0%</h3>
+            </div>
+        </div>
+    </div>
+
+    <!-- ดำเนินการตามกฎหมาย (ง) -->
+    <div class="col-md-3">
+        <div class="card text-white bg-success shadow-sm">
+            <div class="card-body">
+                <h6 class="card-title">ลูกหนี้ดำเนินการตามกฎหมาย (ง)</h6>
+                <h3 id="legal" class="fw-bold">0</h3>
+            </div>
+        </div>
+    </div>
+
+    <!-- วันที่อัปเดต -->
+    <div class="col-md-3">
+        <div class="card bg-light shadow-sm">
+            <div class="card-body">
+                <h6 class="card-title text-muted">อัปเดตข้อมูลล่าสุด</h6>
+                <h5 id="update-date" class="fw-bold">-</h5>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+<!-- =============================================================== -->
+<!--              ห นี้ ป รั บ โ ค ร ง ส ร้ า ง ( ค )                -->
+<!-- =============================================================== -->
+
+<h5 class="mt-4 fw-bold">หนี้ปรับโครงสร้าง (ค)</h5>
+
+<div class="row g-3">
+    <div class="col-md-3">
+        <div class="card border-primary shadow-sm">
+            <div class="card-body">
+                <h6 class="card-title text-primary">จำนวนรายการ</h6>
+                <h3 id="restructure-count" class="fw-bold">0</h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card border-primary shadow-sm">
+            <div class="card-body">
+                <h6 class="card-title text-primary">ยอดหนี้ปรับโครงสร้างรวม</h6>
+                <h3 id="restructure-sum" class="fw-bold">0</h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- =============================================================== -->
+<!--       ห นี้ ที่ ดำ เ นิ น ค ดี แ พ่ ง ( ง 1 – ง 2 )              -->
+<!-- =============================================================== -->
+
+<h5 class="mt-4 fw-bold">หนี้ที่อยู่ระหว่างดำเนินคดีแพ่ง (ง1–ง2)</h5>
+
+<div class="row g-3">
+
+    <div class="col-md-3">
+        <div class="card border-danger shadow-sm">
+            <div class="card-body">
+                <h6 class="card-title text-danger">จำนวนรายการ</h6>
+                <h3 id="civil-count" class="fw-bold">0</h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card border-danger shadow-sm">
+            <div class="card-body">
+                <h6 class="card-title text-danger">ยอดรวม (ง1 + ง2)</h6>
+                <h3 id="civil-sum" class="fw-bold">0</h3>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+
+
+    <h3>ตัวกรองข้อมูล</h3>
+    <div id="filter-section" class="filter-container"></div>
+
+    <div class="filter-container">
+        <div class="filter-item">
+            <label for="downloadType">ดาวน์โหลดข้อมูล:</label>
+            <select id="downloadType">
+                <option value="excel">Excel</option>
+            </select>
+        </div>
+        <div class="action-button-container">
+            <button id="btnDownload">ดาวน์โหลด</button>
+            <button id="btnResetFilter">ล้างตัวกรอง</button>
+        </div>
+    </div>
+
+    <h3>ตารางรายละเอียดข้อมูลโครงการรายอำเภอ</h3>
+    <table id="detailsTable" class="display" style="width:100%">
+        <thead></thead>
+        <tbody></tbody>
+    </table>
     </div>
 
     <!-- JS -->
@@ -368,15 +485,15 @@
             $("#percent-overdue").text(formatPercent(s.percentOverdue));
             $("#update-date").text("ข้อมูล ณ วันที่ " + s.updateDate);
 
-            // ⭐ คำนวณหนี้ปกติ
-            const normal = calculateNormalDebt(allData);
-            $("#normal-count").text(normal.count.toLocaleString("th-TH"));
-            $("#normal-amount").text(formatNumber(normal.amount));
-
+            // ⭐ หนี้ปรับโครงสร้าง (ค)
             $("#restructure-count").text((s.restructureCount || 0).toLocaleString("th-TH"));
             $("#restructure-sum").text(formatNumber(s.restructureSum));
 
+            // ⭐ ดำเนินคดีแพ่ง (ง1–ง2)
+            $("#civil-count").text((s.civilCount || 0).toLocaleString("th-TH"));
+            $("#civil-sum").text(formatNumber(s.civilSum));
         }
+
 
         function calculateNormalDebt(data) {
             let filtered = data.filter(r =>
@@ -399,16 +516,35 @@
 
         function updateSummaryFromFiltered(data) {
             if (!data || data.length === 0) {
+
                 updateSummaryCards({
-                    totalProjects: 0, approvedMoney: 0, debtStart: 0, debtNow: 0,
-                    overdue: 0, legal: 0, percentOverdue: 0,
-                    updateDate: originalSummary.updateDate
+                    totalProjects: 0,
+                    approvedMoney: 0,
+                    debtStart: 0,
+                    debtNow: 0,
+                    overdue: 0,
+                    legal: 0,
+                    percentOverdue: 0,
+                    updateDate: originalSummary.updateDate,
+
+                    // เพิ่มให้ไม่ error เวลาเคลียร์ filter
+                    restructureCount: 0,
+                    restructureSum: 0,
+                    civilCount: 0,
+                    civilSum: 0
                 });
+
+                $("#normal-count").text("0");
+                $("#normal-amount").text("0");
                 return;
             }
 
-            const sum = key => data.reduce((acc, r) => acc + (parseFloat(r[key]) || 0), 0);
+            const sum = key =>
+                data.reduce((acc, r) => acc + (parseFloat(r[key]) || 0), 0);
 
+            // =============================
+            //   ค่าพื้นฐานของ Summary
+            // =============================
             const result = {
                 totalProjects: data.length,
                 approvedMoney: sum("เงินอนุมัติ"),
@@ -421,33 +557,58 @@
             };
 
             if (result.debtNow > 0) {
-                result.percentOverdue = (result.overdue / result.debtNow) * 100;
+                result.percentOverdue =
+                    (result.overdue / result.debtNow) * 100;
             }
 
-
-            updateSummaryCards(result);
-            // ⭐ อัปเดตหนี้ปกติเมื่อมีการกรอง
+            // =============================
+            //   หนี้ปกติ (ใช้ฟังก์ชันเดิม)
+            // =============================
             const normal = calculateNormalDebt(data);
             $("#normal-count").text(normal.count.toLocaleString("th-TH"));
             $("#normal-amount").text(formatNumber(normal.amount));
 
-            // === หนี้ปรับโครงสร้าง (ค) ===
-            // ลูกหนี้คงเหลือ ณ ปัจจุบัน (ก) > 0 และ (ค) > 0
-            const restructure = data.filter(r =>
-                parseFloat(r["ลูกหนี้คงเหลือ ณ ปัจจุบัน (ก)"]) > 0 &&
-                parseFloat(r["การไกล่เกลี่ยที่สามารถใช้บังคับคดีได้ (ค)"]) > 0
+            // ======================================================
+            //                  ⭐ หนี้ปรับโครงสร้าง (ค) ⭐
+            // ======================================================
+            const restructItems = data.filter(item =>
+                Number(item.k_current_debt) > 0 &&
+                Number(item.k_mediation) > 0
             );
 
-            // จำนวนโครงการ
-            result.restructureCount = restructure.length;
-
-            // รวมยอดเงินจากฟิลด์ (ค)
-            result.restructureSum = restructure.reduce(
-                (acc, r) => acc + (parseFloat(r["การไกล่เกลี่ยที่สามารถใช้บังคับคดีได้ (ค)"]) || 0),
+            result.restructureCount = restructItems.length;
+            result.restructureSum = restructItems.reduce(
+                (sum, item) => sum + Number(item.k_mediation),
                 0
             );
 
+            // ======================================================
+            //    ⭐ หนี้ที่อยู่ระหว่างดำเนินคดีแพ่ง (ง1 – ง2) ⭐
+            // ======================================================
+            const civilItems = data.filter(item =>
+                Number(item.ng1_prosecutor) > 0 ||
+                Number(item.ng2_court_accept) > 0
+            );
+
+            const civilCount = civilItems.length;
+            const sumNg1 = civilItems.reduce(
+                (sum, item) => sum + Number(item.ng1_prosecutor),
+                0
+            );
+            const sumNg2 = civilItems.reduce(
+                (sum, item) => sum + Number(item.ng2_court_accept),
+                0
+            );
+
+            result.civilCount = civilCount;
+            result.civilSum = sumNg1 + sumNg2;
+
+            // =============================
+            //    ส่งขึ้นหน้าจอ
+            // =============================
+            updateSummaryCards(result);
         }
+
 
         function downloadData() {
             const wb = XLSX.utils.book_new();
