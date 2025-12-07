@@ -199,14 +199,18 @@
             </div>
             <div class="card deep-pink">ดำเนินการตามกฎหมาย<div class="value" id="legal">-</div>
             </div>
+            <div class="card light-pink">
+                หนี้ปกติ (จำนวนโครงการ)
+                <div class="value" id="normal-count">-</div>
+                จำนวนเงินรวม (หนี้ยังไม่ถึงกำหนดชำระ)
+                <div class="value" id="normal-amount">-</div>
+            </div>
+            หนี้ปรับโครงสร้าง (ค)
+            <div class="value" id="restructure-count">-</div>
+            <div class="value" id="restructure-sum">-</div>
         </div>
 
-        <div class="card light-pink">
-            หนี้ปกติ (จำนวนโครงการ)
-            <div class="value" id="normal-count">-</div>
-            จำนวนเงินรวม (หนี้ยังไม่ถึงกำหนดชำระ)
-            <div class="value" id="normal-amount">-</div>
-        </div>
+
 
         <h3>ตัวกรองข้อมูล</h3>
         <div id="filter-section" class="filter-container"></div>
@@ -368,6 +372,10 @@
             const normal = calculateNormalDebt(allData);
             $("#normal-count").text(normal.count.toLocaleString("th-TH"));
             $("#normal-amount").text(formatNumber(normal.amount));
+
+            $("#restructure-count").text((s.restructureCount || 0).toLocaleString("th-TH"));
+            $("#restructure-sum").text(formatNumber(s.restructureSum));
+
         }
 
         function calculateNormalDebt(data) {
@@ -423,6 +431,21 @@
             $("#normal-count").text(normal.count.toLocaleString("th-TH"));
             $("#normal-amount").text(formatNumber(normal.amount));
 
+            // === หนี้ปรับโครงสร้าง (ค) ===
+            // ลูกหนี้คงเหลือ ณ ปัจจุบัน (ก) > 0 และ (ค) > 0
+            const restructure = data.filter(r =>
+                parseFloat(r["ลูกหนี้คงเหลือ ณ ปัจจุบัน (ก)"]) > 0 &&
+                parseFloat(r["การไกล่เกลี่ยที่สามารถใช้บังคับคดีได้ (ค)"]) > 0
+            );
+
+            // จำนวนโครงการ
+            result.restructureCount = restructure.length;
+
+            // รวมยอดเงินจากฟิลด์ (ค)
+            result.restructureSum = restructure.reduce(
+                (acc, r) => acc + (parseFloat(r["การไกล่เกลี่ยที่สามารถใช้บังคับคดีได้ (ค)"]) || 0),
+                0
+            );
 
         }
 
