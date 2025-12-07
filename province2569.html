@@ -235,11 +235,19 @@
 
             <!-- หนี้ดำเนินคดีแพ่ง (ง1–ง2) -->
             <div class="card orange">
-                หนี้ที่อยู่ระหว่างดำเนินคดีแพ่ง – จำนวนโครงการ
+                หนี้ที่อยู่ระหว่างดำเนินคดีแพ่ง – จำนวนโครงการ (ง1 + ง2)
                 <div class="value" id="civil-count">-</div>
+
+                พนักงานอัยการรับเรื่อง (ง1)
+                <div class="value" id="civil-prosecutor">-</div>
+
+                ศาลประทับรับฟ้อง (ง2)
+                <div class="value" id="civil-court">-</div>
+
                 จำนวนเงินรวม (ง1 + ง2)
                 <div class="value" id="civil-sum">-</div>
             </div>
+
 
         </div>
 
@@ -390,25 +398,14 @@
             selects.on("change", filterData);
         }
 
-
-
         function updateSummaryCards(s) {
-            $("#num-projects").text((s.totalProjects || 0).toLocaleString("th-TH"));
-            $("#approved-money").text(formatNumber(s.approvedMoney));
-            $("#debt-start").text(formatNumber(s.debtStart));
-            $("#debt-now").text(formatNumber(s.debtNow));
-            $("#overdue").text(formatNumber(s.overdue));
-            $("#legal").text(formatNumber(s.legal));
-            $("#percent-overdue").text(formatPercent(s.percentOverdue));
-            $("#update-date").text("ข้อมูล ณ วันที่ " + s.updateDate);
-
-            // ⭐ หนี้ปรับโครงสร้าง (ค)
-            $("#restructure-count").text((s.restructureCount || 0).toLocaleString("th-TH"));
-            $("#restructure-sum").text(formatNumber(s.restructureSum));
-
-            // ⭐ ดำเนินคดีแพ่ง (ง1–ง2)
-            $("#civil-count").text((s.civilCount || 0).toLocaleString("th-TH"));
-            $("#civil-sum").text(formatNumber(s.civilSum));
+            document.getElementById("num-projects").textContent = s.totalProjects.toLocaleString();
+            document.getElementById("approved-money").textContent = s.approvedMoney.toLocaleString();
+            document.getElementById("debt-start").textContent = s.debtStart.toLocaleString();
+            document.getElementById("debt-now").textContent = s.debtNow.toLocaleString();
+            document.getElementById("overdue").textContent = s.overdue.toLocaleString();
+            document.getElementById("percent-overdue").textContent = s.percentOverdue + "%";
+            document.getElementById("legal").textContent = s.legal.toLocaleString();
         }
 
 
@@ -432,100 +429,87 @@
 
 
         function updateSummaryFromFiltered(data) {
-            if (!data || data.length === 0) {
 
-                updateSummaryCards({
-                    totalProjects: 0,
-                    approvedMoney: 0,
-                    debtStart: 0,
-                    debtNow: 0,
-                    overdue: 0,
-                    legal: 0,
-                    percentOverdue: 0,
-                    updateDate: originalSummary.updateDate,
+            let normalCount = 0;
+            let normalAmount = 0;
 
-                    // เพิ่มให้ไม่ error เวลาเคลียร์ filter
-                    restructureCount: 0,
-                    restructureSum: 0,
-                    civilCount: 0,
-                    civilSum: 0
-                });
+            let restructureCount = 0;
+            let restructureSum = 0;
 
-                $("#normal-count").text("0");
-                $("#normal-amount").text("0");
-                return;
-            }
+            let civilCount = 0;
+            let civilSum = 0;
 
-            const sum = key =>
-                data.reduce((acc, r) => acc + (parseFloat(r[key]) || 0), 0);
+            let civilCount1 = 0;    // ง1
+            let civilSum1 = 0;
 
-            // =============================
-            //   ค่าพื้นฐานของ Summary
-            // =============================
-            const result = {
-                totalProjects: data.length,
-                approvedMoney: sum("เงินอนุมัติ"),
-                debtStart: sum("ลูกหนี้คงเหลือ ณ 1 ต.ค. 2568 (A)"),
-                debtNow: sum("ลูกหนี้คงเหลือ ณ ปัจจุบัน (ก)"),
-                overdue: sum("จำนวนหนี้ที่เกินกำหนดชำระ (B)"),
-                legal: sum("ลูกหนี้ที่ได้ดำเนินการตามกฎหมาย (ง)"),
-                percentOverdue: 0,
-                updateDate: originalSummary.updateDate
-            };
+            let civilCount2 = 0;    // ง2
+            let civilSum2 = 0;
 
-            if (result.debtNow > 0) {
-                result.percentOverdue =
-                    (result.overdue / result.debtNow) * 100;
-            }
+            data.forEach(row => {
+                const g = parseFloat(row["ลูกหนี้คงเหลือ ณ ปัจจุบัน (ก)"]) || 0;
+                const kh = parseFloat(row["หนี้ยังไม่ถึงกำหนดชำระ (ข)"]) || 0;
+                const k = parseFloat(row["การไกล่เกลี่ยที่สามารถใช้บังคับคดีได้ (ค)"]) || 0;
+                const ng = parseFloat(row["ลูกหนี้ที่ได้ดำเนินการตามกฎหมาย (ง)"]) || 0;
+                const b = parseFloat(row["จำนวนหนี้ที่เกินกำหนดชำระ (B)"]) || 0;
 
-            // =============================
-            //   หนี้ปกติ (ใช้ฟังก์ชันเดิม)
-            // =============================
-            const normal = calculateNormalDebt(data);
-            $("#normal-count").text(normal.count.toLocaleString("th-TH"));
-            $("#normal-amount").text(formatNumber(normal.amount));
+                const ng1 = parseFloat(row["พนักงานอัยการรับเรื่อง(ง1)"]) || 0;
+                const ng2 = parseFloat(row["ศาลประทับรับฟ้อง(ง2)"]) || 0;
 
-            // ======================================================
-            //                  ⭐ หนี้ปรับโครงสร้าง (ค) ⭐
-            // ======================================================
-            const restructItems = data.filter(item =>
-                Number(item.k_current_debt) > 0 &&
-                Number(item.k_mediation) > 0
-            );
+                /* ============================
+                   1) หนี้ปกติ
+                   ============================ */
+                if (g > 0 && kh > 0 && k === 0 && ng === 0 && b === 0) {
+                    normalCount++;
+                    normalAmount += kh;
+                }
 
-            result.restructureCount = restructItems.length;
-            result.restructureSum = restructItems.reduce(
-                (sum, item) => sum + Number(item.k_mediation),
-                0
-            );
+                /* ============================
+                   2) หนี้ปรับโครงสร้าง (ค)
+                   ============================ */
+                if (g > 0 && k > 0) {
+                    restructureCount++;
+                    restructureSum += k;
+                }
 
-            // ======================================================
-            //    ⭐ หนี้ที่อยู่ระหว่างดำเนินคดีแพ่ง (ง1 – ง2) ⭐
-            // ======================================================
-            const civilItems = data.filter(item =>
-                Number(item.ng1_prosecutor) > 0 ||
-                Number(item.ng2_court_accept) > 0
-            );
+                /* ============================
+                   3) หนี้ระหว่างดำเนินคดีแพ่ง (ง1, ง2)
+                   ============================ */
+                if (g > 0 && (ng1 > 0 || ng2 > 0)) {
 
-            const civilCount = civilItems.length;
-            const sumNg1 = civilItems.reduce(
-                (sum, item) => sum + Number(item.ng1_prosecutor),
-                0
-            );
-            const sumNg2 = civilItems.reduce(
-                (sum, item) => sum + Number(item.ng2_court_accept),
-                0
-            );
+                    // รวมทั้งหมด (ง1 + ง2)
+                    civilCount++;
+                    civilSum += (ng1 + ng2);
 
-            result.civilCount = civilCount;
-            result.civilSum = sumNg1 + sumNg2;
+                    // ง1
+                    if (ng1 > 0) {
+                        civilCount1++;
+                        civilSum1 += ng1;
+                    }
 
-            // =============================
-            //    ส่งขึ้นหน้าจอ
-            // =============================
-            updateSummaryCards(result);
+                    // ง2
+                    if (ng2 > 0) {
+                        civilCount2++;
+                        civilSum2 += ng2;
+                    }
+                }
+            });
+
+            /* ============================
+               UPDATE HTML
+               ============================ */
+
+            document.getElementById("normal-count").textContent = normalCount.toLocaleString();
+            document.getElementById("normal-amount").textContent = normalAmount.toLocaleString();
+
+            document.getElementById("restructure-count").textContent = restructureCount.toLocaleString();
+            document.getElementById("restructure-sum").textContent = restructureSum.toLocaleString();
+
+            // ง1 – ง2 แบบแยก
+            document.getElementById("civil-count").textContent = civilCount.toLocaleString();
+            document.getElementById("civil-prosecutor").textContent = civilCount1.toLocaleString() + " โครงการ / " + civilSum1.toLocaleString() + " บาท";
+            document.getElementById("civil-court").textContent = civilCount2.toLocaleString() + " โครงการ / " + civilSum2.toLocaleString() + " บาท";
+            document.getElementById("civil-sum").textContent = civilSum.toLocaleString();
         }
-
 
         function downloadData() {
             const wb = XLSX.utils.book_new();
