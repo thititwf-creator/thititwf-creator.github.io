@@ -430,6 +430,9 @@
 
         function updateSummaryFromFiltered(data) {
 
+            // ❗ ตัดแถว “ภาพรวมจังหวัด” ออกก่อนเริ่มคำนวณ
+            data = data.filter(row => row["ลำดับ"] !== "ภาพรวมจังหวัด");
+
             let normalCount = 0;
             let normalAmount = 0;
 
@@ -438,55 +441,50 @@
 
             let civilCount = 0;
             let civilSum = 0;
-
-            let civilCount1 = 0;    // ง1
+            let civilCount1 = 0;
             let civilSum1 = 0;
-
-            let civilCount2 = 0;    // ง2
+            let civilCount2 = 0;
             let civilSum2 = 0;
 
             data.forEach(row => {
+
                 const g = parseFloat(row["ลูกหนี้คงเหลือ ณ ปัจจุบัน (ก)"]) || 0;
                 const kh = parseFloat(row["หนี้ยังไม่ถึงกำหนดชำระ (ข)"]) || 0;
                 const k = parseFloat(row["การไกล่เกลี่ยที่สามารถใช้บังคับคดีได้ (ค)"]) || 0;
                 const ng = parseFloat(row["ลูกหนี้ที่ได้ดำเนินการตามกฎหมาย (ง)"]) || 0;
                 const b = parseFloat(row["จำนวนหนี้ที่เกินกำหนดชำระ (B)"]) || 0;
-
                 const ng1 = parseFloat(row["พนักงานอัยการรับเรื่อง(ง1)"]) || 0;
                 const ng2 = parseFloat(row["ศาลประทับรับฟ้อง(ง2)"]) || 0;
 
-                /* ============================
-                   1) หนี้ปกติ
-                   ============================ */
+                // -------------------------
+                // 1) หนี้ปกติ
+                // -------------------------
                 if (g > 0 && kh > 0 && k === 0 && ng === 0 && b === 0) {
                     normalCount++;
                     normalAmount += kh;
                 }
 
-                /* ============================
-                   2) หนี้ปรับโครงสร้าง (ค)
-                   ============================ */
+                // -------------------------
+                // 2) หนี้ปรับโครงสร้าง (ค)
+                // -------------------------
                 if (g > 0 && k > 0) {
                     restructureCount++;
                     restructureSum += k;
                 }
 
-                /* ============================
-                   3) หนี้ระหว่างดำเนินคดีแพ่ง (ง1, ง2)
-                   ============================ */
+                // -------------------------
+                // 3) หนี้ดำเนินคดีแพ่ง (ง1, ง2)
+                // -------------------------
                 if (g > 0 && (ng1 > 0 || ng2 > 0)) {
 
-                    // รวมทั้งหมด (ง1 + ง2)
                     civilCount++;
                     civilSum += (ng1 + ng2);
 
-                    // ง1
                     if (ng1 > 0) {
                         civilCount1++;
                         civilSum1 += ng1;
                     }
 
-                    // ง2
                     if (ng2 > 0) {
                         civilCount2++;
                         civilSum2 += ng2;
@@ -494,9 +492,9 @@
                 }
             });
 
-            /* ============================
-               UPDATE HTML
-               ============================ */
+            // -------------------------
+            // UPDATE HTML
+            // -------------------------
 
             document.getElementById("normal-count").textContent = normalCount.toLocaleString();
             document.getElementById("normal-amount").textContent = normalAmount.toLocaleString();
@@ -504,12 +502,14 @@
             document.getElementById("restructure-count").textContent = restructureCount.toLocaleString();
             document.getElementById("restructure-sum").textContent = restructureSum.toLocaleString();
 
-            // ง1 – ง2 แบบแยก
             document.getElementById("civil-count").textContent = civilCount.toLocaleString();
-            document.getElementById("civil-prosecutor").textContent = civilCount1.toLocaleString() + " โครงการ / " + civilSum1.toLocaleString() + " บาท";
-            document.getElementById("civil-court").textContent = civilCount2.toLocaleString() + " โครงการ / " + civilSum2.toLocaleString() + " บาท";
+            document.getElementById("civil-prosecutor").textContent =
+                `${civilCount1.toLocaleString()} โครงการ / ${civilSum1.toLocaleString()} บาท`;
+            document.getElementById("civil-court").textContent =
+                `${civilCount2.toLocaleString()} โครงการ / ${civilSum2.toLocaleString()} บาท`;
             document.getElementById("civil-sum").textContent = civilSum.toLocaleString();
         }
+
 
         function downloadData() {
             const wb = XLSX.utils.book_new();
