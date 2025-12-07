@@ -247,8 +247,32 @@
                 จำนวนเงินรวม (ง1 + ง2)
                 <div class="value" id="civil-sum">-</div>
             </div>
+            <!-- หนี้ที่มีคำพิพากษาแล้ว (ง3–ง5) -->
+            <div class="card deep-pink">
+                หนี้ที่มีคำพิพากษาแล้ว – จำนวนโครงการ (ง3 + ง4 + ง5)
+                <div class="value" id="judged-count">-</div>
 
+                ศาลพิพากษาให้ชำระหนี้ (ง3)
+                <div class="value" id="judged-3">-</div>
 
+                ศาลพิพากษาตามยอม (ง4)
+                <div class="value" id="judged-4">-</div>
+
+                ป.วิ แพ่ง มาตรา 20 ตรี (ง5)
+                <div class="value" id="judged-5">-</div>
+
+                จำนวนเงินรวม (ง3 + ง4 + ง5)
+                <div class="value" id="judged-sum">-</div>
+            </div>
+
+            <!-- หนี้ดำเนินคดีอาญา (ง6) -->
+            <div class="card orange">
+                หนี้ที่อยู่ระหว่างดำเนินคดีอาญา – จำนวนโครงการ
+                <div class="value" id="criminal-count">-</div>
+
+                จำนวนเงินรวม (ง6)
+                <div class="value" id="criminal-sum">-</div>
+            </div>
         </div>
 
 
@@ -399,15 +423,36 @@
         }
 
         function updateSummaryCards(s) {
-            document.getElementById("num-projects").textContent = s.totalProjects.toLocaleString();
+            // การ์ดพื้นฐาน
+            document.getElementById("num-projects").textContent = s.numProjects.toLocaleString();
             document.getElementById("approved-money").textContent = s.approvedMoney.toLocaleString();
             document.getElementById("debt-start").textContent = s.debtStart.toLocaleString();
             document.getElementById("debt-now").textContent = s.debtNow.toLocaleString();
             document.getElementById("overdue").textContent = s.overdue.toLocaleString();
-            document.getElementById("percent-overdue").textContent = s.percentOverdue + "%";
-            document.getElementById("legal").textContent = s.legal.toLocaleString();
-        }
+            document.getElementById("percent-overdue").textContent = s.percentOverdue;
 
+            document.getElementById("legal").textContent = s.legal.toLocaleString();
+
+            // หนี้ปกติ
+            document.getElementById("normal-count").textContent = s.normal.count.toLocaleString();
+            document.getElementById("normal-amount").textContent = s.normal.amount.toLocaleString();
+
+            // หนี้ปรับโครงสร้าง (ค)
+            document.getElementById("restructure-count").textContent = s.restructure.count.toLocaleString();
+            document.getElementById("restructure-sum").textContent = s.restructure.sum.toLocaleString();
+
+            // หนี้อยู่ระหว่างดำเนินคดีแพ่ง (ง1 + ง2)
+            document.getElementById("civil-count").textContent = s.civil.count.toLocaleString();
+            document.getElementById("civil-sum").textContent = s.civil.sum.toLocaleString();
+
+            // 4) หนี้ที่มีคำพิพากษาแล้ว (ง3 + ง4 + ง5)
+            document.getElementById("judgement-count").textContent = s.judgement.count.toLocaleString();
+            document.getElementById("judgement-sum").textContent = s.judgement.sum.toLocaleString();
+
+            // 5) หนี้ที่อยู่ระหว่างดำเนินคดีอาญา (ง6)
+            document.getElementById("criminal-count").textContent = s.criminal.count.toLocaleString();
+            document.getElementById("criminal-sum").textContent = s.criminal.sum.toLocaleString();
+        }
 
         function calculateNormalDebt(data) {
             let filtered = data.filter(r =>
@@ -430,21 +475,23 @@
 
         function updateSummaryFromFiltered(data) {
 
-            // ❗ ตัดแถว “ภาพรวมจังหวัด” ออกก่อนเริ่มคำนวณ
+            // ❗ ตัดรายการ "ภาพรวมจังหวัด"
             data = data.filter(row => row["ลำดับ"] !== "ภาพรวมจังหวัด");
 
-            let normalCount = 0;
-            let normalAmount = 0;
+            // ========== ตัวแปรการ์ดเดิม ==========
+            let normalCount = 0, normalAmount = 0;
+            let restructureCount = 0, restructureSum = 0;
+            let civilCount = 0, civilSum = 0, civilCount1 = 0, civilSum1 = 0, civilCount2 = 0, civilSum2 = 0;
 
-            let restructureCount = 0;
-            let restructureSum = 0;
+            // ========== ตัวแปรการ์ดใหม่ ==========
+            let judgedCount = 0;      // รวมง3,4,5
+            let judged3Count = 0, judged3Sum = 0;
+            let judged4Count = 0, judged4Sum = 0;
+            let judged5Count = 0, judged5Sum = 0;
+            let judgedSum = 0;
 
-            let civilCount = 0;
-            let civilSum = 0;
-            let civilCount1 = 0;
-            let civilSum1 = 0;
-            let civilCount2 = 0;
-            let civilSum2 = 0;
+            let criminalCount = 0;
+            let criminalSum = 0;
 
             data.forEach(row => {
 
@@ -453,49 +500,66 @@
                 const k = parseFloat(row["การไกล่เกลี่ยที่สามารถใช้บังคับคดีได้ (ค)"]) || 0;
                 const ng = parseFloat(row["ลูกหนี้ที่ได้ดำเนินการตามกฎหมาย (ง)"]) || 0;
                 const b = parseFloat(row["จำนวนหนี้ที่เกินกำหนดชำระ (B)"]) || 0;
+
                 const ng1 = parseFloat(row["พนักงานอัยการรับเรื่อง(ง1)"]) || 0;
                 const ng2 = parseFloat(row["ศาลประทับรับฟ้อง(ง2)"]) || 0;
 
-                // -------------------------
+                const ng3 = parseFloat(row["ศาลได้มีคำพิพากษาให้ลูกหนี้ชำระหนี้(ง3)"]) || 0;
+                const ng4 = parseFloat(row["ศาลมีคำพิพากษาตามยอม(ง4)"]) || 0;
+                const ng5 = parseFloat(row["ป.วิ แพ่ง มาตรา 20 ตรี(ง5)"]) || 0;
+
+                const ng6 = parseFloat(row["ดำเนินคดีอาญา(ง6)"]) || 0;
+
+                // ===============================
                 // 1) หนี้ปกติ
-                // -------------------------
+                // ===============================
                 if (g > 0 && kh > 0 && k === 0 && ng === 0 && b === 0) {
                     normalCount++;
                     normalAmount += kh;
                 }
 
-                // -------------------------
+                // ===============================
                 // 2) หนี้ปรับโครงสร้าง (ค)
-                // -------------------------
+                // ===============================
                 if (g > 0 && k > 0) {
                     restructureCount++;
                     restructureSum += k;
                 }
 
-                // -------------------------
-                // 3) หนี้ดำเนินคดีแพ่ง (ง1, ง2)
-                // -------------------------
+                // ===============================
+                // 3) หนี้ดำเนินคดีแพ่ง (ง1–ง2)
+                // ===============================
                 if (g > 0 && (ng1 > 0 || ng2 > 0)) {
-
                     civilCount++;
                     civilSum += (ng1 + ng2);
 
-                    if (ng1 > 0) {
-                        civilCount1++;
-                        civilSum1 += ng1;
-                    }
+                    if (ng1 > 0) { civilCount1++; civilSum1 += ng1; }
+                    if (ng2 > 0) { civilCount2++; civilSum2 += ng2; }
+                }
 
-                    if (ng2 > 0) {
-                        civilCount2++;
-                        civilSum2 += ng2;
-                    }
+                // ===============================
+                // 4) หนี้ที่มีคำพิพากษาแล้ว (ง3–ง5)
+                // ===============================
+                if (g > 0 && (ng3 > 0 || ng4 > 0 || ng5 > 0)) {
+
+                    judgedCount++;
+                    judgedSum += (ng3 + ng4 + ng5);
+
+                    if (ng3 > 0) { judged3Count++; judged3Sum += ng3; }
+                    if (ng4 > 0) { judged4Count++; judged4Sum += ng4; }
+                    if (ng5 > 0) { judged5Count++; judged5Sum += ng5; }
+                }
+
+                // ===============================
+                // 5) หนี้คดีอาญา (ง6)
+                // ===============================
+                if (g > 0 && ng6 > 0) {
+                    criminalCount++;
+                    criminalSum += ng6;
                 }
             });
 
-            // -------------------------
-            // UPDATE HTML
-            // -------------------------
-
+            // ========== UPDATE HTML ==========
             document.getElementById("normal-count").textContent = normalCount.toLocaleString();
             document.getElementById("normal-amount").textContent = normalAmount.toLocaleString();
 
@@ -503,12 +567,20 @@
             document.getElementById("restructure-sum").textContent = restructureSum.toLocaleString();
 
             document.getElementById("civil-count").textContent = civilCount.toLocaleString();
-            document.getElementById("civil-prosecutor").textContent =
-                `${civilCount1.toLocaleString()} โครงการ / ${civilSum1.toLocaleString()} บาท`;
-            document.getElementById("civil-court").textContent =
-                `${civilCount2.toLocaleString()} โครงการ / ${civilSum2.toLocaleString()} บาท`;
+            document.getElementById("civil-prosecutor").textContent = `${civilCount1.toLocaleString()} / ${civilSum1.toLocaleString()}`;
+            document.getElementById("civil-court").textContent = `${civilCount2.toLocaleString()} / ${civilSum2.toLocaleString()}`;
             document.getElementById("civil-sum").textContent = civilSum.toLocaleString();
+
+            document.getElementById("judged-count").textContent = judgedCount.toLocaleString();
+            document.getElementById("judged-3").textContent = `${judged3Count} / ${judged3Sum.toLocaleString()}`;
+            document.getElementById("judged-4").textContent = `${judged4Count} / ${judged4Sum.toLocaleString()}`;
+            document.getElementById("judged-5").textContent = `${judged5Count} / ${judged5Sum.toLocaleString()}`;
+            document.getElementById("judged-sum").textContent = judgedSum.toLocaleString();
+
+            document.getElementById("criminal-count").textContent = criminalCount.toLocaleString();
+            document.getElementById("criminal-sum").textContent = criminalSum.toLocaleString();
         }
+
 
 
         function downloadData() {
