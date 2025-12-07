@@ -423,36 +423,125 @@
         }
 
         function updateSummaryCards(s) {
-            // การ์ดพื้นฐาน
-            document.getElementById("num-projects").textContent = s.numProjects.toLocaleString();
-            document.getElementById("approved-money").textContent = s.approvedMoney.toLocaleString();
-            document.getElementById("debt-start").textContent = s.debtStart.toLocaleString();
-            document.getElementById("debt-now").textContent = s.debtNow.toLocaleString();
-            document.getElementById("overdue").textContent = s.overdue.toLocaleString();
-            document.getElementById("percent-overdue").textContent = s.percentOverdue;
+            // ป้องกัน s เป็น undefined
+            s = s || {};
 
-            document.getElementById("legal").textContent = s.legal.toLocaleString();
+            // ช่วยแปลงค่าให้เป็น number (fallback เป็น 0)
+            const safeNum = v => {
+                if (v === null || v === undefined || v === "") return 0;
+                const n = Number(v);
+                return Number.isFinite(n) ? n : 0;
+            };
 
-            // หนี้ปกติ
-            document.getElementById("normal-count").textContent = s.normal.count.toLocaleString();
-            document.getElementById("normal-amount").textContent = s.normal.amount.toLocaleString();
+            // ถ้ามีฟังก์ชัน formatNumber/formatPercent อยู่แล้ว ให้ใช้ (จากโค้ดของคุณ)
+            const fmtNum = typeof formatNumber === "function"
+                ? (v) => formatNumber(v)
+                : (v) => (safeNum(v)).toLocaleString("th-TH", { minimumFractionDigits: 2 });
 
-            // หนี้ปรับโครงสร้าง (ค)
-            document.getElementById("restructure-count").textContent = s.restructure.count.toLocaleString();
-            document.getElementById("restructure-sum").textContent = s.restructure.sum.toLocaleString();
+            const fmtPct = typeof formatPercent === "function"
+                ? (v) => formatPercent(v)
+                : (v) => `${safeNum(v).toFixed(2)}%`;
 
-            // หนี้อยู่ระหว่างดำเนินคดีแพ่ง (ง1 + ง2)
-            document.getElementById("civil-count").textContent = s.civil.count.toLocaleString();
-            document.getElementById("civil-sum").textContent = s.civil.sum.toLocaleString();
+            // ======= หลากหลายรูปแบบชื่อฟิลด์ที่อาจมา =======
+            const totalProjects = safeNum(s.totalProjects ?? s.numProjects ?? s.total_projects ?? s.numProject ?? s.num_projects);
+            const approvedMoney = safeNum(s.approvedMoney ?? s.approved_money ?? s.approved ?? s.approvedMoney);
+            const debtStart = safeNum(s.debtStart ?? s.debt_start ?? s.debtStart);
+            const debtNow = safeNum(s.debtNow ?? s.debt_now ?? s.debtNow);
+            const overdue = safeNum(s.overdue ?? s.overdueAmount ?? s.overdue_amount);
+            const percentOverdue = s.percentOverdue ?? s.percent_overdue ?? s.percentOverdue ?? 0;
+            const legal = safeNum(s.legal ?? s.legalAmount ?? s.legal_amount);
 
-            // 4) หนี้ที่มีคำพิพากษาแล้ว (ง3 + ง4 + ง5)
-            document.getElementById("judgement-count").textContent = s.judgement.count.toLocaleString();
-            document.getElementById("judgement-sum").textContent = s.judgement.sum.toLocaleString();
+            // ======= การ์ดที่คำนวณจาก data (รองรับหลายรูปแบบของชื่อฟิลด์) =======
+            const normalCount = safeNum(s.normalCount ?? s.normal?.count ?? s.normal_count ?? s.normal?.cnt);
+            const normalAmount = safeNum(s.normalAmount ?? s.normal?.amount ?? s.normal?.sum ?? s.normal_amount);
 
-            // 5) หนี้ที่อยู่ระหว่างดำเนินคดีอาญา (ง6)
-            document.getElementById("criminal-count").textContent = s.criminal.count.toLocaleString();
-            document.getElementById("criminal-sum").textContent = s.criminal.sum.toLocaleString();
+            const restructureCount = safeNum(s.restructureCount ?? s.restructure?.count ?? s.restructure_count);
+            const restructureSum = safeNum(s.restructureSum ?? s.restructure?.sum ?? s.restructure_sum ?? s.restructTotal ?? s.restruct_sum);
+
+            const civilCount = safeNum(s.civilCount ?? s.civil?.count ?? s.civil_count ?? s.civilCount);
+            const civilSum = safeNum(s.civilSum ?? s.civil?.sum ?? s.civil_sum ?? s.civilTotal ?? s.civilTotal);
+
+            // แยกง1 / ง2 (ชื่อฟิลด์หลากหลายรูปแบบ)
+            const civilNg1Count = safeNum(
+                s.civilNg1Count ?? s.civilNg1Count ?? s.civil_ng1_count ?? s.sumNg1Count ?? s.civil?.ng1Count
+            );
+            const civilNg1Sum = safeNum(
+                s.civilNg1Sum ?? s.sumNg1 ?? s.civil_ng1_sum ?? s.civil?.ng1Sum ?? s.sumNg1
+            );
+
+            const civilNg2Count = safeNum(
+                s.civilNg2Count ?? s.civil_ng2_count ?? s.sumNg2Count ?? s.civil?.ng2Count
+            );
+            const civilNg2Sum = safeNum(
+                s.civilNg2Sum ?? s.sumNg2 ?? s.civil_ng2_sum ?? s.civil?.ng2Sum ?? s.sumNg2
+            );
+
+            // ง3-ง5 (คำพิพากษา)
+            const judgedCount = safeNum(s.judgedCount ?? s.judgement?.count ?? s.judgementCount ?? s.judgement_count);
+            const judgedSum = safeNum(s.judgedSum ?? s.judgement?.sum ?? s.judgementSum ?? s.judgement_sum);
+
+            const judged3Count = safeNum(s.judged3Count ?? s.judgement3Count ?? s.judgement?.g3Count);
+            const judged3Sum = safeNum(s.judged3Sum ?? s.judgement3Sum ?? s.judgement?.g3Sum);
+
+            const judged4Count = safeNum(s.judged4Count ?? s.judgement4Count ?? s.judgement?.g4Count);
+            const judged4Sum = safeNum(s.judged4Sum ?? s.judgement4Sum ?? s.judgement?.g4Sum);
+
+            const judged5Count = safeNum(s.judged5Count ?? s.judgement5Count ?? s.judgement?.g5Count);
+            const judged5Sum = safeNum(s.judged5Sum ?? s.judgement5Sum ?? s.judgement?.g5Sum);
+
+            // ง6 (คดีอาญา)
+            const criminalCount = safeNum(s.criminalCount ?? s.criminal?.count ?? s.criminal_count);
+            const criminalSum = safeNum(s.criminalSum ?? s.criminal?.sum ?? s.criminal_sum);
+
+            // ======= อัปเดต DOM — เช็ค element ก่อนอัปเดต เพื่อป้องกัน error =======
+            const setText = (id, text) => {
+                const el = document.getElementById(id);
+                if (!el) return;
+                el.textContent = text;
+            };
+
+            // การ์ดพื้นฐาน (จาก summary API)
+            setText("num-projects", totalProjects.toLocaleString("th-TH"));
+            setText("approved-money", fmtNum(approvedMoney));
+            setText("debt-start", fmtNum(debtStart));
+            setText("debt-now", fmtNum(debtNow));
+            setText("overdue", fmtNum(overdue));
+            setText("percent-overdue", fmtPct(percentOverdue));
+            setText("legal", fmtNum(legal));
+
+            // การ์ดที่คำนวณจาก data (จาก updateSummaryFromFiltered)
+            setText("normal-count", normalCount.toLocaleString("th-TH"));
+            setText("normal-amount", fmtNum(normalAmount));
+
+            setText("restructure-count", restructureCount.toLocaleString("th-TH"));
+            setText("restructure-sum", fmtNum(restructureSum));
+
+            setText("civil-count", civilCount.toLocaleString("th-TH"));
+
+            // แยกง1 / ง2 — ถ้าช่อง civil-prosecutor / civil-court มีอยู่ ให้แสดง "X โครงการ / Y บาท"
+            const elCivilProc = document.getElementById("civil-prosecutor");
+            if (elCivilProc) {
+                elCivilProc.textContent = `${civilNg1Count.toLocaleString()} โครงการ / ${fmtNum(civilNg1Sum)}`;
+            }
+            const elCivilCourt = document.getElementById("civil-court");
+            if (elCivilCourt) {
+                elCivilCourt.textContent = `${civilNg2Count.toLocaleString()} โครงการ / ${fmtNum(civilNg2Sum)}`;
+            }
+
+            setText("civil-sum", fmtNum(civilSum));
+
+            // ง3-ง5 (คำพิพากษา)
+            setText("judged-count", judgedCount.toLocaleString("th-TH"));
+            setText("judged-sum", fmtNum(judgedSum));
+            setText("judged-3", `${judged3Count.toLocaleString()} / ${fmtNum(judged3Sum)}`);
+            setText("judged-4", `${judged4Count.toLocaleString()} / ${fmtNum(judged4Sum)}`);
+            setText("judged-5", `${judged5Count.toLocaleString()} / ${fmtNum(judged5Sum)}`);
+
+            // คดีอาญา ง6
+            setText("criminal-count", criminalCount.toLocaleString("th-TH"));
+            setText("criminal-sum", fmtNum(criminalSum));
         }
+
 
         function calculateNormalDebt(data) {
             let filtered = data.filter(r =>
