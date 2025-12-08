@@ -308,7 +308,7 @@
 
     <script>
         const API_URL = "https://script.google.com/macros/s/AKfycbwwxjRdiPSd7SOuZAOO5OmWi5NHCBMOf3d1923ik9QBY7iiZ0gJl6ppcQQUHGrxuLRTAg/exec";  // ⭐ ใส่ URL Apps Script ของคุณตรงนี้ ⭐
-        
+
         let originalData = [];
         let summary = {};
 
@@ -354,7 +354,12 @@
             $("#btnDownload").on("click", downloadData);
 
             await fetchData(province);
+
+            // ⭐ เรียกหลังจาก fetchData โหลดตารางเรียบร้อยแล้ว ⭐
+            renderTable(allData);
+            updateSummaryFromFiltered(allData);  // ← ตรงนี้!
         });
+
 
 
 
@@ -451,124 +456,37 @@
             selects.on("change", filterData);
         }
 
-        function updateSummaryCards(s) {
-            // ป้องกัน s เป็น undefined
-            s = s || {};
+        function updateSummaryCards(summary) {
+            if (!summary) return;
 
-            // ช่วยแปลงค่าให้เป็น number (fallback เป็น 0)
-            const safeNum = v => {
-                if (v === null || v === undefined || v === "") return 0;
-                const n = Number(v);
-                return Number.isFinite(n) ? n : 0;
+            const num = v => {
+                const n = parseFloat(String(v).replace(/,/g, ""));
+                return isNaN(n) ? 0 : n;
             };
+            const fmt = v => num(v).toLocaleString("th-TH", { minimumFractionDigits: 2 });
 
-            // ถ้ามีฟังก์ชัน formatNumber/formatPercent อยู่แล้ว ให้ใช้ (จากโค้ดของคุณ)
-            const fmtNum = typeof formatNumber === "function"
-                ? (v) => formatNumber(v)
-                : (v) => (safeNum(v)).toLocaleString("th-TH", { minimumFractionDigits: 2 });
-
-            const fmtPct = typeof formatPercent === "function"
-                ? (v) => formatPercent(v)
-                : (v) => `${safeNum(v).toFixed(2)}%`;
-
-            // ======= หลากหลายรูปแบบชื่อฟิลด์ที่อาจมา =======
-            const totalProjects = safeNum(s.totalProjects ?? s.numProjects ?? s.total_projects ?? s.numProject ?? s.num_projects);
-            const approvedMoney = safeNum(s.approvedMoney ?? s.approved_money ?? s.approved ?? s.approvedMoney);
-            const debtStart = safeNum(s.debtStart ?? s.debt_start ?? s.debtStart);
-            const debtNow = safeNum(s.debtNow ?? s.debt_now ?? s.debtNow);
-            const overdue = safeNum(s.overdue ?? s.overdueAmount ?? s.overdue_amount);
-            const percentOverdue = s.percentOverdue ?? s.percent_overdue ?? s.percentOverdue ?? 0;
-            const legal = safeNum(s.legal ?? s.legalAmount ?? s.legal_amount);
-
-            // ======= การ์ดที่คำนวณจาก data (รองรับหลายรูปแบบของชื่อฟิลด์) =======
-            const normalCount = safeNum(s.normalCount ?? s.normal?.count ?? s.normal_count ?? s.normal?.cnt);
-            const normalAmount = safeNum(s.normalAmount ?? s.normal?.amount ?? s.normal?.sum ?? s.normal_amount);
-
-            const restructureCount = safeNum(s.restructureCount ?? s.restructure?.count ?? s.restructure_count);
-            const restructureSum = safeNum(s.restructureSum ?? s.restructure?.sum ?? s.restructure_sum ?? s.restructTotal ?? s.restruct_sum);
-
-            const civilCount = safeNum(s.civilCount ?? s.civil?.count ?? s.civil_count ?? s.civilCount);
-            const civilSum = safeNum(s.civilSum ?? s.civil?.sum ?? s.civil_sum ?? s.civilTotal ?? s.civilTotal);
-
-            // แยกง1 / ง2 (ชื่อฟิลด์หลากหลายรูปแบบ)
-            const civilNg1Count = safeNum(
-                s.civilNg1Count ?? s.civilNg1Count ?? s.civil_ng1_count ?? s.sumNg1Count ?? s.civil?.ng1Count
-            );
-            const civilNg1Sum = safeNum(
-                s.civilNg1Sum ?? s.sumNg1 ?? s.civil_ng1_sum ?? s.civil?.ng1Sum ?? s.sumNg1
-            );
-
-            const civilNg2Count = safeNum(
-                s.civilNg2Count ?? s.civil_ng2_count ?? s.sumNg2Count ?? s.civil?.ng2Count
-            );
-            const civilNg2Sum = safeNum(
-                s.civilNg2Sum ?? s.sumNg2 ?? s.civil_ng2_sum ?? s.civil?.ng2Sum ?? s.sumNg2
-            );
-
-            // ง3-ง5 (คำพิพากษา)
-            const judgedCount = safeNum(s.judgedCount ?? s.judgement?.count ?? s.judgementCount ?? s.judgement_count);
-            const judgedSum = safeNum(s.judgedSum ?? s.judgement?.sum ?? s.judgementSum ?? s.judgement_sum);
-
-            const judged3Count = safeNum(s.judged3Count ?? s.judgement3Count ?? s.judgement?.g3Count);
-            const judged3Sum = safeNum(s.judged3Sum ?? s.judgement3Sum ?? s.judgement?.g3Sum);
-
-            const judged4Count = safeNum(s.judged4Count ?? s.judgement4Count ?? s.judgement?.g4Count);
-            const judged4Sum = safeNum(s.judged4Sum ?? s.judgement4Sum ?? s.judgement?.g4Sum);
-
-            const judged5Count = safeNum(s.judged5Count ?? s.judgement5Count ?? s.judgement?.g5Count);
-            const judged5Sum = safeNum(s.judged5Sum ?? s.judgement5Sum ?? s.judgement?.g5Sum);
-
-            // ง6 (คดีอาญา)
-            const criminalCount = safeNum(s.criminalCount ?? s.criminal?.count ?? s.criminal_count);
-            const criminalSum = safeNum(s.criminalSum ?? s.criminal?.sum ?? s.criminal_sum);
-
-            // ======= อัปเดต DOM — เช็ค element ก่อนอัปเดต เพื่อป้องกัน error =======
-            const setText = (id, text) => {
+            const set = (id, value) => {
                 const el = document.getElementById(id);
-                if (!el) return;
-                el.textContent = text;
+                if (el) el.textContent = value;
             };
 
-            // การ์ดพื้นฐาน (จาก summary API)
-            setText("num-projects", totalProjects.toLocaleString("th-TH"));
-            setText("approved-money", fmtNum(approvedMoney));
-            setText("debt-start", fmtNum(debtStart));
-            setText("debt-now", fmtNum(debtNow));
-            setText("overdue", fmtNum(overdue));
-            setText("percent-overdue", fmtPct(percentOverdue));
-            setText("legal", fmtNum(legal));
+            // ==== รองรับหลายชื่อฟิลด์จาก API ====
+            const totalProjects = summary.totalProjects ?? summary.numProjects ?? summary.total_projects ?? 0;
+            const approvedMoney = summary.approvedMoney ?? summary.approved_money ?? summary.approved ?? 0;
+            const debtStart = summary.debtStart ?? summary.debt_start ?? 0;
+            const debtNow = summary.debtNow ?? summary.debt_now ?? 0;
+            const overdue = summary.overdue ?? summary.overdueAmount ?? summary.overdue_amount ?? 0;
+            const percentOverdue = summary.percentOverdue ?? summary.percent_overdue ?? 0;
+            const legal = summary.legal ?? summary.legalAmount ?? summary.legal_amount ?? 0;
 
-            // การ์ดที่คำนวณจาก data (จาก updateSummaryFromFiltered)
-            setText("normal-count", normalCount.toLocaleString("th-TH"));
-            setText("normal-amount", fmtNum(normalAmount));
-
-            setText("restructure-count", restructureCount.toLocaleString("th-TH"));
-            setText("restructure-sum", fmtNum(restructureSum));
-
-            setText("civil-count", civilCount.toLocaleString("th-TH"));
-
-            // แยกง1 / ง2 — ถ้าช่อง civil-prosecutor / civil-court มีอยู่ ให้แสดง "X โครงการ / Y บาท"
-            const elCivilProc = document.getElementById("civil-prosecutor");
-            if (elCivilProc) {
-                elCivilProc.textContent = `${civilNg1Count.toLocaleString()} โครงการ / ${fmtNum(civilNg1Sum)}`;
-            }
-            const elCivilCourt = document.getElementById("civil-court");
-            if (elCivilCourt) {
-                elCivilCourt.textContent = `${civilNg2Count.toLocaleString()} โครงการ / ${fmtNum(civilNg2Sum)}`;
-            }
-
-            setText("civil-sum", fmtNum(civilSum));
-
-            // ง3-ง5 (คำพิพากษา)
-            setText("judged-count", judgedCount.toLocaleString("th-TH"));
-            setText("judged-sum", fmtNum(judgedSum));
-            setText("judged-3", `${judged3Count.toLocaleString()} / ${fmtNum(judged3Sum)}`);
-            setText("judged-4", `${judged4Count.toLocaleString()} / ${fmtNum(judged4Sum)}`);
-            setText("judged-5", `${judged5Count.toLocaleString()} / ${fmtNum(judged5Sum)}`);
-
-            // คดีอาญา ง6
-            setText("criminal-count", criminalCount.toLocaleString("th-TH"));
-            setText("criminal-sum", fmtNum(criminalSum));
+            // ==== อัปเดต DOM ====
+            set("num-projects", num(totalProjects).toLocaleString("th-TH"));
+            set("approved-money", fmt(approvedMoney));
+            set("debt-start", fmt(debtStart));
+            set("debt-now", fmt(debtNow));
+            set("overdue", fmt(overdue));
+            set("percent-overdue", `${num(percentOverdue).toFixed(2)}%`);
+            set("legal", fmt(legal));
         }
 
 
@@ -593,111 +511,102 @@
 
         function updateSummaryFromFiltered(data) {
 
-            // ❗ ตัดรายการ "ภาพรวมจังหวัด"
-            data = data.filter(row => row["ลำดับ"] !== "ภาพรวมจังหวัด");
+            if (!Array.isArray(data)) return;
 
-            // ========== ตัวแปรการ์ดเดิม ==========
+            data = data.filter(r => r["ลำดับ"] !== "ภาพรวมจังหวัด");
+
             let normalCount = 0, normalAmount = 0;
             let restructureCount = 0, restructureSum = 0;
-            let civilCount = 0, civilSum = 0, civilCount1 = 0, civilSum1 = 0, civilCount2 = 0, civilSum2 = 0;
+            let civilCount = 0, civilSum = 0;
+            let ng1c = 0, ng1s = 0, ng2c = 0, ng2s = 0;
 
-            // ========== ตัวแปรการ์ดใหม่ ==========
-            let judgedCount = 0;      // รวมง3,4,5
-            let judged3Count = 0, judged3Sum = 0;
-            let judged4Count = 0, judged4Sum = 0;
-            let judged5Count = 0, judged5Sum = 0;
-            let judgedSum = 0;
+            let judgedCount = 0, judgedSum = 0;
+            let jc3 = 0, js3 = 0, jc4 = 0, js4 = 0, jc5 = 0, js5 = 0;
 
-            let criminalCount = 0;
-            let criminalSum = 0;
+            let criminalCount = 0, criminalSum = 0;
+
+            const num = v => parseFloat(v) || 0;
 
             data.forEach(row => {
 
-                const g = parseFloat(row["ลูกหนี้คงเหลือ ณ ปัจจุบัน (ก)"]) || 0;
-                const kh = parseFloat(row["หนี้ยังไม่ถึงกำหนดชำระ (ข)"]) || 0;
-                const k = parseFloat(row["การไกล่เกลี่ยที่สามารถใช้บังคับคดีได้ (ค)"]) || 0;
-                const ng = parseFloat(row["ลูกหนี้ที่ได้ดำเนินการตามกฎหมาย (ง)"]) || 0;
-                const b = parseFloat(row["จำนวนหนี้ที่เกินกำหนดชำระ (B)"]) || 0;
+                const g = num(row["ลูกหนี้คงเหลือ ณ ปัจจุบัน (ก)"]);
+                const kh = num(row["หนี้ยังไม่ถึงกำหนดชำระ (ข)"]);
+                const k = num(row["การไกล่เกลี่ยที่สามารถใช้บังคับคดีได้ (ค)"]);
+                const ng = num(row["ลูกหนี้ที่ได้ดำเนินการตามกฎหมาย (ง)"]);
+                const b = num(row["จำนวนหนี้ที่เกินกำหนดชำระ (B)"]);
 
-                const ng1 = parseFloat(row["พนักงานอัยการรับเรื่อง(ง1)"]) || 0;
-                const ng2 = parseFloat(row["ศาลประทับรับฟ้อง(ง2)"]) || 0;
+                const n1 = num(row["พนักงานอัยการรับเรื่อง(ง1)"]);
+                const n2 = num(row["ศาลประทับรับฟ้อง(ง2)"]);
+                const n3 = num(row["ศาลได้มีคำพิพากษาให้ลูกหนี้ชำระหนี้(ง3)"]);
+                const n4 = num(row["ศาลมีคำพิพากษาตามยอม(ง4)"]);
+                const n5 = num(row["ป.วิ แพ่ง มาตรา 20 ตรี(ง5)"]);
+                const n6 = num(row["ดำเนินคดีอาญา(ง6)"]);
 
-                const ng3 = parseFloat(row["ศาลได้มีคำพิพากษาให้ลูกหนี้ชำระหนี้(ง3)"]) || 0;
-                const ng4 = parseFloat(row["ศาลมีคำพิพากษาตามยอม(ง4)"]) || 0;
-                const ng5 = parseFloat(row["ป.วิ แพ่ง มาตรา 20 ตรี(ง5)"]) || 0;
-
-                const ng6 = parseFloat(row["ดำเนินคดีอาญา(ง6)"]) || 0;
-
-                // ===============================
-                // 1) หนี้ปกติ
-                // ===============================
+                // ---- หนี้ปกติ ----
                 if (g > 0 && kh > 0 && k === 0 && ng === 0) {
                     normalCount++;
                     normalAmount += kh;
                 }
 
-                // ===============================
-                // 2) หนี้ปรับโครงสร้าง (ค)
-                // ===============================
-                if (g > 0 && k > 0) {
+                // ---- หนี้ปรับโครงสร้าง (ค) ----
+                if (k > 0) {
                     restructureCount++;
                     restructureSum += k;
                 }
 
-                // ===============================
-                // 3) หนี้ดำเนินคดีแพ่ง (ง1–ง2)
-                // ===============================
-                if (g > 0 && (ng1 > 0 || ng2 > 0)) {
+                // ---- ง1 - ง2 ----
+                if (n1 > 0 || n2 > 0) {
                     civilCount++;
-                    civilSum += (ng1 + ng2);
+                    civilSum += n1 + n2;
 
-                    if (ng1 > 0) { civilCount1++; civilSum1 += ng1; }
-                    if (ng2 > 0) { civilCount2++; civilSum2 += ng2; }
+                    if (n1 > 0) { ng1c++; ng1s += n1; }
+                    if (n2 > 0) { ng2c++; ng2s += n2; }
                 }
 
-                // ===============================
-                // 4) หนี้ที่มีคำพิพากษาแล้ว (ง3–ง5)
-                // ===============================
-                if (g > 0 && (ng3 > 0 || ng4 > 0 || ng5 > 0)) {
-
+                // ---- ง3 - ง5 ----
+                if (n3 > 0 || n4 > 0 || n5 > 0) {
                     judgedCount++;
-                    judgedSum += (ng3 + ng4 + ng5);
+                    judgedSum += n3 + n4 + n5;
 
-                    if (ng3 > 0) { judged3Count++; judged3Sum += ng3; }
-                    if (ng4 > 0) { judged4Count++; judged4Sum += ng4; }
-                    if (ng5 > 0) { judged5Count++; judged5Sum += ng5; }
+                    if (n3 > 0) { jc3++; js3 += n3; }
+                    if (n4 > 0) { jc4++; js4 += n4; }
+                    if (n5 > 0) { jc5++; js5 += n5; }
                 }
 
-                // ===============================
-                // 5) หนี้คดีอาญา (ง6)
-                // ===============================
-                if (g > 0 && ng6 > 0) {
+                // ---- ง6 ----
+                if (n6 > 0) {
                     criminalCount++;
-                    criminalSum += ng6;
+                    criminalSum += n6;
                 }
             });
 
-            // ========== UPDATE HTML ==========
-            document.getElementById("normal-count").textContent = normalCount.toLocaleString();
-            document.getElementById("normal-amount").textContent = normalAmount.toLocaleString();
+            // ----- อัปเดต DOM -----
+            const set = (id, txt) => {
+                const el = document.getElementById(id);
+                if (el) el.textContent = txt;
+            };
 
-            document.getElementById("restructure-count").textContent = restructureCount.toLocaleString();
-            document.getElementById("restructure-sum").textContent = restructureSum.toLocaleString();
+            set("normal-count", normalCount.toLocaleString());
+            set("normal-amount", normalAmount.toLocaleString());
 
-            document.getElementById("civil-count").textContent = civilCount.toLocaleString();
-            document.getElementById("civil-prosecutor").textContent = `${civilCount1.toLocaleString()} / ${civilSum1.toLocaleString()}`;
-            document.getElementById("civil-court").textContent = `${civilCount2.toLocaleString()} / ${civilSum2.toLocaleString()}`;
-            document.getElementById("civil-sum").textContent = civilSum.toLocaleString();
+            set("restructure-count", restructureCount.toLocaleString());
+            set("restructure-sum", restructureSum.toLocaleString());
 
-            document.getElementById("judged-count").textContent = judgedCount.toLocaleString();
-            document.getElementById("judged-3").textContent = `${judged3Count} / ${judged3Sum.toLocaleString()}`;
-            document.getElementById("judged-4").textContent = `${judged4Count} / ${judged4Sum.toLocaleString()}`;
-            document.getElementById("judged-5").textContent = `${judged5Count} / ${judged5Sum.toLocaleString()}`;
-            document.getElementById("judged-sum").textContent = judgedSum.toLocaleString();
+            set("civil-count", civilCount.toLocaleString());
+            set("civil-prosecutor", `${ng1c} / ${ng1s.toLocaleString()}`);
+            set("civil-court", `${ng2c} / ${ng2s.toLocaleString()}`);
+            set("civil-sum", civilSum.toLocaleString());
 
-            document.getElementById("criminal-count").textContent = criminalCount.toLocaleString();
-            document.getElementById("criminal-sum").textContent = criminalSum.toLocaleString();
+            set("judged-count", judgedCount.toLocaleString());
+            set("judged-3", `${jc3} / ${js3.toLocaleString()}`);
+            set("judged-4", `${jc4} / ${js4.toLocaleString()}`);
+            set("judged-5", `${jc5} / ${js5.toLocaleString()}`);
+            set("judged-sum", judgedSum.toLocaleString());
+
+            set("criminal-count", criminalCount.toLocaleString());
+            set("criminal-sum", criminalSum.toLocaleString());
         }
+
 
 
 
