@@ -308,7 +308,7 @@
 
     <script>
         const API_URL = "https://script.google.com/macros/s/AKfycbwwxjRdiPSd7SOuZAOO5OmWi5NHCBMOf3d1923ik9QBY7iiZ0gJl6ppcQQUHGrxuLRTAg/exec";  // ⭐ ใส่ URL Apps Script ของคุณตรงนี้ ⭐
-        
+
         let originalData = [];
         let summary = {};
 
@@ -328,9 +328,15 @@
                 loadSubDistrictOptions(originalData);
 
                 // 🔥🔥 สำคัญที่สุด: แสดงข้อมูลทันทีหลังโหลด API 🔥🔥
-                renderTable(originalData);
-                updateSummaryFromFiltered(originalData);  // คำนวณ summary จากข้อมูลจริง
-                updateSummaryCards(summary);              // หรือ summary จังหวัด
+                renderTable(allData);
+                setupFilters(allData);
+
+                // ปรับให้ summary คำนวณจากข้อมูลจริงเมื่อเริ่มต้น
+                updateSummaryFromFiltered(allData);
+
+                // โชว์ summary ของจังหวัดถ้าต้องการ (ไม่บังคับ)
+                updateSummaryCards(json.summary);
+
 
             } catch (err) {
                 console.error("เกิดข้อผิดพลาดในการโหลดข้อมูล", err);
