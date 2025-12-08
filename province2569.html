@@ -402,62 +402,78 @@
         }
 
         function setupFilters(data) {
+
             const keys = ["อำเภอ/เขต", "ตำบล", "ปีงบประมาณ", "สถานะโครงการ"];
             const container = $("#filter-section").empty();
 
-            // สร้าง select สำหรับแต่ละ key
+            // สร้าง select
             keys.forEach(k => {
                 container.append(`
-      <div class="filter-item">
-        <label>${k}</label>
-        <select data-key="${k}">
-          <option value="">-- ทั้งหมด --</option>
-        </select>
-      </div>
-    `);
+            <div class="filter-item">
+                <label>${k}</label>
+                <select data-key="${k}">
+                    <option value="">-- ทั้งหมด --</option>
+                </select>
+            </div>
+        `);
             });
 
             const selects = $("#filter-section select");
 
-            // เติมค่าเริ่มต้นให้ select
-            function updateSelectOptions(filteredData) {
+            // -----------------------------
+            // ฟังก์ชันเติมค่า dropdown ตามข้อมูล
+            // -----------------------------
+            function refreshDropdowns(filtered) {
+
                 selects.each(function () {
                     const key = $(this).data("key");
-                    const currentVal = $(this).val();
+                    const current = $(this).val();
 
-                    let options = [...new Set(filteredData.map(r => r[key]).filter(Boolean))].sort();
-                    const html = `<option value="">-- ทั้งหมด --</option>` + options.map(v => `<option value="${v}">${v}</option>`).join("");
+                    let options = [...new Set(filtered.map(r => r[key]).filter(Boolean))].sort();
+
+                    let html = `<option value="">-- ทั้งหมด --</option>` +
+                        options.map(v => `<option value="${v}">${v}</option>`).join("");
+
                     $(this).html(html);
 
-                    if (options.includes(currentVal)) $(this).val(currentVal);
+                    // คืนค่าเดิมถ้ายังมีอยู่
+                    if (options.includes(current)) {
+                        $(this).val(current);
+                    }
                 });
             }
 
-            // กรองข้อมูลตาม select ทั้งหมด
+            // เติมค่าครั้งแรก
+            refreshDropdowns(data);
+
+            // -----------------------------
+            // ฟังก์ชันกรองข้อมูลรวมทุก select
+            // -----------------------------
             function filterData() {
-                let filtered = [...allData];
+
+                let filtered = [...data];
 
                 selects.each(function () {
                     const key = $(this).data("key");
                     const val = $(this).val();
-                    if (val) {
-                        filtered = filtered.filter(r => r[key] == val);
-                    }
+
+                    if (val) filtered = filtered.filter(r => r[key] == val);
                 });
 
-                renderTable(filtered); // แสดงเฉพาะข้อมูลที่กรองแล้ว
-                updateSummaryFromFiltered(filtered); // อัปเดตการ์ดสรุป
+                // แสดงเฉพาะข้อมูลที่กรองแล้ว
+                renderTable(filtered);
 
-                // อัปเดตตัวเลือก select ให้ตรงกับข้อมูลที่กรอง (dependent)
-                updateSelectOptions(filtered);
+                // อัปเดตสรุป
+                updateSummaryFromFiltered(filtered);
+
+                // อัปเดต dropdown (dependent)
+                refreshDropdowns(filtered);
             }
 
-            // เติมตัวเลือกครั้งแรก
-            updateSelectOptions(data);
-
-            // เมื่อ select เปลี่ยน → กรองข้อมูล
+            // event เมื่อ select เปลี่ยน
             selects.on("change", filterData);
         }
+
 
         function updateSummaryCards(s) {
             // ป้องกัน s เป็น undefined
