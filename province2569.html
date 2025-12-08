@@ -308,7 +308,7 @@
 
     <script>
         const API_URL = "https://script.google.com/macros/s/AKfycbwwxjRdiPSd7SOuZAOO5OmWi5NHCBMOf3d1923ik9QBY7iiZ0gJl6ppcQQUHGrxuLRTAg/exec";  // ⭐ ใส่ URL Apps Script ของคุณตรงนี้ ⭐
-        
+
         let originalData = [];
         let summary = {};
 
@@ -348,13 +348,15 @@
             $("#btnResetFilter").on("click", () => {
                 $("#filter-section select").val("").trigger("change");
                 renderTable(allData);
+                updateSummaryFromFiltered(allData);   // ← เพิ่มตรงนี้
                 updateSummaryCards(originalSummary);
             });
 
             $("#btnDownload").on("click", downloadData);
 
-            await fetchData(province);
+            await fetchData(province);  // ← หลัง fetchData จะ renderTable + updateSummary ให้แล้ว
         });
+
 
 
 
@@ -368,14 +370,25 @@
                 allData = json.data || [];
                 originalSummary = json.summary;
 
+                // อัปเดตการ์ดภาพรวมจังหวัด
                 updateSummaryCards(json.summary);
+
+                // ⭐ แสดงข้อมูลทั้งหมดในตาราง
                 renderTable(allData);
+
+                // ⭐ คำนวณ summary เฉพาะข้อมูลจริง
+                updateSummaryFromFiltered(allData);
+
+                // ⭐ โหลด filter
                 setupFilters(allData);
 
             } catch (err) {
                 alert("เกิดข้อผิดพลาด: " + err.message);
             }
         }
+
+
+
 
         function renderTable(data) {
             const headers = Object.keys(data[0] || {});
