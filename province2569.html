@@ -348,17 +348,15 @@
             $("#btnResetFilter").on("click", () => {
                 $("#filter-section select").val("").trigger("change");
                 renderTable(allData);
-                updateSummaryFromFiltered(allData);   // ← เพิ่มตรงนี้
-                updateSummaryCards(originalSummary);
+                updateSummaryFromFiltered(allData); // summary ตามข้อมูลเต็ม
+                // ถ้าอยากให้เป็น summary จังหวัด ให้เปิดบรรทัดล่าง
+                // updateSummaryCards(originalSummary);
             });
 
             $("#btnDownload").on("click", downloadData);
 
-            await fetchData(province);  // ← หลัง fetchData จะ renderTable + updateSummary ให้แล้ว
+            await fetchData(province);  // โหลด + render + summary + filter
         });
-
-
-
 
         async function fetchData(province) {
             try {
@@ -386,9 +384,6 @@
                 alert("เกิดข้อผิดพลาด: " + err.message);
             }
         }
-
-
-
 
         function renderTable(data) {
             const headers = Object.keys(data[0] || {});
@@ -603,7 +598,6 @@
             return { count, amount };
         }
 
-
         function updateSummaryFromFiltered(data) {
 
             // ❗ ตัดรายการ "ภาพรวมจังหวัด"
@@ -711,8 +705,6 @@
             document.getElementById("criminal-count").textContent = criminalCount.toLocaleString();
             document.getElementById("criminal-sum").textContent = criminalSum.toLocaleString();
         }
-
-
 
         function downloadData() {
             const wb = XLSX.utils.book_new();
