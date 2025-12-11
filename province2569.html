@@ -389,15 +389,22 @@
         function renderTable(data) {
             const table = $("#detailsTable");
 
-            // ❗ ต้อง destroy ก่อนทุกครั้ง ไม่งั้น DataTable จะจำข้อมูลเก่า
+            // ลบคอลัมน์ลำดับที่มาจาก API
+            data = data.map(row => {
+                const newRow = { ...row };
+                delete newRow["ลำดับ"];
+                return newRow;
+            });
+
+            // Destroy DataTable เก่า
             if ($.fn.DataTable.isDataTable("#detailsTable")) {
                 table.DataTable().clear().destroy();
             }
 
-            // ดึงรายการคอลัมน์จากข้อมูล
+            // เอาคีย์ของตาราง (หลังลบ 'ลำดับ')
             const headers = Object.keys(data[0] || {});
 
-            // ⭐ เพิ่มคอลัมน์ลำดับไว้ด้านหน้า
+            // เพิ่ม header ‘ลำดับ’ ที่ DataTable จะจัดให้เอง
             $("#detailsTable thead").html(
                 `<tr>
             <th>ลำดับ</th>
@@ -405,35 +412,33 @@
         </tr>`
             );
 
-            // สร้าง body ใหม่
+            // เติมข้อมูล
             const tbody = $("#detailsTable tbody").empty();
             data.forEach(row => {
                 tbody.append(`
             <tr>
-                <td></td> 
+                <td></td>
                 ${headers.map(h => `<td>${row[h] ?? "-"}</td>`).join("")}
             </tr>
         `);
             });
 
-            // สร้าง DataTable ใหม่แบบสด
+            // DataTable
             table.DataTable({
                 scrollX: true,
                 pageLength: 10,
-                // ⭐ ให้ DataTable เพิ่มเลขลำดับ auto
                 columnDefs: [
                     {
-                        targets: 0,              // คอลัมน์ลำดับ
+                        targets: 0, // คอลัมน์ลำดับ
                         searchable: false,
                         orderable: false,
                         render: function (data, type, row, meta) {
-                            return meta.row + 1;  // ⭐ คำนวณลำดับทีหลัง (ถูกต้องเสมอ)
+                            return meta.row + 1; // ให้ DataTable คำนวณลำดับเอง
                         }
                     }
                 ]
             });
         }
-
 
 
         function setupFilters(data) {
