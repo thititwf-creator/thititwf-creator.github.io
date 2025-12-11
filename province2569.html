@@ -437,21 +437,26 @@
             function refreshDropdowns(filtered) {
                 selects.each(function () {
                     const key = $(this).data("key");
-                    const current = $(this).val();
+                    const current = String($(this).val() || "");
 
-                    let options = [...new Set(filtered.map(r => r[key]).filter(Boolean))].sort();
+                    let options = [...new Set(filtered
+                        .map(r => r[key])
+                        .filter(v => v !== undefined && v !== null)
+                    )].map(v => String(v));   // ⭐ บังคับเป็น String
 
-                    let html = `<option value="">-- ทั้งหมด --</option>` +
-                        options.map(v => `<option value="${v}">${v}</option>`).join("");
+                    // Render dropdown
+                    $(this).html(
+                        `<option value="">-- ทั้งหมด --</option>` +
+                        options.map(v => `<option value="${v}">${v}</option>`).join("")
+                    );
 
-                    $(this).html(html);
-
-                    // ถ้ายังมีค่าเดิมอยู่ ก็ set คืนให้
+                    // ⭐ คืนค่าเลือกเดิม (แบบ string)
                     if (current && options.includes(current)) {
                         $(this).val(current);
                     }
                 });
             }
+
 
             // เติมครั้งแรก
             refreshDropdowns(data);
