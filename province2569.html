@@ -429,19 +429,23 @@
                     const key = $(this).data("key");
                     const current = $(this).val();
 
-                    let options = [...new Set(filtered.map(r => r[key]).filter(Boolean))].sort();
+                    // ค่า dropdown ต้องมาจากข้อมูลทั้งหมด ไม่ใช่จาก filtered
+                    let options = [...new Set(allData.map(r => r[key]).filter(Boolean))].sort();
 
                     let html = `<option value="">-- ทั้งหมด --</option>` +
                         options.map(v => `<option value="${v}">${v}</option>`).join("");
 
                     $(this).html(html);
 
-                    // คืนค่าเดิมถ้ายังมีอยู่
-                    if (options.includes(current)) {
+                    // คืนค่าที่ผู้ใช้กำลังเลือกอยู่
+                    if (current && options.includes(current)) {
                         $(this).val(current);
+                    } else {
+                        $(this).val("");
                     }
                 });
             }
+
 
             // เติมค่าครั้งแรก
             refreshDropdowns(data);
@@ -451,7 +455,7 @@
             // -----------------------------
             function filterData() {
 
-                let filtered = [...data];
+                let filtered = [...allData];  // ต้องเริ่มจากข้อมูลทั้งหมด
 
                 selects.each(function () {
                     const key = $(this).data("key");
@@ -460,15 +464,13 @@
                     if (val) filtered = filtered.filter(r => r[key] == val);
                 });
 
-                // แสดงเฉพาะข้อมูลที่กรองแล้ว
                 renderTable(filtered);
-
-                // อัปเดตสรุป
                 updateSummaryFromFiltered(filtered);
 
-                // อัปเดต dropdown (dependent)
+                // อัปเดต dropdown แต่ยังคงค่าที่เลือกไว้
                 refreshDropdowns(filtered);
             }
+
 
             // event เมื่อ select เปลี่ยน
             selects.on("change", filterData);
