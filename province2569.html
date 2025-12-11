@@ -394,22 +394,46 @@
                 table.DataTable().clear().destroy();
             }
 
-            // สร้าง header ใหม่
+            // ดึงรายการคอลัมน์จากข้อมูล
             const headers = Object.keys(data[0] || {});
-            $("#detailsTable thead").html(`<tr>${headers.map(h => `<th>${h}</th>`).join("")}</tr>`);
+
+            // ⭐ เพิ่มคอลัมน์ลำดับไว้ด้านหน้า
+            $("#detailsTable thead").html(
+                `<tr>
+            <th>ลำดับ</th>
+            ${headers.map(h => `<th>${h}</th>`).join("")}
+        </tr>`
+            );
 
             // สร้าง body ใหม่
             const tbody = $("#detailsTable tbody").empty();
             data.forEach(row => {
-                tbody.append(`<tr>${headers.map(h => `<td>${row[h] ?? "-"}</td>`).join("")}</tr>`);
+                tbody.append(`
+            <tr>
+                <td></td> 
+                ${headers.map(h => `<td>${row[h] ?? "-"}</td>`).join("")}
+            </tr>
+        `);
             });
 
             // สร้าง DataTable ใหม่แบบสด
             table.DataTable({
                 scrollX: true,
-                pageLength: 10
+                pageLength: 10,
+                // ⭐ ให้ DataTable เพิ่มเลขลำดับ auto
+                columnDefs: [
+                    {
+                        targets: 0,              // คอลัมน์ลำดับ
+                        searchable: false,
+                        orderable: false,
+                        render: function (data, type, row, meta) {
+                            return meta.row + 1;  // ⭐ คำนวณลำดับทีหลัง (ถูกต้องเสมอ)
+                        }
+                    }
+                ]
             });
         }
+
 
 
         function setupFilters(data) {
