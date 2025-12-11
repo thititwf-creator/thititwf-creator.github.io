@@ -406,7 +406,7 @@
             const keys = ["อำเภอ/เขต", "ตำบล", "ปีงบประมาณ", "สถานะโครงการ"];
             const container = $("#filter-section").empty();
 
-            // สร้าง select
+            // --- สร้าง dropdown ---
             keys.forEach(k => {
                 container.append(`
             <div class="filter-item">
@@ -420,61 +420,62 @@
 
             const selects = $("#filter-section select");
 
-            // -----------------------------
-            // ฟังก์ชันเติมค่า dropdown ตามข้อมูล
-            // -----------------------------
+            // ----------------------------------------------------
+            // เติมค่า dropdown โดย "ไม่รีเซ็ตค่าที่เลือกอยู่แล้ว"
+            // ----------------------------------------------------
             function refreshDropdowns(filtered) {
-
                 selects.each(function () {
                     const key = $(this).data("key");
                     const current = $(this).val();
 
-                    // ค่า dropdown ต้องมาจากข้อมูลทั้งหมด ไม่ใช่จาก filtered
-                    let options = [...new Set(allData.map(r => r[key]).filter(Boolean))].sort();
+                    let options = [...new Set(filtered.map(r => r[key]).filter(Boolean))].sort();
 
                     let html = `<option value="">-- ทั้งหมด --</option>` +
                         options.map(v => `<option value="${v}">${v}</option>`).join("");
 
                     $(this).html(html);
 
-                    // คืนค่าที่ผู้ใช้กำลังเลือกอยู่
+                    // ถ้ายังมีค่าเดิมอยู่ ก็ set คืนให้
                     if (current && options.includes(current)) {
                         $(this).val(current);
-                    } else {
-                        $(this).val("");
                     }
                 });
             }
 
-
-            // เติมค่าครั้งแรก
+            // เติมครั้งแรก
             refreshDropdowns(data);
 
-            // -----------------------------
-            // ฟังก์ชันกรองข้อมูลรวมทุก select
-            // -----------------------------
+            // ----------------------------------------------------
+            // ฟังก์ชันกรองข้อมูล
+            // ----------------------------------------------------
             function filterData() {
 
-                let filtered = [...allData];  // ต้องเริ่มจากข้อมูลทั้งหมด
+                let filtered = [...data];
 
+                // อ่านค่าจากทุก select
                 selects.each(function () {
                     const key = $(this).data("key");
                     const val = $(this).val();
 
-                    if (val) filtered = filtered.filter(r => r[key] == val);
+                    if (val) {
+                        filtered = filtered.filter(r => r[key] == val);
+                    }
                 });
 
+                // ⭐ แสดงในตารางเฉพาะข้อมูลที่กรองแล้ว
                 renderTable(filtered);
+
+                // ⭐ อัปเดต summary เฉพาะข้อมูลกรองแล้ว
                 updateSummaryFromFiltered(filtered);
 
-                // อัปเดต dropdown แต่ยังคงค่าที่เลือกไว้
+                // ⭐ อัปเดต dropdown ให้สัมพันธ์กัน
                 refreshDropdowns(filtered);
             }
 
-
-            // event เมื่อ select เปลี่ยน
+            // เมื่อมีการเปลี่ยนค่า filter
             selects.on("change", filterData);
         }
+
 
 
         function updateSummaryCards(s) {
