@@ -389,41 +389,54 @@
         function renderTable(data) {
             const table = $("#detailsTable");
 
-            // Destroy DataTable เดิม
+            // ลบคอลัมน์ลำดับที่มาจาก API
+            data = data.map(row => {
+                const newRow = { ...row };
+                delete newRow["ลำดับ"];
+                return newRow;
+            });
+
+            // Destroy DataTable เก่า
             if ($.fn.DataTable.isDataTable("#detailsTable")) {
                 table.DataTable().clear().destroy();
             }
 
-            // เตรียมเพิ่มลำดับใหม่ (_index) แต่ต้อง "ไม่ยุ่งกับแถวภาพรวมจังหวัด"
-            let indexCounter = 1;
-            data = data.map(row => {
-                if (row["ลำดับ"] === "ภาพรวมจังหวัด") {
-                    return { ...row, _index: "ภาพรวมจังหวัด" };
-                }
-                return { ...row, _index: indexCounter++ };
-            });
-
-            // เอา _index ไปแทนคอลัมน์ ลำดับ เดิม
+            // เอาคีย์ของตาราง (หลังลบ 'ลำดับ')
             const headers = Object.keys(data[0] || {});
-            const displayHeaders = headers.map(h => (h === "ลำดับ" ? "_index" : h));
 
-            // สร้าง header ใหม่
+            // เพิ่ม header ‘ลำดับ’ ที่ DataTable จะจัดให้เอง
             $("#detailsTable thead").html(
-                `<tr>${displayHeaders.map(h => `<th>${h === "_index" ? "ลำดับ" : h}</th>`).join("")}</tr>`
+                `<tr>
+            <th>ลำดับ</th>
+            ${headers.map(h => `<th>${h}</th>`).join("")}
+        </tr>`
             );
 
-            // สร้าง body ใหม่
+            // เติมข้อมูล
             const tbody = $("#detailsTable tbody").empty();
             data.forEach(row => {
-                tbody.append(
-                    `<tr>${displayHeaders.map(h => `<td>${row[h] ?? "-"}</td>`).join("")}</tr>`
-                );
+                tbody.append(`
+            <tr>
+                <td></td>
+                ${headers.map(h => `<td>${row[h] ?? "-"}</td>`).join("")}
+            </tr>
+        `);
             });
 
-            // สร้าง DataTable ใหม่
+            // DataTable
             table.DataTable({
                 scrollX: true,
-                pageLength: 10
+                pageLength: 10,
+                columnDefs: [
+                    {
+                        targets: 0, // คอลัมน์ลำดับ
+                        searchable: false,
+                        orderable: false,
+                        render: function (data, type, row, meta) {
+                            return meta.row + 1; // ให้ DataTable คำนวณลำดับเอง
+                        }
+                    }
+                ]
             });
         }
 
