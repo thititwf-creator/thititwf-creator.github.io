@@ -328,7 +328,7 @@
                 loadSubDistrictOptions(originalData);
 
                 // 🔥🔥 สำคัญที่สุด: แสดงข้อมูลทันทีหลังโหลด API 🔥🔥
-                renderTable(filteredData);
+                renderTable(originalData);
                 updateSummaryFromFiltered(originalData);  // คำนวณ summary จากข้อมูลจริง
                 updateSummaryCards(summary);              // หรือ summary จังหวัด
 
@@ -336,7 +336,7 @@
                 console.error("เกิดข้อผิดพลาดในการโหลดข้อมูล", err);
             }
         }
-        let allData = [],filteredData = [], dataTable, originalSummary = null;
+        let allData = [], filteredData = [], dataTable, originalSummary = null;
 
         const formatNumber = v => isNaN(parseFloat(v)) ? "-" : parseFloat(v).toLocaleString("th-TH", { minimumFractionDigits: 2 });
         const formatPercent = v => isNaN(parseFloat(v)) ? "-" : `${parseFloat(v).toFixed(2)}%`;
@@ -387,20 +387,30 @@
         }
 
         function renderTable(data) {
+            const table = $("#detailsTable");
+
+            // ❗ ต้อง destroy ก่อนทุกครั้ง ไม่งั้น DataTable จะจำข้อมูลเก่า
+            if ($.fn.DataTable.isDataTable("#detailsTable")) {
+                table.DataTable().clear().destroy();
+            }
+
+            // สร้าง header ใหม่
             const headers = Object.keys(data[0] || {});
             $("#detailsTable thead").html(`<tr>${headers.map(h => `<th>${h}</th>`).join("")}</tr>`);
-            const tbody = $("#detailsTable tbody").empty();
 
+            // สร้าง body ใหม่
+            const tbody = $("#detailsTable tbody").empty();
             data.forEach(row => {
                 tbody.append(`<tr>${headers.map(h => `<td>${row[h] ?? "-"}</td>`).join("")}</tr>`);
             });
 
-            if ($.fn.DataTable.isDataTable("#detailsTable")) {
-                $("#detailsTable").DataTable().destroy();
-            }
-
-            dataTable = $("#detailsTable").DataTable({ scrollX: true, pageLength: 10 });
+            // สร้าง DataTable ใหม่แบบสด
+            table.DataTable({
+                scrollX: true,
+                pageLength: 10
+            });
         }
+
 
         function setupFilters(data) {
 
