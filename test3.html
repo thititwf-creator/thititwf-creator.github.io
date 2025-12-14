@@ -202,6 +202,58 @@
             padding: 40px;
             font-weight: bold;
         }
+
+        /* ✅ Toolbar */
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .left-tools {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .left-tools button {
+            background-color: #f8bbd0;
+            border: none;
+            border-radius: 8px;
+            padding: 6px 12px;
+            color: #880e4f;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: 0.2s;
+        }
+
+        .left-tools button:hover {
+            background-color: #f48fb1;
+        }
+
+        .left-tools img {
+            height: 18px;
+        }
+
+        .filter-bar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .filter-bar select,
+        .filter-bar input {
+            padding: 6px 10px;
+            border-radius: 8px;
+            border: 1px solid #f48fb1;
+            font-family: 'Sarabun';
+            font-size: 0.9rem;
+            transition: border 0.3s ease;
+        }
     </style>
 </head>
 
@@ -240,7 +292,13 @@
         <div id="grandTotalContainer"></div>
 
         <hr>
-
+        <div class="toolbar">
+            <div class="left-tools">
+                <button onclick="window.location.href='Menu.html'">
+                    <img src="https://cdn-icons-png.flaticon.com/512/25/25694.png" alt="home"> กลับสู่เมนูหลัก
+                </button>
+            </div>
+        </div>
         <!-- ===== Controls ===== -->
         <div class="controls-container">
             <div class="top-controls">
