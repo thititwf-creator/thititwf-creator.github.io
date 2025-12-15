@@ -32,45 +32,45 @@
             background: var(--bg-gradient);
             color: var(--text-dark);
             min-height: 100vh;
-            padding: 20px;
+            padding: 12px;
+            font-size: 14px;
         }
 
         .main-container {
-            max-width: 1200px;
+            max-width: 1100px;
             margin: auto;
             background-color: rgba(255, 255, 255, 0.95);
-            padding: 30px;
+            padding: 20px;
             border-radius: 12px;
         }
 
-        /* ===== Header (เหมือน due-dept-total) ===== */
+        /* ===== Header ===== */
         .header {
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
             flex-wrap: wrap;
+            gap: 10px;
             margin-bottom: 15px;
         }
 
         .header h1 {
-            font-size: 2.3rem;
-            margin: 0;
+            font-size: 1.9rem;
         }
 
         .header h2 {
-            font-size: 1.4rem;
-            margin: 0;
+            font-size: 1.2rem;
         }
 
         .logo-container img {
             margin-left: 10px;
+            max-height: 55px;
         }
 
         /* ===== Toolbar ===== */
         .toolbar {
             display: flex;
-            justify-content: flex-start;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
 
         .toolbar button {
@@ -85,6 +85,7 @@
             align-items: center;
             gap: 6px;
             transition: 0.2s;
+            font-size: 0.9rem;
         }
 
         .toolbar button:hover {
@@ -92,18 +93,18 @@
         }
 
         .toolbar img {
-            height: 18px;
+            height: 16px;
         }
 
         /* ===== Search ===== */
         .search-wrapper {
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
 
         .search-box {
             width: 100%;
-            padding: 10px 14px;
-            font-size: 0.95rem;
+            padding: 6px 12px;
+            font-size: 0.9rem;
             font-family: 'Sarabun';
             border-radius: 6px;
             border: 1px solid #aaa;
@@ -118,16 +119,15 @@
         .category-buttons-container {
             display: flex;
             flex-wrap: wrap;
-            gap: 10px;
-            margin-bottom: 20px;
+            gap: 8px;
+            margin-bottom: 15px;
         }
 
         .category-btn {
-            padding: 6px 14px;
+            padding: 5px 12px;
             border-radius: 20px;
             border: 1px solid var(--deep-pink);
             background-color: white;
-            font-family: 'Sarabun';
             font-size: 0.85rem;
             cursor: pointer;
             transition: 0.2s;
@@ -142,18 +142,19 @@
         .faq-container {
             background: white;
             border-radius: 10px;
-            padding: 20px;
+            padding: 16px;
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 8px;
         }
 
         .faq-item {
-            padding: 12px 15px;
+            padding: 10px 14px;
             border-radius: 8px;
             cursor: pointer;
             border: 1px solid #eee;
             transition: 0.2s;
+            font-size: 0.95rem;
         }
 
         .faq-item:hover {
@@ -179,30 +180,50 @@
         .modal-content {
             background: white;
             width: 90%;
-            max-width: 700px;
-            padding: 25px;
+            max-width: 640px;
+            padding: 20px;
             border-radius: 12px;
             position: relative;
         }
 
         .close-button {
             position: absolute;
-            right: 20px;
-            top: 10px;
-            font-size: 24px;
+            right: 16px;
+            top: 8px;
+            font-size: 22px;
             cursor: pointer;
         }
 
         .modal-question {
-            font-size: 1.3rem;
+            font-size: 1.25rem;
             font-weight: bold;
             color: var(--pink);
-            margin-bottom: 15px;
+            margin-bottom: 12px;
         }
 
         .modal-answer {
-            font-size: 1rem;
-            line-height: 1.7;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        /* ===== Mobile ===== */
+        @media (max-width: 768px) {
+            body {
+                padding: 8px;
+                font-size: 13px;
+            }
+
+            .main-container {
+                padding: 14px;
+            }
+
+            .header h1 {
+                font-size: 1.6rem;
+            }
+
+            .header h2 {
+                font-size: 1.05rem;
+            }
         }
     </style>
 </head>
@@ -211,7 +232,6 @@
 
 <div class="main-container">
 
-    <!-- ===== Header ===== -->
     <div class="header">
         <div>
             <h1>
@@ -228,7 +248,6 @@
         </div>
     </div>
 
-    <!-- ===== Toolbar ===== -->
     <div class="toolbar">
         <button onclick="window.location.href='https://tnah097.github.io/cdwomenpod-dashboard/Menu.html'">
             <img src="https://cdn-icons-png.flaticon.com/512/25/25694.png">
@@ -236,23 +255,19 @@
         </button>
     </div>
 
-    <!-- ===== Search ===== -->
     <div class="search-wrapper">
         <input type="search" id="searchInput" class="search-box"
                placeholder="ค้นหาคำถาม..." disabled>
     </div>
 
-    <!-- ===== Categories ===== -->
     <div id="categoryButtons" class="category-buttons-container"></div>
 
-    <!-- ===== FAQ ===== -->
     <div id="faqContainer" class="faq-container">
         <p class="loading-text">กำลังโหลดคำถาม...</p>
     </div>
 
 </div>
 
-<!-- ===== Modal ===== -->
 <div id="qaModal" class="modal">
     <div class="modal-content">
         <span class="close-button">&times;</span>
