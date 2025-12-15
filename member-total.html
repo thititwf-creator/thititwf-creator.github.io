@@ -1,22 +1,21 @@
-<!DOCTYPE html>
-<html lang="th">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-    <!-- *** จุดแก้ไขที่ 1: เปลี่ยน Title ของหน้าเว็บ *** -->
-    <title>การเพิ่มจำนวนสมาชิกกองทุนพัฒนาบทบาทสตรี</title>
-    
-    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;700&display=swap" rel="stylesheet">
 
-    <!-- *** จุดแก้ไขที่ 2: ใช้ CSS ธีมใหม่ทั้งหมด *** -->
+    <title>CDD Women Fund – การเพิ่มจำนวนสมาชิก</title>
+
+    <!-- ฟอนต์เดียวกับ due-dept-total -->
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap" rel="stylesheet">
+
     <style>
         :root {
-            --bg-gradient: linear-gradient(135deg, #ffc3a0 0%, #ffafbd 100% );
-            --text-light: #ffffff;
-            --text-dark: #333;
-            --card-bg: rgba(255, 255, 255, 0.9);
-            --card-shadow: rgba(0, 0, 0, 0.1);
+            --pink: #e91e63;
+            --light-pink: #f8bbd0;
+            --deep-pink: #f06292;
+            --orange: #ff9800;
+            --bg-gradient: linear-gradient(to bottom right, #fce4ec, #f3e5f5);
+            --card-bg: #ffffff;
+            --text-dark: #000;
         }
 
         * {
@@ -26,117 +25,176 @@
         }
 
         body {
-            font-family: 'Kanit', sans-serif;
+            font-family: 'Sarabun', sans-serif;
             background: var(--bg-gradient);
             color: var(--text-dark);
-            padding: 20px;
             min-height: 100vh;
+            padding: 20px;
         }
 
         .main-container {
             width: 100%;
-            max-width: 1200px; /* ขยายความกว้างสำหรับตาราง */
-            margin: 20px auto;
-            background: var(--card-bg);
-            border-radius: 20px;
-            padding: 30px 40px;
-            box-shadow: 0 12px 24px var(--card-shadow);
+            max-width: 1200px;
+            margin: auto;
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 12px;
         }
 
+        /* ===== Header ===== */
         .header-title {
-            font-size: 2.5rem;
-            font-weight: 700;
-            color: var(--text-dark);
+            font-size: 2.2rem;
+            font-weight: bold;
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 25px;
         }
 
+        /* ===== Filter ===== */
         .filters {
             display: flex;
             justify-content: center;
-            gap: 20px;
-            margin-bottom: 30px;
+            gap: 15px;
+            margin-bottom: 25px;
         }
 
-        .filters select {
-            padding: 12px 25px;
-            border-radius: 25px;
-            border: 1px solid #ddd;
-            background-color: #fff;
-            font-family: 'Kanit', sans-serif;
-            font-size: 1rem;
-            color: var(--text-dark);
+        select {
+            font-family: 'Sarabun', sans-serif;
+            font-size: 0.95rem;
+            padding: 6px 12px;
+            height: 38px;
+            border: 1px solid #aaa;
+            border-radius: 6px;
             min-width: 220px;
-            cursor: pointer;
-            appearance: none;
-            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236B7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e" );
-            background-position: right 1rem center;
-            background-repeat: no-repeat;
-            background-size: 1.5em 1.5em;
-            transition: all 0.3s ease;
-        }
-        .filters select:hover {
-            border-color: #ffafbd;
+            background-color: white;
         }
 
+        select:focus {
+            outline: none;
+            border-color: var(--deep-pink);
+        }
+
+        /* ===== Data Display ===== */
         .data-display-container {
             min-height: 150px;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 1.1rem;
-            color: #666;
-            overflow-x: auto; /* ทำให้ตารางเลื่อนซ้าย-ขวาได้บนจอเล็ก */
+            font-size: 1rem;
+            color: #555;
+            overflow-x: auto;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            color: var(--text-dark);
+            font-size: 0.9rem;
         }
 
-        th, td {
-            padding: 15px;
+        th,
+        td {
+            padding: 12px 15px;
             text-align: left;
             border-bottom: 1px solid #eee;
         }
 
         thead th {
-            background-color: rgba(255, 195, 160, 0.2);
-            font-weight: 500;
+            background-color: var(--light-pink);
+            color: #000;
+            font-weight: bold;
         }
 
         tbody tr:hover {
-            background-color: rgba(255, 175, 189, 0.15);
+            background-color: rgba(248, 187, 208, 0.3);
         }
 
-        .back-button {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            display: inline-block;
-            padding: 10px 20px;
-            background-color: rgba(255, 255, 255, 0.3);
-            color: var(--text-light);
-            text-decoration: none;
-            border-radius: 50px;
-            font-size: 0.9rem;
-            transition: background-color 0.3s ease;
-            text-shadow: none;
+        /* ===== Toolbar (ปุ่มกลับเมนู) ===== */
+        .toolbar {
+            display: flex;
+            justify-content: flex-start;
+            margin-bottom: 15px;
         }
 
-        .back-button:hover {
-            background-color: rgba(255, 255, 255, 0.5);
+        .toolbar button {
+            background-color: #f8bbd0;
+            border: none;
+            border-radius: 8px;
+            padding: 6px 14px;
+            color: #880e4f;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: 0.2s;
         }
 
+        .toolbar button:hover {
+            background-color: #f48fb1;
+        }
+
+        .toolbar img {
+            height: 18px;
+        }
+
+        /* ===== Header แบบเดียวกับ due-dept-total ===== */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            font-size: 2.3rem;
+            margin: 0;
+        }
+
+        .header h2 {
+            font-size: 1.4rem;
+            margin: 0;
+            color: black;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+        }
+
+        .logo-container img {
+            margin-left: 10px;
+        }
     </style>
 </head>
+
 <body>
 
     <div class="main-container">
-        <!-- <a href="index.html" class="back-button">‹ กลับหน้าหลัก</a> -->
-        <!-- *** จุดแก้ไขที่ 3: เปลี่ยนหัวข้อหลัก *** -->
-        <h1 class="header-title">การเพิ่มจำนวนสมาชิกกองทุนพัฒนาบทบาทสตรี ประเภทบุคคลธรรมดา</h1>
+        <!-- ===== Header ===== -->
+        <div class="header">
+            <div>
+                <h1>
+                    <span style="color:navy;">CDD</span>
+                    <span style="color:deeppink;">Women</span>
+                    <span style="color:red;">Fund</span>
+                </h1>
+                <h2>การเพิ่มจำนวนสมาชิกกองทุนพัฒนาบทบาทสตรี ประเภทบุคคลธรรมดา</h2>
+            </div>
+
+            <div class="logo-container">
+                <img src="https://i.postimg.cc/507bjy9Z/cdd.png" width="50">
+                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQZtkPBp_xmIFgEEmX2cyScE1QzabzZbtNdbQ&s"
+                    width="60">
+            </div>
+        </div>
+
+        <div class="toolbar">
+            <div class="left-tools">
+                <button onclick="window.location.href='https://tnah097.github.io/cdwomenpod-dashboard/Menu.html'">
+                    <img src="https://cdn-icons-png.flaticon.com/512/25/25694.png" alt="home"> กลับสู่เมนูหลัก
+                </button>
+            </div>
+        </div>
 
         <div class="filters">
             <select id="year-filter">
@@ -147,10 +205,9 @@
         <div class="data-display-container" id="data-container">
             <p>กรุณาเลือกปีงบประมาณเพื่อแสดงข้อมูล</p>
         </div>
-    </div>
 
+    </div>
     <!-- ส่วนของ JavaScript ไม่มีการเปลี่ยนแปลง -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
     <script src="member-total.js"></script>
 </body>
-</html>

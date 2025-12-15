@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <title>รายงานสมาชิกประเภทองค์กร - กองทุนพัฒนาบทบาทสตรี</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;700&display=swap" rel="stylesheet">
+
+    <!-- *** แก้ไข CSS ให้ถูกต้องและกลับไปใช้สีธีมเดิม *** -->
+    <style>
+        :root {
+            --bg-gradient: linear-gradient(135deg, #ffc3a0 0%, #ffafbd 100%  );
+            --text-light: #ffffff;
+            --text-dark: #333;
+            --card-bg: rgba(255, 255, 255, 0.9);
+            --card-shadow: rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Kanit', sans-serif;
+            background: var(--bg-gradient);
+            color: var(--text-dark);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .main-container {
+            width: 100%;
+            max-width: 1400px;
+            margin: 20px auto;
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 30px 40px;
+            box-shadow: 0 12px 24px var(--card-shadow);
+            position: relative; /* <<< เพิ่มส่วนนี้เพื่อแก้ปัญหาปุ่มทับซ้อน */
+        }
+
+        .header-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .filters {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .filters select {
+            padding: 12px 25px;
+            border-radius: 25px;
+            border: 1px solid #ddd;
+            background-color: #fff;
+            font-family: 'Kanit', sans-serif;
+            font-size: 1rem;
+            color: var(--text-dark);
+            min-width: 220px;
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236B7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e"  );
+            background-position: right 1rem center;
+            background-repeat: no-repeat;
+            background-size: 1.5em 1.5em;
+            transition: all 0.3s ease;
+        }
+        .filters select:hover {
+            border-color: #ffafbd;
+        }
+
+        .data-display-container {
+            min-height: 150px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.1rem;
+            color: #666;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            color: var(--text-dark);
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        thead th {
+            background-color: rgba(255, 195, 160, 0.2);
+            font-weight: 500;
+        }
+
+        tbody tr:hover {
+            background-color: rgba(255, 175, 189, 0.15);
+        }
+        
+        /* แก้ไขสี footer ให้เข้ากับธีม */
+        tfoot tr {
+            font-weight: bold;
+            background-color: rgba(255, 195, 160, 0.3);
+        }
+
+        .back-button {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: rgba(255, 255, 255, 0.3);
+            color: var(--text-light);
+            text-decoration: none;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            transition: background-color 0.3s ease;
+            text-shadow: none;
+        }
+
+        .back-button:hover {
+            background-color: rgba(255, 255, 255, 0.5);
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="main-container">
+        <!-- <a href="index.html" class="back-button">‹ กลับหน้าหลัก</a> -->
+        <h1 class="header-title">การเพิ่มจำนวนสมาชิกกองทุนพัฒนาบทบาทสตรี ประเภทองค์กร</h1>
+
+        <div class="filters">
+            <!-- *** แก้ไข: ลบ Dropdown ที่ซ้ำซ้อนออก *** -->
+            <select id="year-filter">
+                <option value="">-- เลือกปีงบประมาณ --</option>
+            </select>
+        </div>
+
+        <div class="data-display-container" id="data-container">
+            <p>กรุณาเลือกปีงบประมาณเพื่อแสดงข้อมูล</p>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+    <script src="org-total.js"></script>
+</body>
+</html>
