@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="th">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -121,7 +122,8 @@
             font-size: 0.9rem;
         }
 
-        th, td {
+        th,
+        td {
             padding: 12px 15px;
             text-align: left;
             border-bottom: 1px solid #eee;
@@ -140,39 +142,50 @@
             font-weight: bold;
             background-color: rgba(248, 187, 208, 0.45);
         }
+
+        .logo-container img {
+            margin-left: 10px;
+        }
     </style>
 </head>
 
 <body>
 
-<div class="main-container">
+    <div class="main-container">
 
-    <div class="toolbar">
-        <button onclick="window.location.href='https://tnah097.github.io/cdwomenpod-dashboard/Menu.html'">
-            <img src="https://cdn-icons-png.flaticon.com/512/25/25694.png">
-            กลับสู่เมนูหลัก
-        </button>
+        <div class="toolbar">
+            <button onclick="window.location.href='https://tnah097.github.io/cdwomenpod-dashboard/Menu.html'">
+                <img src="https://cdn-icons-png.flaticon.com/512/25/25694.png">
+                กลับสู่เมนูหลัก
+            </button>
+        </div>
+
+        <h1 class="header-title">
+            การเพิ่มจำนวนสมาชิกกองทุนพัฒนาบทบาทสตรี<br>
+            ประเภทองค์กร
+        </h1>
+
+        <div class="logo-container">
+            <img src="https://i.postimg.cc/507bjy9Z/cdd.png" width="50">
+            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQZtkPBp_xmIFgEEmX2cyScE1QzabzZbtNdbQ&s"
+                width="60">
+        </div>
+
+        <div class="filters">
+            <select id="year-filter">
+                <option value="">-- เลือกปีงบประมาณ --</option>
+            </select>
+        </div>
+
+        <div class="data-display-container" id="data-container">
+            <p>กรุณาเลือกปีงบประมาณเพื่อแสดงข้อมูล</p>
+        </div>
+
     </div>
 
-    <h1 class="header-title">
-        การเพิ่มจำนวนสมาชิกกองทุนพัฒนาบทบาทสตรี<br>
-        ประเภทองค์กร
-    </h1>
-
-    <div class="filters">
-        <select id="year-filter">
-            <option value="">-- เลือกปีงบประมาณ --</option>
-        </select>
-    </div>
-
-    <div class="data-display-container" id="data-container">
-        <p>กรุณาเลือกปีงบประมาณเพื่อแสดงข้อมูล</p>
-    </div>
-
-</div>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
-<script src="org-total.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+    <script src="org-total.js"></script>
 
 </body>
+
 </html>
