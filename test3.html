@@ -1,0 +1,171 @@
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>CDD Women Fund – การเพิ่มจำนวนสมาชิก</title>
+
+    <!-- ฟอนต์เดียวกับ due-dept-total -->
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --pink: #e91e63;
+            --light-pink: #f8bbd0;
+            --deep-pink: #f06292;
+            --orange: #ff9800;
+            --bg-gradient: linear-gradient(to bottom right, #fce4ec, #f3e5f5);
+            --card-bg: #ffffff;
+            --text-dark: #000;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Sarabun', sans-serif;
+            background: var(--bg-gradient);
+            color: var(--text-dark);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .main-container {
+            width: 100%;
+            max-width: 1200px;
+            margin: auto;
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 12px;
+        }
+
+        /* ===== Header ===== */
+        .header-title {
+            font-size: 2.2rem;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        /* ===== Filter ===== */
+        .filters {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        select {
+            font-family: 'Sarabun', sans-serif;
+            font-size: 0.95rem;
+            padding: 6px 12px;
+            height: 38px;
+            border: 1px solid #aaa;
+            border-radius: 6px;
+            min-width: 220px;
+            background-color: white;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: var(--deep-pink);
+        }
+
+        /* ===== Data Display ===== */
+        .data-display-container {
+            min-height: 150px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1rem;
+            color: #555;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+
+        th,
+        td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        thead th {
+            background-color: var(--light-pink);
+            color: #000;
+            font-weight: bold;
+        }
+
+        tbody tr:hover {
+            background-color: rgba(248, 187, 208, 0.3);
+        }
+
+        /* ===== Toolbar (ปุ่มกลับเมนู) ===== */
+        .toolbar {
+            display: flex;
+            justify-content: flex-start;
+            margin-bottom: 15px;
+        }
+
+        .toolbar button {
+            background-color: #f8bbd0;
+            border: none;
+            border-radius: 8px;
+            padding: 6px 14px;
+            color: #880e4f;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: 0.2s;
+        }
+
+        .toolbar button:hover {
+            background-color: #f48fb1;
+        }
+
+        .toolbar img {
+            height: 18px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="main-container">
+
+        <div class="toolbar">
+            <button onclick="window.location.href='Menu.html'">
+                <img src="https://cdn-icons-png.flaticon.com/512/25/25694.png">
+                กลับสู่เมนูหลัก
+            </button>
+        </div>
+
+        <h1 class="header-title">
+            การเพิ่มจำนวนสมาชิกกองทุนพัฒนาบทบาทสตรี<br>
+            ประเภทบุคคลธรรมดา
+        </h1>
+
+        <div class="filters">
+            <select id="year-filter">
+                <option value="">-- เลือกปีงบประมาณ --</option>
+            </select>
+        </div>
+
+        <div class="data-display-container" id="data-container">
+            <p>กรุณาเลือกปีงบประมาณเพื่อแสดงข้อมูล</p>
+        </div>
+
+    </div>
+    <!-- ส่วนของ JavaScript ไม่มีการเปลี่ยนแปลง -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+    <script src="member-total.js"></script>
+</body>
