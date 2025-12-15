@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>กองทุนพัฒนาบทบาทสตรี - คำถามที่พบบ่อย</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/2.1.0/showdown.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Kanit', sans-serif;
+            background: linear-gradient(135deg, #ffc3a0 0%, #ffafbd 100%);
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .main-container {
+            width: 100%;
+            max-width: 900px;
+            text-align: center;
+        }
+
+        /* ===== Header ===== */
+        .header-logo {
+            width: 100px;
+            height: 100px;
+            object-fit: contain;
+            margin-bottom: 15px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.5);
+            padding: 5px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+        }
+
+        .header-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        /* ===== Toolbar / Back Button ===== */
+        .toolbar {
+            display: flex;
+            justify-content: flex-start;
+            margin-bottom: 20px;
+        }
+
+        .toolbar button {
+            background-color: rgba(255, 255, 255, 0.75);
+            border: none;
+            border-radius: 30px;
+            padding: 8px 18px;
+            font-family: 'Kanit';
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: #c2185b;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+            transition: 0.25s;
+        }
+
+        .toolbar button:hover {
+            background-color: #fff;
+            transform: translateY(-2px);
+        }
+
+        .toolbar img {
+            height: 18px;
+        }
+
+        /* ===== Search ===== */
+        .search-wrapper {
+            margin-bottom: 25px;
+            padding: 0 10px;
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 15px 20px;
+            font-size: 1rem;
+            font-family: 'Kanit';
+            border-radius: 50px;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            background-color: rgba(255, 255, 255, 0.7);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        /* ===== Category Buttons ===== */
+        .category-buttons-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 25px;
+            padding: 0 10px;
+        }
+
+        .category-btn {
+            padding: 8px 18px;
+            font-family: 'Kanit';
+            font-size: 0.9rem;
+            border-radius: 20px;
+            border: 2px solid rgba(255,255,255,0.6);
+            background-color: rgba(255,255,255,0.4);
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .category-btn.active {
+            background-color: #ff8a8a;
+            color: white;
+            border-color: #ff8a8a;
+        }
+
+        /* ===== FAQ ===== */
+        .faq-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            background: rgba(255, 255, 255, 0.85);
+            padding: 30px;
+            border-radius: 20px;
+            text-align: left;
+        }
+
+        .faq-item {
+            background: white;
+            padding: 15px 20px;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .faq-item:hover {
+            background-color: #ff8a8a;
+            color: white;
+        }
+
+        .loading-text {
+            text-align: center;
+            font-size: 1.1rem;
+        }
+
+        /* ===== Modal ===== */
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            max-width: 700px;
+            width: 90%;
+            border-radius: 15px;
+            position: relative;
+        }
+
+        .close-button {
+            position: absolute;
+            right: 20px;
+            top: 10px;
+            font-size: 26px;
+            cursor: pointer;
+        }
+
+        .modal-question {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #d9534f;
+            margin-bottom: 15px;
+        }
+
+        .modal-answer {
+            font-size: 1.05rem;
+            line-height: 1.7;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="main-container">
+
+    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQZtkPBp_xmIFgEEmX2cyScE1QzabzZbtNdbQ&s"
+         class="header-logo" alt="Logo">
+
+    <h1 class="header-title">คำถามที่พบบ่อย</h1>
+
+    <!-- ✅ ปุ่มกลับ -->
+    <div class="toolbar">
+        <button onclick="window.location.href='https://tnah097.github.io/cdwomenpod-dashboard/Menu.html'">
+            <img src="https://cdn-icons-png.flaticon.com/512/25/25694.png">
+            กลับสู่เมนูหลัก
+        </button>
+    </div>
+
+    <div class="search-wrapper">
+        <input type="search" id="searchInput" class="search-box"
+               placeholder="พิมพ์เพื่อค้นหาคำถาม..." disabled>
+    </div>
+
+    <div id="categoryButtons" class="category-buttons-container"></div>
+
+    <div id="faqContainer" class="faq-container">
+        <p class="loading-text">กำลังโหลดคำถาม...</p>
+    </div>
+</div>
+
+<!-- Modal -->
+<div id="qaModal" class="modal">
+    <div class="modal-content">
+        <span class="close-button">&times;</span>
+        <h2 id="modalQuestion" class="modal-question"></h2>
+        <div id="modalAnswer" class="modal-answer"></div>
+    </div>
+</div>
+
+<script src="q&a.js"></script>
+
+</body>
+</html>
