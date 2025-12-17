@@ -349,11 +349,6 @@
     </div>
 
 
-    <div class="section">
-      <h2>TOP 5 / TOP 10</h2>
-      <div class="placeholder">ตาราง / กราฟ TOP จังหวัด</div>
-    </div>
-
   </div>
 
 </body>
@@ -419,69 +414,69 @@
 </script>
 
 <script>
-// 🔹 จำลองข้อมูล
-const DATA = {
-  overdue: [
-    { province:"เชียงใหม่", value:980, x:360, y:180 },
-    { province:"นครราชสีมา", value:820, x:420, y:420 },
-    { province:"ขอนแก่น", value:760, x:440, y:350 },
-    { province:"สงขลา", value:620, x:430, y:760 },
-    { province:"สุราษฎร์ธานี", value:540, x:360, y:700 }
-  ],
-  paid: [
-    { province:"กรุงเทพมหานคร", value:1500, x:410, y:520 },
-    { province:"ชลบุรี", value:1200, x:450, y:560 },
-    { province:"ระยอง", value:980, x:470, y:580 },
-    { province:"เชียงใหม่", value:860, x:360, y:180 },
-    { province:"นครปฐม", value:720, x:400, y:540 }
-  ],
-  return: [
-    { province:"อุดรธานี", value:900, x:460, y:300 },
-    { province:"สกลนคร", value:850, x:480, y:270 },
-    { province:"บุรีรัมย์", value:780, x:460, y:450 },
-    { province:"สุพรรณบุรี", value:620, x:380, y:500 },
-    { province:"ตรัง", value:520, x:380, y:780 }
-  ]
-};
+  // 🔹 จำลองข้อมูล
+  const DATA = {
+    overdue: [
+      { province: "เชียงใหม่", value: 980, x: 360, y: 180 },
+      { province: "นครราชสีมา", value: 820, x: 420, y: 420 },
+      { province: "ขอนแก่น", value: 760, x: 440, y: 350 },
+      { province: "สงขลา", value: 620, x: 430, y: 760 },
+      { province: "สุราษฎร์ธานี", value: 540, x: 360, y: 700 }
+    ],
+    paid: [
+      { province: "กรุงเทพมหานคร", value: 1500, x: 410, y: 520 },
+      { province: "ชลบุรี", value: 1200, x: 450, y: 560 },
+      { province: "ระยอง", value: 980, x: 470, y: 580 },
+      { province: "เชียงใหม่", value: 860, x: 360, y: 180 },
+      { province: "นครปฐม", value: 720, x: 400, y: 540 }
+    ],
+    return: [
+      { province: "อุดรธานี", value: 900, x: 460, y: 300 },
+      { province: "สกลนคร", value: 850, x: 480, y: 270 },
+      { province: "บุรีรัมย์", value: 780, x: 460, y: 450 },
+      { province: "สุพรรณบุรี", value: 620, x: 380, y: 500 },
+      { province: "ตรัง", value: 520, x: 380, y: 780 }
+    ]
+  };
 
-// 🔹 ไล่สีแดงเข้ม → จาง
-function getColor(rank){
-  const colors = ["#7f1d1d","#991b1b","#b91c1c","#dc2626","#f87171"];
-  return colors[rank];
-}
+  // 🔹 ไล่สีแดงเข้ม → จาง
+  function getColor(rank) {
+    const colors = ["#7f1d1d", "#991b1b", "#b91c1c", "#dc2626", "#f87171"];
+    return colors[rank];
+  }
 
-function renderMap(type){
-  const svg = document.getElementById("th-map");
-  const legend = document.getElementById("legend-list");
-  const title = document.getElementById("legend-title");
+  function renderMap(type) {
+    const svg = document.getElementById("th-map");
+    const legend = document.getElementById("legend-list");
+    const title = document.getElementById("legend-title");
 
-  svg.innerHTML = "";
-  legend.innerHTML = "";
+    svg.innerHTML = "";
+    legend.innerHTML = "";
 
-  title.textContent =
-    type === "overdue" ? "หนี้เกินกำหนด (TOP 5)" :
-    type === "paid"    ? "ผลเบิกจ่าย (TOP 5)" :
-                         "การชำระคืน (TOP 5)";
+    title.textContent =
+      type === "overdue" ? "หนี้เกินกำหนด (TOP 5)" :
+        type === "paid" ? "ผลเบิกจ่าย (TOP 5)" :
+          "การชำระคืน (TOP 5)";
 
-  DATA[type].forEach((d,i)=>{
-    // หมุด
-    svg.innerHTML += `
+    DATA[type].forEach((d, i) => {
+      // หมุด
+      svg.innerHTML += `
       <circle cx="${d.x}" cy="${d.y}" r="14" fill="${getColor(i)}"></circle>
-      <text x="${d.x}" y="${d.y+5}" text-anchor="middle"
-        fill="#fff" font-size="12" font-weight="bold">${i+1}</text>
-      <text x="${d.x}" y="${d.y+30}" text-anchor="middle"
+      <text x="${d.x}" y="${d.y + 5}" text-anchor="middle"
+        fill="#fff" font-size="12" font-weight="bold">${i + 1}</text>
+      <text x="${d.x}" y="${d.y + 30}" text-anchor="middle"
         font-size="12">${d.province}</text>
     `;
 
-    legend.innerHTML += `
+      legend.innerHTML += `
       <li>
-        <strong>${i+1}. ${d.province}</strong><br>
+        <strong>${i + 1}. ${d.province}</strong><br>
         ค่า: ${d.value.toLocaleString()}
       </li>
     `;
-  });
-}
+    });
+  }
 
-// โหลดค่าเริ่มต้น
-renderMap("overdue");
+  // โหลดค่าเริ่มต้น
+  renderMap("overdue");
 </script>
