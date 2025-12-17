@@ -207,54 +207,6 @@
       }
     }
 
-    .thai-map {
-      width: 100%;
-      max-width: 560px;
-      background: #fff;
-    }
-
-    .province {
-      fill: #fde68a;
-      /* สีพื้น */
-      stroke: #92400e;
-      stroke-width: 2;
-      cursor: pointer;
-      transition: .2s;
-    }
-
-    .province:hover {
-      fill: #f59e0b;
-    }
-
-    .map-wrapper {
-      display: flex;
-      gap: 20px;
-      align-items: flex-start;
-    }
-
-    .map-legend {
-      width: 260px;
-      background: #fafafa;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      padding: 12px;
-    }
-
-    .map-filter {
-      margin-top: 12px;
-      text-align: center;
-    }
-
-    .map-filter button {
-      background: #e11d48;
-      color: #fff;
-      border: none;
-      padding: 8px 14px;
-      margin: 0 6px;
-      border-radius: 20px;
-      cursor: pointer;
-    }
-
     /* Responsive */
     @media(max-width:768px) {
       .map-layout {
@@ -324,31 +276,43 @@
     </div>
 
     <!-- Overview Map Section -->
-    <div class="section">
-      <h2>ภาพรวมโครงการรายจังหวัด</h2>
+    <div style="max-width:700px;margin:auto">
 
-      <div class="map-wrapper">
-        <!-- SVG แผนที่ (ตัวอย่างย่อ: ใส่ path จังหวัดจริงเพิ่มได้เรื่อย ๆ) -->
-        <svg id="th-map" viewBox="0 0 800 1200" class="thai-map">
-          <!-- ตัวอย่างจังหวัด (สมมติ path) -->
-          <path d="M300 200 L360 220 L340 280 L280 260 Z" data-province="เชียงใหม่" class="province"></path>
+      <svg viewBox="0 0 600 420" width="100%" style="border:1px solid #ddd">
 
-          <path d="M420 420 L480 440 L460 500 L400 480 Z" data-province="นครราชสีมา" class="province"></path>
+        <!-- จังหวัดจำลอง 5 จังหวัด -->
+        <!-- 1 -->
+        <path d="M80 60 L200 60 L180 140 L70 130 Z" fill="#7f1d1d" stroke="#fff" stroke-width="2" />
+        <text x="130" y="110" text-anchor="middle" fill="white" font-size="14">
+          1 เชียงใหม่
+        </text>
 
-          <path d="M380 760 L420 780 L400 840 L360 820 Z" data-province="สงขลา" class="province"></path>
-        </svg>
+        <!-- 2 -->
+        <path d="M240 50 L360 60 L350 140 L230 130 Z" fill="#991b1b" stroke="#fff" stroke-width="2" />
+        <text x="300" y="110" text-anchor="middle" fill="white" font-size="14">
+          2 นครราชสีมา
+        </text>
 
-        <div class="map-legend">
-          <h3 id="legend-title">หนี้เกินกำหนด (TOP 5)</h3>
-          <ol id="legend-list"></ol>
-        </div>
-      </div>
+        <!-- 3 -->
+        <path d="M410 70 L530 80 L520 150 L400 140 Z" fill="#b91c1c" stroke="#fff" stroke-width="2" />
+        <text x="470" y="120" text-anchor="middle" fill="white" font-size="14">
+          3 ชลบุรี
+        </text>
 
-      <div class="map-filter">
-        <button onclick="renderMap('overdue')">หนี้เกินกำหนด</button>
-        <button onclick="renderMap('paid')">ผลเบิกจ่าย</button>
-        <button onclick="renderMap('return')">การชำระคืน</button>
-      </div>
+        <!-- 4 -->
+        <path d="M160 190 L300 190 L280 270 L150 260 Z" fill="#dc2626" stroke="#fff" stroke-width="2" />
+        <text x="220" y="240" text-anchor="middle" fill="white" font-size="14">
+          4 ขอนแก่น
+        </text>
+
+        <!-- 5 -->
+        <path d="M340 210 L520 220 L500 300 L330 290 Z" fill="#fca5a5" stroke="#fff" stroke-width="2" />
+        <text x="420" y="260" text-anchor="middle" fill="#7f1d1d" font-size="14">
+          5 สงขลา
+        </text>
+
+      </svg>
+
     </div>
 
   </div>
@@ -413,55 +377,4 @@
 
   // เริ่มทำงาน
   startAutoSlide();
-</script>
-
-<script>
-  const DATA = {
-    overdue: [
-      { province: "เชียงใหม่", value: 980 },
-      { province: "นครราชสีมา", value: 820 },
-      { province: "สงขลา", value: 620 }
-    ],
-    paid: [
-      { province: "นครราชสีมา", value: 1200 },
-      { province: "เชียงใหม่", value: 860 },
-      { province: "สงขลา", value: 540 }
-    ],
-    return: [
-      { province: "สงขลา", value: 900 },
-      { province: "เชียงใหม่", value: 850 },
-      { province: "นครราชสีมา", value: 780 }
-    ]
-  };
-
-  // สีแดงเข้ม → อ่อน (TOP5)
-  const COLORS = ["#7f1d1d", "#991b1b", "#b91c1c", "#dc2626", "#f87171"];
-
-  function renderMap(type) {
-    const rows = DATA[type].slice().sort((a, b) => b.value - a.value).slice(0, 5);
-    const legend = document.getElementById('legend-list');
-    const title = document.getElementById('legend-title');
-    legend.innerHTML = "";
-
-    title.textContent =
-      type === "overdue" ? "หนี้เกินกำหนด (TOP 5)" :
-        type === "paid" ? "ผลเบิกจ่าย (TOP 5)" :
-          "การชำระคืน (TOP 5)";
-
-    // รีเซ็ตสี
-    document.querySelectorAll('.province').forEach(p => {
-      p.style.fill = "#fde68a";
-    });
-
-    // ใส่สี TOP
-    rows.forEach((r, i) => {
-      const el = document.querySelector(`.province[data-province="${r.province}"]`);
-      if (el) el.style.fill = COLORS[i];
-
-      legend.innerHTML += `<li><b>${i + 1}. ${r.province}</b><br>ค่า: ${r.value.toLocaleString()}</li>`;
-    });
-  }
-
-  // ค่าเริ่มต้น
-  renderMap('overdue');
 </script>
