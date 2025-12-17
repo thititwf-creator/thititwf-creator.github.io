@@ -214,23 +214,6 @@
       }
     }
 
-    .map-wrapper {
-      max-width: 700px;
-      margin: 20px auto;
-      border: 1px solid #ddd;
-    }
-
-    #thai-map svg {
-      width: 100%;
-      height: auto;
-      display: block;
-    }
-
-    #thai-map path {
-      fill: #ffe082;
-      stroke: #fff;
-      stroke-width: 0.5;
-    }
   </style>
 </head>
 
@@ -294,14 +277,7 @@
     </div>
 
     <!-- Overview Map Section -->
-    <div class="section">
-      <h2>ภาพรวมโครงการรายจังหวัด</h2>
 
-      <div class="map-wrapper">
-        <!-- SVG จะถูกวางตรงนี้ -->
-        <div id="thai-map"></div>
-      </div>
-    </div>
 
   </div>
 
@@ -365,11 +341,4 @@
 
   // เริ่มทำงาน
   startAutoSlide();
-</script>
-<script>
-  fetch("https://raw.githubusercontent.com/apisit/thailand-map/master/svg/thailand-provinces.svg")
-    .then(res => res.text())
-    .then(svg => {
-      document.getElementById("thai-map").innerHTML = svg;
-    });
 </script>
