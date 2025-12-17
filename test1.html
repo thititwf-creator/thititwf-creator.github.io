@@ -1,191 +1,293 @@
 <!DOCTYPE html>
 <html lang="th">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CDD Women Fund – Dashboard</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CDD Women Fund – Dashboard</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap" rel="stylesheet">
 
-<style>
-:root{
-    --pink:#e91e63;
-    --deep-pink:#d81b60;
-    --navy:#1a237e;
-    --bg:#f5f5f5;
-    --card:#ffffff;
-}
+  <style>
+    :root {
+      --pink: #e91e63;
+      --deep-pink: #d81b60;
+      --navy: #1a237e;
+      --bg: #f5f5f5;
+      --card: #ffffff;
+    }
 
-*{box-sizing:border-box;margin:0;padding:0}
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0
+    }
 
-body{
-    font-family:'Sarabun',sans-serif;
-    background:var(--bg);
-    color:#000;
-}
+    body {
+      font-family: 'Sarabun', sans-serif;
+      background: var(--bg);
+      color: #000;
+    }
 
-/* ===== Banner ===== */
-.banner{
-    background:linear-gradient(135deg,#e91e63,#ec407a);
-    color:#fff;
-    text-align:center;
-    padding:28px 10px;
-}
+    /* ===== Banner ===== */
+    .banner-slider {
+      position: relative;
+      max-height: 260px;
+      overflow: hidden;
+    }
 
-.banner h1{
-    font-size:2rem;
-    font-weight:700;
-}
+    .slides img {
+      width: 100%;
+      height: 260px;
+      object-fit: cover;
+      display: none;
+    }
 
-.banner p{
-    margin-top:6px;
-    font-size:1.05rem;
-    opacity:.9;
-}
+    .slides img.active {
+      display: block;
+    }
 
-/* ===== Nav ===== */
-.navbar{
-    background:var(--navy);
-    color:#fff;
-    display:flex;
-    justify-content:center;
-    gap:28px;
-    padding:12px;
-    flex-wrap:wrap;
-}
+    .nav {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(0, 0, 0, .4);
+      color: #fff;
+      border: none;
+      font-size: 24px;
+      padding: 6px 12px;
+      cursor: pointer;
+    }
 
-.navbar a{
-    color:#fff;
-    text-decoration:none;
-    font-size:.95rem;
-    font-weight:600;
-}
+    .prev {
+      left: 10px
+    }
 
-.navbar a:hover{
-    text-decoration:underline;
-}
+    .next {
+      right: 10px
+    }
 
-/* ===== Main ===== */
-.main{
-    max-width:1200px;
-    margin:auto;
-    padding:20px;
-}
+    .dots {
+      position: absolute;
+      bottom: 10px;
+      width: 100%;
+      text-align: center;
+    }
 
-/* ===== Cards ===== */
-.cards{
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-    gap:16px;
-    margin-bottom:22px;
-}
+    .dot {
+      height: 10px;
+      width: 10px;
+      background: #ccc;
+      border-radius: 50%;
+      display: inline-block;
+      margin: 0 4px;
+      cursor: pointer;
+    }
 
-.card{
-    background:var(--card);
-    border-radius:14px;
-    padding:18px;
-    box-shadow:0 4px 10px rgba(0,0,0,.08);
-}
+    .dot.active {
+      background: #e91e63;
+    }
 
-.card h3{
-    font-size:1rem;
-    color:#555;
-}
 
-.card .value{
-    font-size:1.8rem;
-    font-weight:700;
-    color:var(--pink);
-    margin-top:6px;
-}
+    /* ===== Nav ===== */
+    .navbar {
+      background: #1a237e;
+      padding: 12px;
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
 
-/* ===== Sections ===== */
-.section{
-    background:#fff;
-    border-radius:14px;
-    padding:18px;
-    margin-bottom:18px;
-    box-shadow:0 4px 10px rgba(0,0,0,.06);
-}
+    .navbar button {
+      background: #fff;
+      color: #1a237e;
+      border: 2px solid #fff;
+      border-radius: 8px;
+      padding: 6px 14px;
+      font-family: 'Sarabun';
+      font-size: .9rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: .2s;
+    }
 
-.section h2{
-    font-size:1.2rem;
-    margin-bottom:10px;
-    color:var(--deep-pink);
-}
+    .navbar button:hover {
+      background: #e91e63;
+      border-color: #e91e63;
+      color: #fff;
+    }
 
-/* ===== Placeholder ===== */
-.placeholder{
-    height:220px;
-    background:#fce4ec;
-    border-radius:10px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    color:#ad1457;
-    font-weight:600;
-}
+    .navbar button.qna {
+      background: #e91e63;
+      border-color: #e91e63;
+      color: #fff;
+    }
 
-/* ===== Mobile ===== */
-@media(max-width:768px){
-    .banner h1{font-size:1.6rem}
-}
-</style>
+
+    /* ===== Main ===== */
+    .main {
+      max-width: 1200px;
+      margin: auto;
+      padding: 20px;
+    }
+
+    /* ===== Cards ===== */
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      margin-bottom: 22px;
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: 14px;
+      padding: 18px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, .08);
+    }
+
+    .card h3 {
+      font-size: 1rem;
+      color: #555;
+    }
+
+    .card .value {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--pink);
+      margin-top: 6px;
+    }
+
+    /* ===== Sections ===== */
+    .section {
+      background: #fff;
+      border-radius: 14px;
+      padding: 18px;
+      margin-bottom: 18px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, .06);
+    }
+
+    .section h2 {
+      font-size: 1.2rem;
+      margin-bottom: 10px;
+      color: var(--deep-pink);
+    }
+
+    /* ===== Placeholder ===== */
+    .placeholder {
+      height: 220px;
+      background: #fce4ec;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #ad1457;
+      font-weight: 600;
+    }
+
+    /* ===== Mobile ===== */
+    @media(max-width:768px) {
+      .banner h1 {
+        font-size: 1.6rem
+      }
+    }
+  </style>
 </head>
 
 <body>
 
-<!-- ===== Banner ===== -->
-<div class="banner">
-    <h1>กองทุนพัฒนาบทบาทสตรี</h1>
-    <p>Thai Women Empowerment Funds</p>
-</div>
+  <!-- ===== Banner ===== -->
+  <div class="banner-slider">
+    <div class="slides">
+      <img src="banner1.jpg" class="slide active">
+      <img src="banner2.jpg" class="slide">
+      <img src="banner3.jpg" class="slide">
+    </div>
 
-<!-- ===== Navigation ===== -->
-<div class="navbar">
-    <a href="#">งานปี 68</a>
-    <a href="#">งานปี 69</a>
-    <a href="#">ดอกเบี้ยผิดนัด</a>
-    <a href="#">บริหารจัดการหนี้</a>
-    <a href="#">สมาชิก</a>
-    <a href="qna.html">Q&A</a>
-</div>
+    <button class="nav prev" onclick="changeSlide(-1)">❮</button>
+    <button class="nav next" onclick="changeSlide(1)">❯</button>
 
-<!-- ===== Main ===== -->
-<div class="main">
+    <div class="dots">
+      <span onclick="goSlide(0)" class="dot active"></span>
+      <span onclick="goSlide(1)" class="dot"></span>
+      <span onclick="goSlide(2)" class="dot"></span>
+    </div>
+  </div>
+
+
+  <!-- ===== Navigation ===== -->
+  <div class="navbar">
+    <button onclick="location.href='year68.html'">งานปี 68</button>
+    <button onclick="location.href='year69.html'">งานปี 69</button>
+    <button onclick="location.href='interest.html'">ดอกเบี้ยผิดนัด</button>
+    <button onclick="location.href='debt.html'">บริหารจัดการหนี้</button>
+    <button onclick="location.href='member.html'">สมาชิก</button>
+    <button class="qna" onclick="location.href='qna.html'">Q&A</button>
+  </div>
+
+
+  <!-- ===== Main ===== -->
+  <div class="main">
 
     <!-- Summary Cards -->
     <div class="cards">
-        <div class="card">
-            <h3>จำนวนโครงการ</h3>
-            <div class="value">46,813</div>
-        </div>
-        <div class="card">
-            <h3>สมาชิกกองทุน</h3>
-            <div class="value">1,250,000</div>
-        </div>
-        <div class="card">
-            <h3>วงเงินกู้รวม (ล้านบาท)</h3>
-            <div class="value">12,540</div>
-        </div>
-        <div class="card">
-            <h3>อัตราชำระคืน (%)</h3>
-            <div class="value">92.4</div>
-        </div>
+      <div class="card">
+        <h3>จำนวนโครงการ</h3>
+        <div class="value">46,813</div>
+      </div>
+      <div class="card">
+        <h3>สมาชิกกองทุน</h3>
+        <div class="value">1,250,000</div>
+      </div>
+      <div class="card">
+        <h3>วงเงินกู้รวม (ล้านบาท)</h3>
+        <div class="value">12,540</div>
+      </div>
+      <div class="card">
+        <h3>อัตราชำระคืน (%)</h3>
+        <div class="value">92.4</div>
+      </div>
     </div>
 
     <!-- Charts / Map -->
     <div class="section">
-        <h2>ภาพรวมโครงการรายจังหวัด</h2>
-        <div class="placeholder">พื้นที่แผนที่ / Chart จังหวัด</div>
+      <h2>ภาพรวมโครงการรายจังหวัด</h2>
+      <div class="placeholder">พื้นที่แผนที่ / Chart จังหวัด</div>
     </div>
 
     <div class="section">
-        <h2>TOP 5 / TOP 10</h2>
-        <div class="placeholder">ตาราง / กราฟ TOP จังหวัด</div>
+      <h2>TOP 5 / TOP 10</h2>
+      <div class="placeholder">ตาราง / กราฟ TOP จังหวัด</div>
     </div>
 
-</div>
+  </div>
 
 </body>
+
 </html>
+
+<script>
+let current = 0;
+const slides = document.querySelectorAll('.slide');
+const dots = document.querySelectorAll('.dot');
+
+function showSlide(i){
+    slides.forEach(s => s.classList.remove('active'));
+    dots.forEach(d => d.classList.remove('active'));
+    slides[i].classList.add('active');
+    dots[i].classList.add('active');
+    current = i;
+}
+
+function changeSlide(step){
+    let i = current + step;
+    if(i < 0) i = slides.length - 1;
+    if(i >= slides.length) i = 0;
+    showSlide(i);
+}
+
+function goSlide(i){
+    showSlide(i);
+}
+</script>
