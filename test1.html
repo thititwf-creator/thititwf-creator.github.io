@@ -213,7 +213,6 @@
         flex-direction: column;
       }
     }
-
   </style>
 </head>
 
@@ -277,7 +276,44 @@
     </div>
 
     <!-- Overview Map Section -->
+    <div class="container">
 
+      <!-- แผนที่ -->
+      <div class="map-area">
+        <div id="map"></div>
+        <div class="tooltip" id="tooltip"></div>
+      </div>
+
+      <!-- ตัวกรอง -->
+      <div class="control-area">
+        <h3>ข้อมูลภาพรวมจังหวัด</h3>
+
+        <select id="typeSelect">
+          <option value="due">หนี้ครบกำหนดชำระ</option>
+          <option value="overdue">หนี้เกินกำหนดชำระ</option>
+          <option value="disburse">ผลเบิกจ่าย</option>
+        </select>
+
+        <select id="yearSelect"></select>
+        <select id="monthSelect"></select>
+
+        <table id="dataTable">
+          <thead>
+            <tr>
+              <th>จังหวัด</th>
+              <th id="colD"></th>
+              <th id="colE"></th>
+              <th>ร้อยละ</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+
+      </div>
+    </div>
+
+    <script src="map/mapping_pv.js"></script>
+    <script src="map/map.js"></script>
 
   </div>
 
