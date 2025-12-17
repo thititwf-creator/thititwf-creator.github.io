@@ -2,160 +2,190 @@
 <html lang="th">
 <head>
 <meta charset="UTF-8">
-<title>สรุปผลตัวชี้วัดกองทุนพัฒนาบทบาทสตรี</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CDD Women Fund – Dashboard</title>
+
 <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap" rel="stylesheet">
+
 <style>
-body {
-  font-family: 'Sarabun', sans-serif;
-  margin: 0;
-  min-height: 100vh;
-  padding: 20px;
-  box-sizing: border-box;
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  background: linear-gradient(to bottom right, #ffe6f0, #ffd1e6);
+:root{
+    --pink:#e91e63;
+    --deep-pink:#d81b60;
+    --navy:#1a237e;
+    --bg:#f5f5f5;
+    --card:#ffffff;
 }
-.container {
-  width: 100%;
-  max-width: 1200px;
-  background-color: rgba(255, 255, 255, 0.9);
-  border-radius: 25px;
-  padding: 30px;
-  box-shadow: 0 8px 25px rgba(233, 30, 99, 0.3);
+
+*{box-sizing:border-box;margin:0;padding:0}
+
+body{
+    font-family:'Sarabun',sans-serif;
+    background:var(--bg);
+    color:#000;
 }
-.header {
-  text-align: center;
-  margin-bottom: 20px;
+
+/* ===== Banner ===== */
+.banner{
+    background:linear-gradient(135deg,#e91e63,#ec407a);
+    color:#fff;
+    text-align:center;
+    padding:28px 10px;
 }
-.header h1 {
-  color: deeppink;
-  margin: 0;
-  font-size: 2rem;
+
+.banner h1{
+    font-size:2rem;
+    font-weight:700;
 }
-.header p {
-  color: #880e4f;
-  margin-top: 5px;
-  font-weight: bold;
+
+.banner p{
+    margin-top:6px;
+    font-size:1.05rem;
+    opacity:.9;
 }
-.logos {
-  display: flex;
-  justify-content: center;
-  gap: 15px;
-  margin-bottom: 20px;
+
+/* ===== Nav ===== */
+.navbar{
+    background:var(--navy);
+    color:#fff;
+    display:flex;
+    justify-content:center;
+    gap:28px;
+    padding:12px;
+    flex-wrap:wrap;
 }
-.logos img { height: 60px; }
-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 15px;
+
+.navbar a{
+    color:#fff;
+    text-decoration:none;
+    font-size:.95rem;
+    font-weight:600;
 }
-th, td {
-  /* --- ▼▼▼ แก้ไขตรงนี้! เปลี่ยนสีเส้นขอบให้เข้มขึ้น ▼▼▼ --- */
-  border: 1px solid #f0a5bc; 
-  padding: 8px 12px;
-  text-align: center;
+
+.navbar a:hover{
+    text-decoration:underline;
 }
-th {
-  background-color: #f8bbd0;
-  color: #880e4f;
+
+/* ===== Main ===== */
+.main{
+    max-width:1200px;
+    margin:auto;
+    padding:20px;
 }
-tr:nth-child(even) {
-  background-color: rgba(255,182,193,0.2);
+
+/* ===== Cards ===== */
+.cards{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:16px;
+    margin-bottom:22px;
 }
-tr:nth-child(odd) {
-  background-color: rgba(255,192,203,0.1);
+
+.card{
+    background:var(--card);
+    border-radius:14px;
+    padding:18px;
+    box-shadow:0 4px 10px rgba(0,0,0,.08);
 }
-/* --- สไตล์สำหรับแถวสรุปท้ายตาราง --- */
-tr.summary-row {
-  background-color: #f48fb1 !important; /* สีชมพูพาสเทลเข้มขึ้น */
-  font-weight: bold;
+
+.card h3{
+    font-size:1rem;
+    color:#555;
 }
-tr.summary-row td {
-  color: #880e4f;
-  text-align: right;
+
+.card .value{
+    font-size:1.8rem;
+    font-weight:700;
+    color:var(--pink);
+    margin-top:6px;
+}
+
+/* ===== Sections ===== */
+.section{
+    background:#fff;
+    border-radius:14px;
+    padding:18px;
+    margin-bottom:18px;
+    box-shadow:0 4px 10px rgba(0,0,0,.06);
+}
+
+.section h2{
+    font-size:1.2rem;
+    margin-bottom:10px;
+    color:var(--deep-pink);
+}
+
+/* ===== Placeholder ===== */
+.placeholder{
+    height:220px;
+    background:#fce4ec;
+    border-radius:10px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:#ad1457;
+    font-weight:600;
+}
+
+/* ===== Mobile ===== */
+@media(max-width:768px){
+    .banner h1{font-size:1.6rem}
 }
 </style>
 </head>
-<body>
-<div class="container">
-  <div class="header">
-    <h1>สรุปผลการดำเนินงานตามตัวชี้วัดของกองทุนพัฒนาบทบาทสตรี</h1>
-    <p>กรมการพัฒนาชุมชน ประจำปีบัญชี 2568 จำนวน 6 ด้าน 15 ตัวชี้วัด ข้อมูล ณ วันที่ 15 กันยายน 2568</p>
-  </div>
-  <div class="logos">
-    <img src="https://i.postimg.cc/507bjy9Z/cdd.png" alt="CDD Logo">
-    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQZtkPBp_xmIFgEEmX2cyScE1QzabzZbtNdbQ&s" alt="Women Fund Logo">
-  </div>
 
-  <table id="kpiTable">
-    <thead>
-      <tr>
-        <th>ด้าน</th>
-        <th>ตัวชี้วัด</th>
-        <th>หน่วยวัด</th>
-        <th>เป้าหมาย</th>
-        <th>ผลงาน</th>
-        <th>คะแนน</th>
-        <th>คาดการณ์ กันยายน</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr><td colspan="7" style="font-style: italic;">กำลังโหลดข้อมูล...</td></tr>
-    </tbody>
-  </table>
+<body>
+
+<!-- ===== Banner ===== -->
+<div class="banner">
+    <h1>กองทุนพัฒนาบทบาทสตรี</h1>
+    <p>Thai Women Empowerment Funds</p>
 </div>
 
-<script>
-async function loadAndDisplayData() {
-  const webAppUrl = "https://script.google.com/macros/s/AKfycbzw1jHwCTESst-B9Pmv-pOlD98vxVenxole4yvOReZ5UJnOmXHMyhD39S7_QMmQt28FOA/exec"; 
+<!-- ===== Navigation ===== -->
+<div class="navbar">
+    <a href="#">งานปี 68</a>
+    <a href="#">งานปี 69</a>
+    <a href="#">ดอกเบี้ยผิดนัด</a>
+    <a href="#">บริหารจัดการหนี้</a>
+    <a href="#">สมาชิก</a>
+    <a href="qna.html">Q&A</a>
+</div>
 
-  const tbody = document.querySelector('#kpiTable tbody');
+<!-- ===== Main ===== -->
+<div class="main">
 
-  try {
-    const response = await fetch(webAppUrl);
-    if (!response.ok) throw new Error(`เกิดข้อผิดพลาดจาก Server: ${response.status}`);
-    const data = await response.json();
+    <!-- Summary Cards -->
+    <div class="cards">
+        <div class="card">
+            <h3>จำนวนโครงการ</h3>
+            <div class="value">46,813</div>
+        </div>
+        <div class="card">
+            <h3>สมาชิกกองทุน</h3>
+            <div class="value">1,250,000</div>
+        </div>
+        <div class="card">
+            <h3>วงเงินกู้รวม (ล้านบาท)</h3>
+            <div class="value">12,540</div>
+        </div>
+        <div class="card">
+            <h3>อัตราชำระคืน (%)</h3>
+            <div class="value">92.4</div>
+        </div>
+    </div>
 
-    tbody.innerHTML = ''; 
+    <!-- Charts / Map -->
+    <div class="section">
+        <h2>ภาพรวมโครงการรายจังหวัด</h2>
+        <div class="placeholder">พื้นที่แผนที่ / Chart จังหวัด</div>
+    </div>
 
-    if (data.error) throw new Error(`ข้อผิดพลาดจาก Apps Script: ${data.error}`);
+    <div class="section">
+        <h2>TOP 5 / TOP 10</h2>
+        <div class="placeholder">ตาราง / กราฟ TOP จังหวัด</div>
+    </div>
 
-    data.mainData.forEach(row => {
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td>${row['ด้าน'] || ''}</td>
-        <td style="text-align:left">${row['ตัวชี้วัด'] || ''}</td>
-        <td>${row['หน่วยวัด'] || ''}</td>
-        <td>${row['เป้าหมาย'] || ''}</td>
-        <td>${row['ผลงาน'] || ''}</td>
-        <td>${row['คะแนน'] || ''}</td>
-        <td>${row['คาดการณ์ กันยายน'] || ''}</td>
-      `;
-      tbody.appendChild(tr);
-    });
-
-    if (data.summaryData && data.summaryData.label) {
-      const summary = data.summaryData;
-      const tr = document.createElement('tr');
-      tr.className = 'summary-row';
-      tr.innerHTML = `
-        <td colspan="4" style="padding-right: 20px;">${summary.label}</td>
-        <td colspan="2">${summary.value}</td>
-        <td>${summary.forecast}</td>
-      `;
-      tbody.appendChild(tr);
-    }
-
-  } catch (error) {
-    console.error('ไม่สามารถดึงข้อมูลได้:', error);
-    tbody.innerHTML = `<tr><td colspan="7" style="color:red;"><strong>เกิดข้อผิดพลาด:</strong> ${error.message}</td></tr>`;
-  }
-}
-
-loadAndDisplayData();
-</script>
+</div>
 
 </body>
 </html>
