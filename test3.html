@@ -1,115 +1,98 @@
 <!DOCTYPE html>
 <html lang="th">
-
 <head>
-    <meta charset="UTF-8" />
-    <title>Dashboard ภาพรวมจังหวัด</title>
-    <style>
-        body {
-            margin: 0;
-            font-family: sans-serif;
-        }
+<meta charset="UTF-8">
+<title>Dashboard ภาพรวมจังหวัด</title>
 
-        .container {
-            display: flex;
-            height: 100vh;
-        }
+<style>
+body {
+    margin: 0;
+    font-family: sans-serif;
+}
 
-        .map-area {
-            width: 50%;
-            border-right: 1px solid #ddd;
-        }
+.container {
+    display: flex;
+    height: 100vh;
+}
 
-        .control-area {
-            width: 50%;
-            padding: 16px;
-            box-sizing: border-box;
-            overflow: auto;
-        }
+.map-area {
+    width: 50%;
+    border-right: 1px solid #ddd;
+}
 
-        select {
-            width: 100%;
-            padding: 6px;
-            margin-bottom: 8px;
-        }
+.info-area {
+    width: 50%;
+    padding: 12px;
+    overflow: auto;
+}
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 12px;
-        }
+svg path {
+    fill: #eeeeee;
+    stroke: #999;
+    cursor: pointer;
+    transition: fill .2s;
+}
 
-        th,
-        td {
-            border: 1px solid #ccc;
-            padding: 6px;
-            text-align: right;
-        }
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
 
-        th:first-child,
-        td:first-child {
-            text-align: left;
-        }
+th, td {
+    border: 1px solid #ccc;
+    padding: 6px;
+    text-align: right;
+}
 
-        .map-area {
-            width: 50%;
-            height: 100vh;
-            border-right: 1px solid #ddd;
-            overflow: hidden;
-        }
+th:first-child,
+td:first-child {
+    text-align: left;
+}
 
-        .map-area svg {
-            width: 100%;
-            height: 100%;
-            display: block;
-        }
-    </style>
+.tooltip {
+    position: fixed;
+    background: rgba(0,0,0,0.8);
+    color: #fff;
+    padding: 6px 8px;
+    font-size: 12px;
+    border-radius: 4px;
+    pointer-events: none;
+    display: none;
+}
+</style>
 </head>
 
 <body>
 
-    <div class="container">
-        <!-- แผนที่ -->
-        <div class="map-area" id="map-container"></div>
+<div class="container">
 
-        <!-- กล่องควบคุม -->
-        <div class="control-area">
-            <h3>เลือกประเภทข้อมูล</h3>
-            <select id="typeSelect"></select>
+    <!-- 🗺️ แผนที่ -->
+    <div class="map-area" id="mapContainer"></div>
 
-            <h4>กรองข้อมูล</h4>
-            <select id="yearSelect"></select>
-            <select id="monthSelect"></select>
+    <!-- 📊 ตาราง -->
+    <div class="info-area">
+        <h3>ภาพรวมจังหวัด</h3>
 
-            <h4 id="tableTitle"></h4>
-            <table>
-                <thead>
-                    <tr>
-                        <th>จังหวัด</th>
-                        <th id="colE"></th>
-                        <th id="colF"></th>
-                        <th>ร้อยละ</th>
-                    </tr>
-                </thead>
-                <tbody id="tableBody"></tbody>
-            </table>
-        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>จังหวัด</th>
+                    <th>ตัวเลขตัวอย่าง</th>
+                    <th>ร้อยละ (%)</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+        </table>
     </div>
-    <div id="tooltip" style="
-  position: fixed;
-  pointer-events: none;
-  background: rgba(0,0,0,0.75);
-  color: #fff;
-  padding: 6px 10px;
-  border-radius: 4px;
-  font-size: 14px;
-  display: none;
-  z-index: 9999;
-"></div>
 
-    <script src="map/mapping_pv.js"></script>
-    <script src="map/map.js"></script>
+</div>
+
+<div class="tooltip" id="tooltip"></div>
+
+<!-- ⚠️ ลำดับสำคัญมาก -->
+<script src="map/mapping_pv.js"></script>
+<script src="map/map.js"></script>
 
 </body>
-
 </html>
