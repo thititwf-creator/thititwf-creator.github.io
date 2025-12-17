@@ -213,6 +213,77 @@
         flex-direction: column;
       }
     }
+
+    /* MAP */
+    /* ===== Overview Map ===== */
+    .map-layout {
+      display: flex;
+      gap: 16px;
+    }
+
+    .map-area {
+      flex: 1;
+      height: 520px;
+      border: 1px solid #ddd;
+      border-radius: 12px;
+      overflow: hidden;
+      position: relative;
+      background: #fafafa;
+    }
+
+    #map {
+      width: 100%;
+      height: 100%;
+    }
+
+    #map svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .map-control {
+      flex: 1;
+    }
+
+    .map-control select {
+      padding: 6px 10px;
+      margin-right: 6px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-family: 'Sarabun';
+    }
+
+    .map-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+
+    .map-table th,
+    .map-table td {
+      border: 1px solid #ddd;
+      padding: 6px;
+      font-size: .85rem;
+      text-align: right;
+    }
+
+    .map-table th:first-child,
+    .map-table td:first-child {
+      text-align: left;
+    }
+
+    /* tooltip */
+    .map-tooltip {
+      position: absolute;
+      background: rgba(0, 0, 0, .8);
+      color: #fff;
+      padding: 6px 10px;
+      font-size: .8rem;
+      border-radius: 6px;
+      pointer-events: none;
+      display: none;
+      z-index: 10;
+    }
   </style>
 </head>
 
@@ -275,45 +346,51 @@
       </div>
     </div>
 
-    <!-- Overview Map Section -->
-    <div class="container">
+    <!-- ===== Overview Map Section ===== -->
+    <div class="section">
+      <h2>ภาพรวมรายจังหวัด</h2>
 
-      <!-- แผนที่ -->
-      <div class="map-area">
-        <div id="map"></div>
-        <div class="tooltip" id="tooltip"></div>
-      </div>
+      <div class="map-layout">
 
-      <!-- ตัวกรอง -->
-      <div class="control-area">
-        <h3>ข้อมูลภาพรวมจังหวัด</h3>
+        <!-- Map -->
+        <div class="map-area">
+          <div id="map"></div>
+          <div class="map-tooltip" id="mapTooltip"></div>
+        </div>
 
-        <select id="typeSelect">
-          <option value="due">หนี้ครบกำหนดชำระ</option>
-          <option value="overdue">หนี้เกินกำหนดชำระ</option>
-          <option value="disburse">ผลเบิกจ่าย</option>
-        </select>
+        <!-- Control -->
+        <div class="map-control">
 
-        <select id="yearSelect"></select>
-        <select id="monthSelect"></select>
+          <div style="margin-bottom:10px">
+            <select id="typeSelect">
+              <option value="due">หนี้ครบกำหนดชำระ</option>
+              <option value="overdue">หนี้เกินกำหนดชำระ</option>
+              <option value="disburse">ผลเบิกจ่าย</option>
+            </select>
 
-        <table id="dataTable">
-          <thead>
-            <tr>
-              <th>จังหวัด</th>
-              <th id="colD"></th>
-              <th id="colE"></th>
-              <th>ร้อยละ</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
+            <select id="yearSelect"></select>
+            <select id="monthSelect"></select>
+          </div>
 
+          <table class="map-table" id="mapTable">
+            <thead>
+              <tr>
+                <th>จังหวัด</th>
+                <th>คอลัมน์ D</th>
+                <th>คอลัมน์ E</th>
+                <th>ร้อยละ</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+
+        </div>
       </div>
     </div>
-
     <script src="map/mapping_pv.js"></script>
     <script src="map/map.js"></script>
+
+
 
   </div>
 
