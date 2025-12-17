@@ -83,52 +83,99 @@ function applyFilter() {
     updateMap(filtered);
 }
 
-function renderTable(data) {
-    const tbody = document.getElementById("tableBody");
-    tbody.innerHTML = "";
+function renderTable(summary) {
+  const tbody = document.getElementById("tableBody");
+  tbody.innerHTML = "";
 
-    data.forEach(r => {
-        tbody.innerHTML += `
+  Object.entries(summary).forEach(([pv, v]) => {
+    tbody.innerHTML += `
       <tr>
-        <td>${r.จังหวัด}</td>
-        <td>${r.E.toLocaleString()}</td>
-        <td>${r.F.toLocaleString()}</td>
+        <td>${pv}</td>
+        <td>${v.D.toLocaleString()}</td>
+        <td>${v.E.toLocaleString()}</td>
+        <td>${v.F.toFixed(2)}%</td>
       </tr>
     `;
-    });
+  });
 }
 
 function updateMap(data) {
+    /**
+     * summary = {
+     *   "กรุงเทพมหานคร": { D: xxx, E: xxx, F: xx }
+     * }
+     */
     const summary = {};
 
     data.forEach(r => {
         if (!summary[r.จังหวัด]) {
-            summary[r.จังหวัด] = { E: 0, F: 0 };
+            summary[r.จังหวัด] = { D: 0, E: 0, F: 0, count: 0 };
         }
+        summary[r.จังหวัด].D += r.D;
         summary[r.จังหวัด].E += r.E;
         summary[r.จังหวัด].F += r.F;
+        summary[r.จังหวัด].count++;
+    });
+
+    // ค่า % เฉลี่ยรายจังหวัด
+    Object.values(summary).forEach(p => {
+        p.F = p.F / p.count;
+    });
+
+    // เรียงตามเปอร์เซ็น
+    const sorted = Object.entries(summary)
+        .sort((a, b) => a[1].F - b[1].F);
+
+    let top5 = [];
+    let bottom5 = [];
+
+    if (currentType === "overdue") {
+        // หนี้เกินกำหนด: ต่ำ = ดี
+        top5 = sorted.slice(0, 5);
+        bottom5 = sorted.slice(-5);
+    } else {
+        // อีก 2 ประเภท: สูง = ดี
+        top5 = sorted.slice(-5);
+        bottom5 = sorted.slice(0, 5);
+    }
+
+    const colorScaleGreen = ["#1b5e20", "#2e7d32", "#43a047", "#66bb6a", "#a5d6a7"];
+    const colorScaleRed = ["#b71c1c", "#c62828", "#e53935", "#ef5350", "#ffcdd2"];
+
+    const colorMap = {};
+
+    top5.forEach(([, v], i) => {
+        colorMap[v] = colorScaleGreen[i];
+    });
+
+    bottom5.forEach(([, v], i) => {
+        colorMap[v] = colorScaleRed[i];
     });
 
     const tooltip = document.getElementById("tooltip");
 
     document.querySelectorAll("svg path").forEach(p => {
-        const provinceName = mapping_pv[p.id];
-        const info = summary[provinceName];
+        const name = mapping_pv[p.id];
+        const info = summary[name];
 
-        p.style.fill = info ? "#64b5f6" : "#eee";
+        if (!info) {
+            p.style.fill = "#eee";
+            return;
+        }
+
+        p.style.fill = colorMap[info] || "#ddd";
 
         // hover
         p.onmouseenter = e => {
-            if (!info) return;
-
             p.dataset.oldFill = p.style.fill;
             p.style.fill = "#ffb74d";
 
             tooltip.style.display = "block";
             tooltip.innerHTML = `
-        <strong>${provinceName}</strong><br>
-        ${document.getElementById("colE").textContent}: ${info.E.toLocaleString()}<br>
-        ${document.getElementById("colF").textContent}: ${info.F.toLocaleString()}
+        <strong>${name}</strong><br>
+        ค่า D: ${info.D.toLocaleString()}<br>
+        ค่า E: ${info.E.toLocaleString()}<br>
+        ร้อยละ: ${info.F.toFixed(2)}%
       `;
         };
 
@@ -138,11 +185,14 @@ function updateMap(data) {
         };
 
         p.onmouseleave = () => {
-            p.style.fill = p.dataset.oldFill || "#64b5f6";
+            p.style.fill = p.dataset.oldFill;
             tooltip.style.display = "none";
         };
     });
+
+    renderTable(summary);
 }
+
 
 
 // เปลี่ยนประเภทข้อมูล
