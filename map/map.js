@@ -84,99 +84,89 @@ function applyFilter() {
 }
 
 function renderTable(summary) {
-  const tbody = document.getElementById("tableBody");
-  tbody.innerHTML = "";
+    const tbody = document.getElementById("tableBody");
+    tbody.innerHTML = "";
 
-  Object.entries(summary).forEach(([pv, v]) => {
-    tbody.innerHTML += `
-      <tr>
-        <td>${pv}</td>
-        <td>${v.D.toLocaleString()}</td>
-        <td>${v.E.toLocaleString()}</td>
-        <td>${v.F.toFixed(2)}%</td>
-      </tr>
-    `;
-  });
+    Object.entries(summary).forEach(([pv, v]) => {
+        tbody.innerHTML += `
+            <tr>
+                <td>${pv}</td>
+                <td>${v.E.toLocaleString()}</td>
+                <td>${v.F.toLocaleString()}</td>
+                <td>${v.percent.toFixed(2)}%</td>
+            </tr>
+        `;
+    });
 }
 
+
 function updateMap(data) {
-    /**
-     * summary = {
-     *   "กรุงเทพมหานคร": { D: xxx, E: xxx, F: xx }
-     * }
-     */
+
     const summary = {};
 
+    // รวมข้อมูลรายจังหวัด
     data.forEach(r => {
         if (!summary[r.จังหวัด]) {
-            summary[r.จังหวัด] = { D: 0, E: 0, F: 0, count: 0 };
+            summary[r.จังหวัด] = { E: 0, F: 0 };
         }
-        summary[r.จังหวัด].D += r.D;
         summary[r.จังหวัด].E += r.E;
         summary[r.จังหวัด].F += r.F;
-        summary[r.จังหวัด].count++;
     });
 
-    // ค่า % เฉลี่ยรายจังหวัด
+    // คำนวณเปอร์เซ็นต์
     Object.values(summary).forEach(p => {
-        p.F = p.F / p.count;
+        p.percent = p.E > 0 ? (p.F / p.E) * 100 : 0;
     });
 
-    // เรียงตามเปอร์เซ็น
+    // เรียงจังหวัดตามเปอร์เซ็นต์
     const sorted = Object.entries(summary)
-        .sort((a, b) => a[1].F - b[1].F);
+        .sort((a, b) => a[1].percent - b[1].percent);
 
     let top5 = [];
     let bottom5 = [];
 
     if (currentType === "overdue") {
-        // หนี้เกินกำหนด: ต่ำ = ดี
+        // ต่ำ = ดี
         top5 = sorted.slice(0, 5);
         bottom5 = sorted.slice(-5);
     } else {
-        // อีก 2 ประเภท: สูง = ดี
+        // สูง = ดี
         top5 = sorted.slice(-5);
         bottom5 = sorted.slice(0, 5);
     }
 
-    const colorScaleGreen = ["#1b5e20", "#2e7d32", "#43a047", "#66bb6a", "#a5d6a7"];
-    const colorScaleRed = ["#b71c1c", "#c62828", "#e53935", "#ef5350", "#ffcdd2"];
+    const greens = ["#1b5e20", "#2e7d32", "#43a047", "#66bb6a", "#a5d6a7"];
+    const reds   = ["#b71c1c", "#c62828", "#e53935", "#ef5350", "#ffcdd2"];
 
     const colorMap = {};
 
-    top5.forEach(([, v], i) => {
-        colorMap[v] = colorScaleGreen[i];
-    });
-
-    bottom5.forEach(([, v], i) => {
-        colorMap[v] = colorScaleRed[i];
-    });
+    top5.forEach(([pv], i) => colorMap[pv] = greens[i]);
+    bottom5.forEach(([pv], i) => colorMap[pv] = reds[i]);
 
     const tooltip = document.getElementById("tooltip");
 
     document.querySelectorAll("svg path").forEach(p => {
-        const name = mapping_pv[p.id];
-        const info = summary[name];
+        const pvName = mapping_pv[p.id];
+        const info = summary[pvName];
 
         if (!info) {
             p.style.fill = "#eee";
             return;
         }
 
-        p.style.fill = colorMap[info] || "#ddd";
+        p.style.fill = colorMap[pvName] || "#ddd";
 
-        // hover
         p.onmouseenter = e => {
             p.dataset.oldFill = p.style.fill;
             p.style.fill = "#ffb74d";
 
             tooltip.style.display = "block";
             tooltip.innerHTML = `
-        <strong>${name}</strong><br>
-        ค่า D: ${info.D.toLocaleString()}<br>
-        ค่า E: ${info.E.toLocaleString()}<br>
-        ร้อยละ: ${info.F.toFixed(2)}%
-      `;
+                <strong>${pvName}</strong><br>
+                ค่า E: ${info.E.toLocaleString()}<br>
+                ค่า F: ${info.F.toLocaleString()}<br>
+                ร้อยละ: ${info.percent.toFixed(2)}%
+            `;
         };
 
         p.onmousemove = e => {
@@ -192,6 +182,7 @@ function updateMap(data) {
 
     renderTable(summary);
 }
+
 
 
 
