@@ -20,7 +20,7 @@ fetch("map/thailandHigh.svg")
         // 🔑 ทำให้ SVG scale ได้จริง
         svgEl.removeAttribute("width");
         svgEl.removeAttribute("height");
-        svgEl.setAttribute("viewBox", "0 0 800 600");
+        svgEl.setAttribute("viewBox", "0 0 800 1200");
         svgEl.setAttribute("preserveAspectRatio", "xMidYMid meet");
 
         svgDoc = svgEl;
