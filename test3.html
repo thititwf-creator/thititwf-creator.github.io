@@ -1,114 +1,124 @@
 <!DOCTYPE html>
 <html lang="th">
+
 <head>
-<meta charset="UTF-8">
-<title>Dashboard ภาพรวมจังหวัด</title>
+    <meta charset="UTF-8">
+    <title>Dashboard ภาพรวมจังหวัด</title>
 
-<style>
-body {
-  margin: 0;
-  font-family: system-ui, sans-serif;
-}
+    <style>
+        body {
+            margin: 0;
+            font-family: system-ui, sans-serif;
+        }
 
-.container {
-  display: flex;
-  height: 100vh;
-}
+        .container {
+            display: flex;
+            height: 100vh;
+        }
 
-/* ซ้าย */
-.map-area {
-  width: 50%;
-  border-right: 1px solid #ddd;
-  position: relative;
-}
+        /* ซ้าย */
+        .map-area {
+            width: 50%;
+            border-right: 1px solid #ddd;
+            position: relative;
+        }
 
-#map svg path {
-  fill: #eee;
-  stroke: #999;
-  cursor: pointer;
-  transition: fill .2s;
-}
+        #map svg path {
+            fill: #eee;
+            stroke: #999;
+            cursor: pointer;
+            transition: fill .2s;
+        }
 
-/* tooltip */
-.tooltip {
-  position: absolute;
-  background: rgba(0,0,0,.8);
-  color: #fff;
-  padding: 6px 10px;
-  border-radius: 4px;
-  font-size: 13px;
-  pointer-events: none;
-  display: none;
-}
+        #map svg {
+            width: 100%;
+            height: 100%;
+        }
 
-/* ขวา */
-.control-area {
-  width: 50%;
-  padding: 16px;
-  overflow: auto;
-}
 
-select {
-  padding: 6px;
-  margin-right: 6px;
-}
+        /* tooltip */
+        .tooltip {
+            position: absolute;
+            background: rgba(0, 0, 0, .8);
+            color: #fff;
+            padding: 6px 10px;
+            border-radius: 4px;
+            font-size: 13px;
+            pointer-events: none;
+            display: none;
+        }
 
-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 12px;
-}
+        /* ขวา */
+        .control-area {
+            width: 50%;
+            padding: 16px;
+            overflow: auto;
+        }
 
-th, td {
-  border: 1px solid #ddd;
-  padding: 6px;
-  text-align: right;
-}
+        select {
+            padding: 6px;
+            margin-right: 6px;
+        }
 
-th:first-child, td:first-child {
-  text-align: left;
-}
-</style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 12px;
+        }
+
+        th,
+        td {
+            border: 1px solid #ddd;
+            padding: 6px;
+            text-align: right;
+        }
+
+        th:first-child,
+        td:first-child {
+            text-align: left;
+        }
+    </style>
 </head>
 
 <body>
-<div class="container">
+    <div class="container">
 
-  <!-- แผนที่ -->
-  <div class="map-area">
-    <div id="map"></div>
-    <div class="tooltip" id="tooltip"></div>
-  </div>
+        <!-- แผนที่ -->
+        <div class="map-area">
+            <div id="map"></div>
+            <div class="tooltip" id="tooltip"></div>
+        </div>
 
-  <!-- ตัวกรอง -->
-  <div class="control-area">
-    <h3>ข้อมูลภาพรวมจังหวัด</h3>
+        <!-- ตัวกรอง -->
+        <div class="control-area">
+            <h3>ข้อมูลภาพรวมจังหวัด</h3>
 
-    <select id="typeSelect">
-      <option value="due">หนี้ครบกำหนดชำระ</option>
-      <option value="overdue">หนี้เกินกำหนดชำระ</option>
-      <option value="disburse">ผลเบิกจ่าย</option>
-    </select>
+            <select id="typeSelect">
+                <option value="due">หนี้ครบกำหนดชำระ</option>
+                <option value="overdue">หนี้เกินกำหนดชำระ</option>
+                <option value="disburse">ผลเบิกจ่าย</option>
+            </select>
 
-    <select id="yearSelect"></select>
-    <select id="monthSelect"></select>
+            <select id="yearSelect"></select>
+            <select id="monthSelect"></select>
 
-    <table id="dataTable">
-      <thead>
-        <tr>
-          <th>จังหวัด</th>
-          <th id="colD"></th>
-          <th id="colE"></th>
-          <th>ร้อยละ</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
+            <table id="dataTable">
+                <thead>
+                    <tr>
+                        <th>จังหวัด</th>
+                        <th id="colD"></th>
+                        <th id="colE"></th>
+                        <th>ร้อยละ</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
 
-  </div>
-</div>
+        </div>
+    </div>
 
-<script src="map/mapping_pv.js"></script>
-<script src="map/map.js"></script>
+    <script src="map/mapping_pv.js"></script>
+    <script src="map/map.js"></script>
 </body>
+
 </html>
