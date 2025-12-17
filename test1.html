@@ -42,20 +42,16 @@
     .slides img {
       width: 100%;
       height: auto;
-      /* ⭐ auto จริง */
-      /* max-height: 380px; */
-      /* ⭐ ปรับได้ */
-      /* aspect-ratio: 16 / 9; */
-      /* ⭐ สมส่วน */
-      object-fit: cover;
-      /* ไม่บิด */
       display: none;
       cursor: pointer;
+      opacity: 0;
+      transition: opacity .4s ease;
     }
 
     /* รูปที่แสดง */
     .slides img.active {
       display: block;
+      opacity: 1;
     }
 
     /* ปุ่มซ้ายขวา */
