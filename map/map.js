@@ -70,7 +70,7 @@ function updateView() {
     const bottom5 = rows.slice(-5);
 
     // ตาราง
-    const tbody = document.querySelector("#dataTable tbody");
+    const tbody = document.querySelector("#mapTable tbody");
     tbody.innerHTML = "";
     rows.forEach(r => {
         tbody.innerHTML += `
