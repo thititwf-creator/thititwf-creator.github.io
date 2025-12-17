@@ -276,45 +276,20 @@
     </div>
 
     <!-- Overview Map Section -->
-    <div style="max-width:720px;margin:auto;position:relative">
+    <div class="section">
+      <h2>ภาพรวมโครงการรายจังหวัด</h2>
 
-      <!-- tooltip -->
-      <div id="tooltip" style="
-      position:absolute;
-      background:#7f1d1d;
-      color:#fff;
-      padding:6px 10px;
-      border-radius:6px;
-      font-size:13px;
-      display:none;
-      pointer-events:none;
-     ">
+      <div style="max-width:700px;margin:auto;border:1px solid #ddd">
+
+        <!-- SVG จังหวัดจริง 77 จังหวัด -->
+        <object type="image/svg+xml"
+          data="https://raw.githubusercontent.com/apisit/thailand-map/master/svg/thailand-provinces.svg" width="100%"
+          id="thai-map">
+        </object>
+
       </div>
-
-      <svg id="thai-map" viewBox="0 0 800 1000" width="100%" style="border:1px solid #ddd">
-
-        <!-- เชียงใหม่ -->
-        <path d="M320 110 L370 120 L360 190 L300 180 Z" fill="#7f1d1d" stroke="#fff" stroke-width="2"
-          data-name="เชียงใหม่" data-value="หนี้เกินกำหนด 980 ล้านบาท" />
-
-        <!-- นครราชสีมา -->
-        <path d="M420 300 L500 310 L490 390 L410 380 Z" fill="#991b1b" stroke="#fff" stroke-width="2"
-          data-name="นครราชสีมา" data-value="หนี้เกินกำหนด 820 ล้านบาท" />
-
-        <!-- ชลบุรี -->
-        <path d="M520 420 L580 430 L570 480 L510 470 Z" fill="#b91c1c" stroke="#fff" stroke-width="2" data-name="ชลบุรี"
-          data-value="หนี้เกินกำหนด 740 ล้านบาท" />
-
-        <!-- ขอนแก่น -->
-        <path d="M430 250 L480 260 L470 310 L420 300 Z" fill="#dc2626" stroke="#fff" stroke-width="2"
-          data-name="ขอนแก่น" data-value="หนี้เกินกำหนด 610 ล้านบาท" />
-
-        <!-- สงขลา -->
-        <path d="M450 720 L500 730 L490 790 L440 780 Z" fill="#fca5a5" stroke="#fff" stroke-width="2" data-name="สงขลา"
-          data-value="หนี้เกินกำหนด 480 ล้านบาท" />
-
-      </svg>
     </div>
+
 
   </div>
 
@@ -381,22 +356,22 @@
 </script>
 
 <script>
-const tooltip = document.getElementById("tooltip");
+  const tooltip = document.getElementById("tooltip");
 
-document.querySelectorAll("#thai-map path").forEach(p => {
+  document.querySelectorAll("#thai-map path").forEach(p => {
 
-  p.addEventListener("mousemove", e => {
-    tooltip.style.display = "block";
-    tooltip.innerHTML =
-      `<b>${p.dataset.name}</b><br>${p.dataset.value}`;
+    p.addEventListener("mousemove", e => {
+      tooltip.style.display = "block";
+      tooltip.innerHTML =
+        `<b>${p.dataset.name}</b><br>${p.dataset.value}`;
 
-    tooltip.style.left = e.pageX + 12 + "px";
-    tooltip.style.top  = e.pageY + 12 + "px";
+      tooltip.style.left = e.pageX + 12 + "px";
+      tooltip.style.top = e.pageY + 12 + "px";
+    });
+
+    p.addEventListener("mouseleave", () => {
+      tooltip.style.display = "none";
+    });
+
   });
-
-  p.addEventListener("mouseleave", () => {
-    tooltip.style.display = "none";
-  });
-
-});
 </script>
