@@ -206,6 +206,92 @@
         aspect-ratio: 16 / 9;
       }
     }
+
+    .overview-map {
+      background: #fff;
+      padding: 20px;
+    }
+
+    .map-layout {
+      display: flex;
+      gap: 20px;
+      align-items: flex-start;
+    }
+
+    .map-area {
+      position: relative;
+      flex: 2;
+    }
+
+    .map-image {
+      width: 100%;
+      height: auto;
+    }
+
+    .marker {
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      transform: translate(-50%, -100%);
+    }
+
+    .marker.red {
+      background: #e63946;
+    }
+
+    .marker.green {
+      background: #2a9d8f;
+    }
+
+    .map-info {
+      flex: 1;
+      border: 1px solid #ddd;
+      padding: 15px;
+      border-radius: 8px;
+      background: #f9f9f9;
+    }
+
+    .map-info h3 {
+      margin-top: 0;
+      color: #c1121f;
+    }
+
+    .info-box {
+      margin-top: 10px;
+      background: #fff;
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid #eee;
+    }
+
+    .map-filter {
+      margin-top: 15px;
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+    }
+
+    .map-filter button {
+      background: #e11d48;
+      color: #fff;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .map-filter button:hover {
+      background: #be123c;
+    }
+
+    /* Responsive */
+    @media(max-width:768px) {
+      .map-layout {
+        flex-direction: column;
+      }
+    }
   </style>
 </head>
 
@@ -234,10 +320,6 @@
 
   </div>
 
-
-
-
-
   <!-- ===== Navigation ===== -->
   <div class="navbar">
     <button class="home" onclick="location.href='https://thititwf-creator.github.io/test1.html'">หน้าแรก</button>
@@ -248,7 +330,6 @@
     <button onclick="location.href='#'">สมาชิก</button>
     <button onclick="location.href='#'">Q&A</button>
   </div>
-
 
   <!-- ===== Main ===== -->
   <div class="main">
@@ -273,10 +354,44 @@
       </div>
     </div>
 
-    <!-- Charts / Map -->
-    <div class="section">
+    <!-- Overview Map Section -->
+    <div class="section overview-map">
+
       <h2>ภาพรวมโครงการรายจังหวัด</h2>
-      <div class="placeholder">พื้นที่แผนที่ / Chart จังหวัด</div>
+
+      <div class="map-layout">
+
+        <!-- แผนที่ -->
+        <div class="map-area">
+          <img src="images/thailand-map.png" alt="Thailand Map" class="map-image">
+
+          <!-- ตัวอย่าง marker (ต่อยอดภายหลังได้) -->
+          <span class="marker red" style="top:38%; left:32%;"></span>
+          <span class="marker green" style="top:55%; left:48%;"></span>
+        </div>
+
+        <!-- กล่องข้อมูลด้านข้าง -->
+        <div class="map-info">
+          <h3 id="info-title">ผลเบิกจ่าย</h3>
+          <p id="info-desc">
+            แสดงข้อมูลภาพรวมผลการเบิกจ่ายโครงการ แยกตามจังหวัด
+          </p>
+
+          <div class="info-box">
+            <strong>จำนวนโครงการ:</strong> 1,245 โครงการ<br>
+            <strong>งบประมาณ:</strong> 3,250 ล้านบาท
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ปุ่มเลือกประเภทข้อมูล -->
+      <div class="map-filter">
+        <button onclick="changeType('paid')">ผลเบิกจ่าย</button>
+        <button onclick="changeType('normal')">หนี้ครบกำหนดชำระ</button>
+        <button onclick="changeType('overdue')">หนี้เกินกำหนดชำระ</button>
+      </div>
+
     </div>
 
     <div class="section">
@@ -346,4 +461,22 @@
 
   // เริ่มทำงาน
   startAutoSlide();
+
+  function changeType(type) {
+    const title = document.getElementById("info-title");
+    const desc = document.getElementById("info-desc");
+
+    if (type === "paid") {
+      title.textContent = "ผลเบิกจ่าย";
+      desc.textContent = "แสดงข้อมูลภาพรวมผลการเบิกจ่ายโครงการ แยกตามจังหวัด";
+    }
+    else if (type === "normal") {
+      title.textContent = "หนี้ครบกำหนดชำระ";
+      desc.textContent = "แสดงข้อมูลโครงการที่อยู่ในสถานะหนี้ครบกำหนดชำระ";
+    }
+    else if (type === "overdue") {
+      title.textContent = "หนี้เกินกำหนดชำระ";
+      desc.textContent = "แสดงข้อมูลโครงการที่มีสถานะหนี้เกินกำหนดชำระ";
+    }
+  }
 </script>
