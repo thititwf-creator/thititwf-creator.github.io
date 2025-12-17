@@ -41,6 +41,7 @@
       height: 260px;
       object-fit: cover;
       display: none;
+      cursor: pointer;
     }
 
     .slides img.active {
@@ -51,12 +52,13 @@
       position: absolute;
       top: 50%;
       transform: translateY(-50%);
-      background: rgba(0, 0, 0, .4);
+      background: rgba(0, 0, 0, .45);
       color: #fff;
       border: none;
-      font-size: 24px;
+      font-size: 22px;
       padding: 6px 12px;
       cursor: pointer;
+      border-radius: 6px;
     }
 
     .prev {
@@ -87,6 +89,7 @@
     .dot.active {
       background: #e91e63;
     }
+
 
 
     /* ===== Nav ===== */
@@ -198,11 +201,16 @@
 <body>
 
   <!-- ===== Banner ===== -->
-  <div class="banner-slider">
+  <div class="banner-slider" onmouseenter="pauseSlide()" onmouseleave="resumeSlide()">
     <div class="slides">
-      <img src="http://womenfund.in.th/images/empower.jpg" class="slide active">
-      <img src="http://womenfund.in.th/images/banners/Vision02.jpg" class="slide">
-      <img src="/images/banners/vision301065-1905x400.jpg" class="slide">
+      <img src="http://womenfund.in.th/images/empower.jpg" class="slide active"
+        data-link="https://www.womenfund.go.th/empower">
+
+      <img src="http://womenfund.in.th/images/banners/Vision02.jpg" class="slide"
+        data-link="https://www.womenfund.go.th/vision">
+
+      <img src="/images/banners/vision301065-1905x400.jpg" class="slide"
+        data-link="https://www.womenfund.go.th/strategy">
     </div>
 
     <button class="nav prev" onclick="changeSlide(-1)">❮</button>
@@ -214,6 +222,7 @@
       <span onclick="goSlide(2)" class="dot"></span>
     </div>
   </div>
+
 
 
   <!-- ===== Navigation ===== -->
@@ -268,26 +277,59 @@
 </html>
 
 <script>
-let current = 0;
-const slides = document.querySelectorAll('.slide');
-const dots = document.querySelectorAll('.dot');
+  let current = 0;
+  let timer = null;
+  const interval = 5000; // ⭐ ระยะเวลา Auto slide (ms)
 
-function showSlide(i){
+  const slides = document.querySelectorAll('.slide');
+  const dots = document.querySelectorAll('.dot');
+
+  function showSlide(i) {
     slides.forEach(s => s.classList.remove('active'));
     dots.forEach(d => d.classList.remove('active'));
+
     slides[i].classList.add('active');
     dots[i].classList.add('active');
     current = i;
-}
+  }
 
-function changeSlide(step){
+  function changeSlide(step) {
     let i = current + step;
-    if(i < 0) i = slides.length - 1;
-    if(i >= slides.length) i = 0;
+    if (i < 0) i = slides.length - 1;
+    if (i >= slides.length) i = 0;
     showSlide(i);
-}
+  }
 
-function goSlide(i){
+  function goSlide(i) {
     showSlide(i);
-}
+  }
+
+  function autoSlide() {
+    changeSlide(1);
+  }
+
+  function startAutoSlide() {
+    timer = setInterval(autoSlide, interval);
+  }
+
+  function pauseSlide() {
+    clearInterval(timer);
+  }
+
+  function resumeSlide() {
+    startAutoSlide();
+  }
+
+  // ⭐ คลิกที่รูปแล้วไปลิงก์
+  slides.forEach(slide => {
+    slide.addEventListener('click', () => {
+      const link = slide.dataset.link;
+      if (link) {
+        window.open(link, '_blank'); // หรือใช้ location.href = link;
+      }
+    });
+  });
+
+  // เริ่มทำงาน
+  startAutoSlide();
 </script>
