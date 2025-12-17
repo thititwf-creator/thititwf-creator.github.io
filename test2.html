@@ -1,56 +1,50 @@
 <!DOCTYPE html>
 <html lang="th">
+
 <head>
   <meta charset="UTF-8">
-  <title>แผนที่ประเทศไทย 77 จังหวัด</title>
+  <title>Thailand SVG Map</title>
+
   <style>
     body {
       font-family: Sarabun, sans-serif;
       background: #f5f5f5;
-      margin: 0;
       padding: 30px;
     }
 
     .section {
       background: #fff;
-      border-radius: 14px;
       padding: 20px;
-      box-shadow: 0 4px 10px rgba(0,0,0,.08);
+      border-radius: 14px;
       max-width: 900px;
       margin: auto;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, .08);
     }
 
-    h2 {
-      color: #e91e63;
-      margin-bottom: 15px;
-    }
-
-    .map-wrapper {
-      width: 100%;
-      overflow-x: auto;
-    }
-
-    /* ปรับขนาด SVG */
-    .map-wrapper svg {
+    svg {
       width: 100%;
       height: auto;
     }
+
+    path {
+      fill: #ffe082;
+      stroke: #ffffff;
+      stroke-width: .6;
+    }
   </style>
 </head>
+
 <body>
 
   <div class="section">
     <h2>ภาพรวมโครงการรายจังหวัด</h2>
 
-    <div class="map-wrapper">
-      <!-- โหลด SVG แผนที่ประเทศไทย 77 จังหวัด -->
-      <object
-        type="image/svg+xml"
-        data="https://raw.githubusercontent.com/teerasej/Thailand-Provinces-SVG/master/thailand.svg">
-        ไม่สามารถแสดงแผนที่ได้
-      </object>
-    </div>
+    <!-- ทดสอบโหลด SVG -->
+    <object type="image/svg+xml" data="https://www.amcharts.com/lib/3/maps/svg/thailandHigh.svg">
+      ไม่สามารถแสดงแผนที่
+    </object>
   </div>
 
 </body>
+
 </html>
