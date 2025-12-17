@@ -202,23 +202,28 @@
 
   <!-- ===== Banner ===== -->
   <div class="banner-slider" onmouseenter="pauseSlide()" onmouseleave="resumeSlide()">
+
     <div class="slides">
       <img src="https://womenfund.in.th/images/empower.jpg" class="slide active" data-link="#">
+
       <img src="https://womenfund.in.th/images/banners/Vision02.jpg" class="slide" data-link="#">
+
       <img src="https://womenfund.in.th/images/banners/vision301065-1905x400.jpg" class="slide" data-link="#">
     </div>
+
+    <!-- ❗ ปุ่มต้องอยู่ตรงนี้ -->
+    <button class="nav prev" onclick="changeSlide(-1)">❮</button>
+    <button class="nav next" onclick="changeSlide(1)">❯</button>
+
+    <div class="dots">
+      <span onclick="goSlide(0)" class="dot active"></span>
+      <span onclick="goSlide(1)" class="dot"></span>
+      <span onclick="goSlide(2)" class="dot"></span>
+    </div>
+
   </div>
 
 
-  <button class="nav prev" onclick="changeSlide(-1)">❮</button>
-  <button class="nav next" onclick="changeSlide(1)">❯</button>
-
-  <div class="dots">
-    <span onclick="goSlide(0)" class="dot active"></span>
-    <span onclick="goSlide(1)" class="dot"></span>
-    <span onclick="goSlide(2)" class="dot"></span>
-  </div>
-  </div>
 
 
 
