@@ -12,10 +12,8 @@ let provincialData = [];
 let currentSort = { key: 'province', order: 'asc' };
 
 // ======================================================
-// DOM ELEMENTS
+// DOM
 // ======================================================
-const yearSelect = document.getElementById('year-select');
-const monthSelect = document.getElementById('month-select');
 const searchInput = document.getElementById('searchInput');
 const tableBody = document.getElementById('tableBody');
 const grandTotalContainer = document.getElementById('grandTotalContainer');
@@ -36,8 +34,7 @@ const FISCAL_MONTHS_ORDER = [
 // INIT
 // ======================================================
 document.addEventListener("DOMContentLoaded", () => {
-//   yearSelect.addEventListener('change', onFiscalYearSelect);
-//   monthSelect.addEventListener('change', onMonthSelect);
+
   searchInput.addEventListener('input', renderFilteredAndSortedTable);
 
   document.getElementById('sort-province')
@@ -57,7 +54,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // ======================================================
-// DATA LOAD
+// LOAD DATA
 // ======================================================
 async function loadInitialData() {
   try {
@@ -65,8 +62,8 @@ async function loadInitialData() {
     const csvText = await res.text();
     const rows = csvText.split(/\r?\n/).slice(1);
 
-    allData = rows.map(row => {
-      const c = row.split(',').map(s => s.trim());
+    allData = rows.map(r => {
+      const c = r.split(',').map(s => s.trim());
       if (c.length < 6 || !c[3]) return null;
       return {
         month: c[1],
@@ -77,7 +74,6 @@ async function loadInitialData() {
       };
     }).filter(Boolean);
 
-    // populateFiscalYearFilter();
     loadLatestFiscalData();
 
   } catch (e) {
@@ -86,53 +82,37 @@ async function loadInitialData() {
 }
 
 // ======================================================
-// FILTERS
+// AUTO LATEST MONTH
 // ======================================================
-function populateFiscalYearFilter() {
-  const years = new Set();
-  allData.forEach(d => {
-    const idx = FISCAL_MONTHS_ORDER.indexOf(d.month);
-    years.add(idx <= 2 ? d.year + 1 : d.year);
-  });
+function loadLatestFiscalData() {
+  if (!allData.length) return;
 
-  yearSelect.innerHTML = '<option value="">-- เลือกปีงบประมาณ --</option>';
-  [...years].sort((a, b) => b - a).forEach(y => {
-    yearSelect.innerHTML += `<option value="${y}">ปีงบประมาณ ${y}</option>`;
-  });
+  const maxYear = Math.max(...allData.map(d => d.year));
+  const dataInMaxYear = allData.filter(d => d.year === maxYear);
+
+  const latestMonth = [...FISCAL_MONTHS_ORDER]
+    .reverse()
+    .find(m => dataInMaxYear.some(d => d.month === m));
+
+  if (!latestMonth) return;
+
+  const idx = FISCAL_MONTHS_ORDER.indexOf(latestMonth);
+  const fiscalYear = idx <= 2 ? maxYear + 1 : maxYear;
+
+  renderByMonthAndYear(latestMonth, fiscalYear);
 }
 
-function onFiscalYearSelect() {
-  resetFilters();
-  monthSelect.disabled = true;
-  tableBody.innerHTML = rowMessage('กรุณาเลือกเดือน');
+// ======================================================
+// MAIN RENDER
+// ======================================================
+function renderByMonthAndYear(month, fiscalYear) {
 
-  if (!yearSelect.value) return;
-
-  const fy = parseInt(yearSelect.value);
-  const months = allData.filter(d => {
-    const i = FISCAL_MONTHS_ORDER.indexOf(d.month);
-    return i <= 2 ? d.year === fy - 1 : d.year === fy;
-  }).map(d => d.month);
-
-  monthSelect.innerHTML = '<option value="">-- เลือกเดือน --</option>';
-  FISCAL_MONTHS_ORDER.filter(m => months.includes(m))
-    .forEach(m => monthSelect.innerHTML += `<option value="${m}">${m}</option>`);
-  monthSelect.disabled = false;
-}
-
-function onMonthSelect() {
-  resetFilters();
-  if (!yearSelect.value || !monthSelect.value) {
-    tableBody.innerHTML = rowMessage('กรุณาเลือกปีและเดือน');
-    return;
-  }
-
-  const fy = parseInt(yearSelect.value);
-  const month = monthSelect.value;
   const idx = FISCAL_MONTHS_ORDER.indexOf(month);
-  const calYear = idx <= 2 ? fy - 1 : fy;
+  const calendarYear = idx <= 2 ? fiscalYear - 1 : fiscalYear;
 
-  const raw = allData.filter(d => d.year === calYear && d.month === month);
+  const raw = allData.filter(
+    d => d.year === calendarYear && d.month === month
+  );
 
   provincialData = raw.map(d => ({
     province: d.province,
@@ -141,12 +121,12 @@ function onMonthSelect() {
     percentage: calcPercent(d.returned, d.expected)
   }));
 
-  renderGrandTotal(raw, month, fy);
+  renderGrandTotal(raw, month, fiscalYear);
   renderFilteredAndSortedTable();
 }
 
 // ======================================================
-// RENDER TABLE
+// TABLE
 // ======================================================
 function renderFilteredAndSortedTable() {
   let data = [...provincialData];
@@ -182,6 +162,7 @@ function renderFilteredAndSortedTable() {
 
 function renderTable(data) {
   tableBody.innerHTML = '';
+
   if (!data.length) {
     tableBody.innerHTML = rowMessage('ไม่พบข้อมูล');
     return;
@@ -205,44 +186,7 @@ function renderTable(data) {
 }
 
 // ======================================================
-// UTIL
-// ======================================================
-function handleSort(key) {
-  currentSort.order =
-    currentSort.key === key && currentSort.order === 'asc' ? 'desc' : 'asc';
-  currentSort.key = key;
-  renderFilteredAndSortedTable();
-}
-
-function handlePercentageFilterChange() {
-  percentageValue.disabled = percentageCondition.value === 'all';
-  if (percentageValue.disabled) percentageValue.value = '';
-  renderFilteredAndSortedTable();
-}
-
-function resetFilters() {
-  searchInput.value = '';
-  percentageCondition.value = 'all';
-  percentageValue.value = '';
-  percentageValue.disabled = true;
-}
-
-function calcPercent(r, e) {
-  return e === 0 ? 0 : (r * 100) / e;
-}
-
-function formatCurrency(n) {
-  return new Intl.NumberFormat('th-TH', {
-    style: 'currency', currency: 'THB'
-  }).format(n || 0);
-}
-
-function rowMessage(msg) {
-  return `<tr><td colspan="5" class="loading-text">${msg}</td></tr>`;
-}
-
-// ======================================================
-// GRAND TOTAL
+// GRAND TOTAL (แบบเรียบ ไม่มี card logic เก่า)
 // ======================================================
 function renderGrandTotal(raw, month, year) {
   const total = raw.reduce((a, b) => {
@@ -254,29 +198,48 @@ function renderGrandTotal(raw, month, year) {
   grandTotalContainer.innerHTML = `
     <div class="card">
       <div class="card-header">
-        <span class="card-title">ภาพรวม ${month} (ปีงบ ${year})</span>
-        <span class="card-percentage">${calcPercent(total.r, total.e).toFixed(2)}%</span>
+        <span>ภาพรวม ${month} (ปีงบ ${year})</span>
+        <span>${calcPercent(total.r, total.e).toFixed(2)}%</span>
       </div>
-      <div class="card-body">
-        <div class="data-row"><span>รับคืนรวม</span><span>${formatCurrency(total.r)}</span></div>
-        <div class="data-row"><span>คาดว่าจะได้</span><span>${formatCurrency(total.e)}</span></div>
+      <div class="data-row">
+        <span>รับคืนรวม</span><span>${formatCurrency(total.r)}</span>
+      </div>
+      <div class="data-row">
+        <span>คาดว่าจะได้</span><span>${formatCurrency(total.e)}</span>
       </div>
     </div>`;
 }
 
 // ======================================================
-// EXPORT / NAV
+// UTIL
 // ======================================================
-function exportToExcel() {
-  let csv = 'จังหวัด,รับคืน,คาดว่าจะได้,ร้อยละ\n';
-  provincialData.forEach(d => {
-    csv += `"${d.province}",${d.totalReturned},${d.totalExpected},${d.percentage.toFixed(2)}\n`;
-  });
-  const blob = new Blob([csv], { type: 'text/csv' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'CDD_WomenFund.csv';
-  a.click();
+function handleSort(key) {
+  currentSort.order =
+    currentSort.key === key && currentSort.order === 'asc'
+      ? 'desc' : 'asc';
+  currentSort.key = key;
+  renderFilteredAndSortedTable();
+}
+
+function handlePercentageFilterChange() {
+  percentageValue.disabled = percentageCondition.value === 'all';
+  if (percentageValue.disabled) percentageValue.value = '';
+  renderFilteredAndSortedTable();
+}
+
+function calcPercent(r, e) {
+  return e === 0 ? 0 : (r * 100) / e;
+}
+
+function formatCurrency(n) {
+  return new Intl.NumberFormat('th-TH', {
+    style: 'currency',
+    currency: 'THB'
+  }).format(n || 0);
+}
+
+function rowMessage(msg) {
+  return `<tr><td colspan="5" class="loading-text">${msg}</td></tr>`;
 }
 
 function goProvince(p) {
@@ -288,74 +251,17 @@ function showError(e, msg) {
   console.error(e);
 }
 
-function renderDataByYearAndMonth(selectedFiscalYear, selectedMonth) {
-
-    const monthIndex = FISCAL_MONTHS_ORDER.indexOf(selectedMonth);
-    const calendarYear =
-        (monthIndex >= 0 && monthIndex <= 2)
-            ? selectedFiscalYear - 1
-            : selectedFiscalYear;
-
-    const rawFilteredData = allData.filter(
-        d => d.year === calendarYear && d.month === selectedMonth
-    );
-
-    const grandTotal = rawFilteredData.reduce((acc, item) => {
-        acc.totalExpected += parseFloat(item.expected) || 0;
-        acc.totalReturned += parseFloat(item.returned) || 0;
-        return acc;
-    }, { totalExpected: 0, totalReturned: 0 });
-
-    renderGrandTotalCard({
-        province: `ภาพรวมเดือน ${selectedMonth} (ปีงบประมาณ ${selectedFiscalYear})`,
-        totalExpected: grandTotal.totalExpected,
-        totalReturned: grandTotal.totalReturned,
-        percentage: calculatePercentageValue(
-            grandTotal.totalReturned,
-            grandTotal.totalExpected
-        )
-    });
-
-    provincialData = rawFilteredData.map((item, index) => {
-        const returned = parseFloat(item.returned) || 0;
-        const expected = parseFloat(item.expected) || 0;
-
-        return {
-            uniqueId: `${item.province}-${index}`,
-            province: item.province,
-            totalReturned: returned,
-            totalExpected: expected,
-            percentage: calculatePercentageValue(returned, expected)
-        };
-    });
-
-    renderFilteredAndSortedCards();
-}
-
-
-function loadLatestFiscalData() {
-    if (!allData || allData.length === 0) return;
-
-    // หา year มากที่สุดก่อน
-    const maxYear = Math.max(...allData.map(d => d.year));
-
-    // ข้อมูลเฉพาะปีล่าสุด
-    const dataInMaxYear = allData.filter(d => d.year === maxYear);
-
-    // หาเดือนล่าสุดตามลำดับปีงบประมาณ
-    const latestMonth = FISCAL_MONTHS_ORDER
-        .slice()
-        .reverse()
-        .find(m => dataInMaxYear.some(d => d.month === m));
-
-    if (!latestMonth) return;
-
-    // คำนวณปีงบประมาณ
-    const monthIndex = FISCAL_MONTHS_ORDER.indexOf(latestMonth);
-    const fiscalYear = (monthIndex >= 0 && monthIndex <= 2)
-        ? maxYear + 1
-        : maxYear;
-
-    // ใช้ logic เดิม
-    renderDataByYearAndMonth(fiscalYear, latestMonth);
+// ======================================================
+// EXPORT
+// ======================================================
+function exportToExcel() {
+  let csv = 'จังหวัด,รับคืน,คาดว่าจะได้,ร้อยละ\n';
+  provincialData.forEach(d => {
+    csv += `"${d.province}",${d.totalReturned},${d.totalExpected},${d.percentage.toFixed(2)}\n`;
+  });
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'CDD_WomenFund.csv';
+  a.click();
 }

@@ -14,7 +14,6 @@
             --pink: #e91e63;
             --light-pink: #f8bbd0;
             --deep-pink: #f06292;
-            --orange: #ff9800;
             --bg-gradient: linear-gradient(to bottom right, #fce4ec, #f3e5f5);
         }
 
@@ -33,7 +32,7 @@
         .main-container {
             max-width: 1200px;
             margin: auto;
-            background: white;
+            background: #fff;
             padding: 30px;
             border-radius: 12px;
         }
@@ -54,8 +53,7 @@
             margin-top: 5px;
         }
 
-        /* Filters */
-        .filter-container,
+        /* Controls */
         .controls-container {
             display: flex;
             gap: 10px;
@@ -63,12 +61,18 @@
             flex-wrap: wrap;
         }
 
+        input,
         select,
-        input {
+        button {
             padding: 6px 10px;
             font-family: 'Sarabun';
             border-radius: 6px;
             border: 1px solid #aaa;
+        }
+
+        button {
+            cursor: pointer;
+            font-weight: bold;
         }
 
         /* Toolbar */
@@ -82,9 +86,6 @@
             background: var(--light-pink);
             border: none;
             border-radius: 8px;
-            padding: 6px 12px;
-            font-weight: bold;
-            cursor: pointer;
         }
 
         /* Table */
@@ -102,8 +103,9 @@
             position: sticky;
             top: 0;
             background: var(--deep-pink);
+            color: #000;
             cursor: pointer;
-            z-index: 10;
+            z-index: 5;
         }
 
         th,
@@ -144,10 +146,10 @@
             font-weight: bold;
         }
 
-        /* Card (Grand Total) */
+        /* Grand Total */
         .card {
             background: var(--pink);
-            color: white;
+            color: #fff;
             padding: 15px;
             border-radius: 10px;
             margin-bottom: 15px;
@@ -179,18 +181,8 @@
                     <span style="color:deeppink;">Women</span>
                     <span style="color:red;">Fund</span>
                 </h1>
-                <h2>ข้อมูลหนี้ครบกำหนดชำระ</h2>
+                <h2>ข้อมูลหนี้ครบกำหนดชำระ (ข้อมูลล่าสุด)</h2>
             </div>
-        </div>
-
-        <!-- Filter ปี / เดือน -->
-        <div class="filter-container" style="display:none">
-            <select id="year-select">
-                <option value="">-- เลือกปีงบประมาณ --</option>
-            </select>
-            <select id="month-select" disabled>
-                <option value="">-- เลือกเดือน --</option>
-            </select>
         </div>
 
         <!-- Grand Total -->
@@ -219,7 +211,6 @@
             <input type="number" id="percentage-value" placeholder="%" disabled>
         </div>
 
-
         <!-- Table -->
         <div class="table-container">
             <table>
@@ -235,7 +226,7 @@
                 <tbody id="tableBody">
                     <tr>
                         <td colspan="5" class="loading-text">
-                            กรุณาเลือกปีงบประมาณและเดือน
+                            กำลังโหลดข้อมูลล่าสุด...
                         </td>
                     </tr>
                 </tbody>
