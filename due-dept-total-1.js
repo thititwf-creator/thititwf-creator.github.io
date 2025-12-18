@@ -229,8 +229,9 @@ function renderGrandTotal(data, month, fiscalYear) {
     <div class="card">
       <div class="card-header">
         <span>ภาพรวม ${month} (ปีงบ ${fiscalYear}) </span>
+      </div>
+      <div class="card-header">
         <span>โครงการจำนวน ${(total.pu).toLocaleString('en-US')} โครงการ จากโครงการทั้งหมด ${(total.pt).toLocaleString('en-US')} โครงการ</span>
-        // <span>${calcPercent(total.r, total.e).toFixed(2)}%</span>
       </div>
       <div class="data-row">
         <span>ร้อยละการรับชำระคืนทั้งประเทศ</span>
