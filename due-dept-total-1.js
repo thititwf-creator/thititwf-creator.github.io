@@ -48,20 +48,39 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // ======================================================
+// CSV PARSER (รองรับ comma ในตัวเลข)
+// ======================================================
+function parseCSVLine(line) {
+  const regex = /(".*?"|[^",\s]+)(?=\s*,|\s*$)/g;
+  return [...line.matchAll(regex)]
+    .map(m => m[0].replace(/^"|"$/g, "").trim());
+}
+
+function toNumber(v) {
+  if (!v) return 0;
+  return parseFloat(v.replace(/,/g, "")) || 0;
+}
+
+// ======================================================
 // LOAD CSV
 // ======================================================
 async function loadCSV() {
   try {
     const res = await fetch(CSV_URL);
     const csv = await res.text();
-    const rows = csv.split(/\r?\n/).slice(1);
+    const lines = csv.split(/\r?\n/).filter(Boolean);
 
-    allData = rows.map(r => {
-      const c = r.split(",").map(v => v.trim());
-      if (c.length < 6) return null;
+    const header = parseCSVLine(lines[0]);
+    const col = name => header.indexOf(name);
 
-      const month = c[1];
-      const year = parseInt(c[2]); // ปีปฏิทิน (พ.ศ.)
+    allData = lines.slice(1).map(line => {
+      const c = parseCSVLine(line);
+      if (c.length !== header.length) return null;
+
+      const month = c[col("เดือน")];
+      const year = parseInt(c[col("ปีงบ")]);
+
+      if (!month || !year) return null;
 
       const fiscalYear =
         ["ตุลาคม", "พฤศจิกายน", "ธันวาคม"].includes(month)
@@ -72,10 +91,10 @@ async function loadCSV() {
         month,
         year,
         fiscalYear,
-        province: c[3],
-        expected: parseFloat(c[4]) || 0,
-        returned: parseFloat(c[5]) || 0,
-        percentage: parseFloat(c[6]) || 0
+        province: c[col("จังหวัด")],
+        expected: toNumber(c[col("เงินต้นที่คาดว่าจะได้รับ")]),
+        returned: toNumber(c[col("เงินต้นที่รับคืน")]),
+        percentage: toNumber(c[col("ร้อยละของการชำระคืน")])
       };
     }).filter(Boolean);
 
@@ -87,17 +106,12 @@ async function loadCSV() {
 }
 
 // ======================================================
-// FIND LATEST FISCAL YEAR + MONTH
+// FIND LATEST FISCAL MONTH
 // ======================================================
 function loadLatestFiscalMonth() {
-  if (!allData.length) return;
-
-  // ปีงบล่าสุดจริง
   const latestFiscalYear = Math.max(...allData.map(d => d.fiscalYear));
-
   const fiscalData = allData.filter(d => d.fiscalYear === latestFiscalYear);
 
-  // เดือนล่าสุดตามลำดับปีงบ
   const latestMonth = FISCAL_MONTHS_ORDER
     .slice()
     .reverse()
@@ -172,8 +186,7 @@ function renderTable(data) {
         <td>${formatCurrency(d.totalExpected)}</td>
         <td>${d.percentage.toFixed(2)}%</td>
         <td class="${status[1]}">${status[0]}</td>
-      </tr>
-    `;
+      </tr>`;
   });
 }
 
@@ -201,8 +214,7 @@ function renderGrandTotal(data, month, fiscalYear) {
         <span>เงินต้นที่คาดว่าจะได้รับ</span>
         <span>${formatCurrency(total.e)}</span>
       </div>
-    </div>
-  `;
+    </div>`;
 }
 
 // ======================================================
