@@ -220,8 +220,10 @@ function renderGrandTotal(data, month, fiscalYear) {
   const total = data.reduce((a, b) => {
     a.r += b.returned;
     a.e += b.expected;
+    a.pt += b.projectTotal;
+    a.pu += b.projectUsed;
     return a;
-  }, { r: 0, e: 0 });
+  }, { r: 0, e: 0 ,pt:0 ,pu:0});
 
   grandTotalContainer.innerHTML = `
     <div class="card">
@@ -240,6 +242,9 @@ function renderGrandTotal(data, month, fiscalYear) {
       <div class="data-row">
         <span>เงินต้นที่คาดว่าจะได้รับ</span>
         <span>${formatCurrency(total.e)}</span>
+      </div>
+      <div class="data-row">
+        <span>โครงการจำนวน ${formatCurrency(total.pu)} โครงการ จากโครงการทั้งหมด ${formatCurrency(total.pt)} โครงการ</span>
       </div>
     </div>`;
 }
