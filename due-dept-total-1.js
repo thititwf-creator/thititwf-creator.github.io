@@ -227,9 +227,9 @@ function renderGrandTotal(data, month, fiscalYear) {
 
   grandTotalContainer.innerHTML = `
     <div class="card">
-      <div class="card-header">
+      <!-- <div class="card-header">
         <span>ภาพรวม ${month} (ปีงบ ${fiscalYear}) </span>
-      </div>
+      </div> -->
       <div class="card-header">
         <span>โครงการที่มีกำหนดชำระจำนวน ${(total.pu).toLocaleString('en-US')} โครงการ ทั้งหมด ${(total.pt).toLocaleString('en-US')} โครงการ</span>
       </div>
