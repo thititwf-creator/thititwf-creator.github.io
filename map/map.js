@@ -1,5 +1,4 @@
 /* map/map.js */
-
 const CSV_URLS = {
     due: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRAz577iK5UQ03hI6swaEZJaT8kpvYaUA7SRAXOAGkwwznaLe6KL6z5BP8CQ4tZLy0TQht2YWcjwzix/pub?gid=0&single=true&output=csv",
     overdue: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRAz577iK5UQ03hI6swaEZJaT8kpvYaUA7SRAXOAGkwwznaLe6KL6z5BP8CQ4tZLy0TQht2YWcjwzix/pub?gid=1712737757&single=true&output=csv",
@@ -32,42 +31,6 @@ fetch("map/thailandHigh.svg")
         svgEl.setAttribute("preserveAspectRatio", "xMidYMid meet");
         svgDoc = svgEl;
     });
-
-
-function bindMapHover(dataByProvince) {
-    const tooltip = document.getElementById("mapTooltip");
-
-    document.querySelectorAll("#map svg path").forEach(path => {
-        const pvCode = path.id;                 // TH-10
-        const pvName = mapping_pv[pvCode];      // กรุงเทพมหานคร
-        if (!pvName) return;
-
-        path.addEventListener("mousemove", e => {
-            const info = dataByProvince[pvName];
-            if (!info) return;
-
-            path.style.stroke = "#000";
-            path.style.strokeWidth = "1.5";
-
-            tooltip.innerHTML = `
-        <strong>${pvName}</strong><br>
-        ค่า 1 : ${info.v1.toLocaleString()}<br>
-        ค่า 2 : ${info.v2.toLocaleString()}<br>
-        ร้อยละ : ${info.percent.toFixed(2)}%
-      `;
-
-            tooltip.style.left = e.pageX + 15 + "px";
-            tooltip.style.top = e.pageY + 15 + "px";
-            tooltip.style.display = "block";
-        });
-
-        path.addEventListener("mouseleave", () => {
-            path.style.stroke = "#fff";
-            path.style.strokeWidth = "0.5";
-            tooltip.style.display = "none";
-        });
-    });
-}
 
 
 /* โหลด CSV */
@@ -151,12 +114,22 @@ function updateView() {
         p.style.fill = color;
 
         p.onmousemove = e => {
+            const rect = document.querySelector(".map-area").getBoundingClientRect();
+
             tooltip.style.display = "block";
-            tooltip.style.left = e.pageX + 10 + "px";
-            tooltip.style.top = e.pageY + 10 + "px";
-            tooltip.innerHTML = `<b>${pv}</b><br>${percentKey}: ${row[percentKey]}%`;
+            tooltip.style.left = (e.clientX - rect.left + 15) + "px";
+            tooltip.style.top = (e.clientY - rect.top + 15) + "px";
+
+            tooltip.innerHTML = `
+      <strong>${pv}</strong><br>
+      ${Object.values(row)[3].toLocaleString()}<br>
+      ${Object.values(row)[4].toLocaleString()}<br>
+      ${percentKey}: ${Number(row[percentKey]).toFixed(2)}%
+    `;
         };
-        p.onmouseleave = () => tooltip.style.display = "none";
+        p.onmouseleave = () => {
+            tooltip.style.display = "none";
+        };
     });
 }
 
