@@ -36,8 +36,8 @@ const FISCAL_MONTHS_ORDER = [
 // INIT
 // ======================================================
 document.addEventListener("DOMContentLoaded", () => {
-  yearSelect.addEventListener('change', onFiscalYearSelect);
-  monthSelect.addEventListener('change', onMonthSelect);
+//   yearSelect.addEventListener('change', onFiscalYearSelect);
+//   monthSelect.addEventListener('change', onMonthSelect);
   searchInput.addEventListener('input', renderFilteredAndSortedTable);
 
   document.getElementById('sort-province')
@@ -77,7 +77,9 @@ async function loadInitialData() {
       };
     }).filter(Boolean);
 
-    populateFiscalYearFilter();
+    // populateFiscalYearFilter();
+    loadLatestFiscalData();
+
   } catch (e) {
     showError(e, 'โหลดข้อมูลไม่สำเร็จ');
   }
@@ -284,4 +286,76 @@ function goProvince(p) {
 function showError(e, msg) {
   tableBody.innerHTML = rowMessage(`${msg}: ${e.message}`);
   console.error(e);
+}
+
+function renderDataByYearAndMonth(selectedFiscalYear, selectedMonth) {
+
+    const monthIndex = FISCAL_MONTHS_ORDER.indexOf(selectedMonth);
+    const calendarYear =
+        (monthIndex >= 0 && monthIndex <= 2)
+            ? selectedFiscalYear - 1
+            : selectedFiscalYear;
+
+    const rawFilteredData = allData.filter(
+        d => d.year === calendarYear && d.month === selectedMonth
+    );
+
+    const grandTotal = rawFilteredData.reduce((acc, item) => {
+        acc.totalExpected += parseFloat(item.expected) || 0;
+        acc.totalReturned += parseFloat(item.returned) || 0;
+        return acc;
+    }, { totalExpected: 0, totalReturned: 0 });
+
+    renderGrandTotalCard({
+        province: `ภาพรวมเดือน ${selectedMonth} (ปีงบประมาณ ${selectedFiscalYear})`,
+        totalExpected: grandTotal.totalExpected,
+        totalReturned: grandTotal.totalReturned,
+        percentage: calculatePercentageValue(
+            grandTotal.totalReturned,
+            grandTotal.totalExpected
+        )
+    });
+
+    provincialData = rawFilteredData.map((item, index) => {
+        const returned = parseFloat(item.returned) || 0;
+        const expected = parseFloat(item.expected) || 0;
+
+        return {
+            uniqueId: `${item.province}-${index}`,
+            province: item.province,
+            totalReturned: returned,
+            totalExpected: expected,
+            percentage: calculatePercentageValue(returned, expected)
+        };
+    });
+
+    renderFilteredAndSortedCards();
+}
+
+
+function loadLatestFiscalData() {
+    if (!allData || allData.length === 0) return;
+
+    // หา year มากที่สุดก่อน
+    const maxYear = Math.max(...allData.map(d => d.year));
+
+    // ข้อมูลเฉพาะปีล่าสุด
+    const dataInMaxYear = allData.filter(d => d.year === maxYear);
+
+    // หาเดือนล่าสุดตามลำดับปีงบประมาณ
+    const latestMonth = FISCAL_MONTHS_ORDER
+        .slice()
+        .reverse()
+        .find(m => dataInMaxYear.some(d => d.month === m));
+
+    if (!latestMonth) return;
+
+    // คำนวณปีงบประมาณ
+    const monthIndex = FISCAL_MONTHS_ORDER.indexOf(latestMonth);
+    const fiscalYear = (monthIndex >= 0 && monthIndex <= 2)
+        ? maxYear + 1
+        : maxYear;
+
+    // ใช้ logic เดิม
+    renderDataByYearAndMonth(fiscalYear, latestMonth);
 }
