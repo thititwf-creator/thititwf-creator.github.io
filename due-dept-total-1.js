@@ -197,8 +197,8 @@ function renderTable(data) {
       <tr>
         <td class="province-link">${d.province}</td>
 
-        <td>${formatCurrency(d.totalReturned)}</td>
         <td>${formatCurrency(d.totalExpected)}</td>
+        <td>${formatCurrency(d.totalReturned)}</td>
         <td>${d.percentage.toFixed(2)}%</td>
 
       <!--  <td>${formatCurrency(d.expectedAll)}</td>
