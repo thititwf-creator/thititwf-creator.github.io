@@ -244,7 +244,7 @@ function renderGrandTotal(data, month, fiscalYear) {
         <span>${formatCurrency(total.e)}</span>
       </div>
       <div class="data-row">
-        <span>โครงการจำนวน ${(total.pu)} โครงการ จากโครงการทั้งหมด ${(total.pt)} โครงการ</span>
+        <span>โครงการจำนวน ${(total.pu).toLocaleString('en-US')} โครงการ จากโครงการทั้งหมด ${(total.pt).toLocaleString('en-US')} โครงการ</span>
       </div>
     </div>`;
 }
