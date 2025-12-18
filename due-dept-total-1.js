@@ -5,7 +5,7 @@ const CSV_URL =
   "https://docs.google.com/spreadsheets/d/e/2PACX-1vSriF3pc_Y5lQhZNYoD1jEa8mV7o0Nn0AmXsGhqMD5qXlEMVL86FFYE3o59VIZ6srMk4yeox0bupsGQ/pub?gid=0&single=true&output=csv";
 
 // ======================================================
-// GLOBAL STATE
+// GLOBAL
 // ======================================================
 let allData = [];
 let currentData = [];
@@ -58,58 +58,61 @@ async function loadCSV() {
 
     allData = rows.map(r => {
       const c = r.split(",").map(v => v.trim());
-      if (c.length < 12) return null;
+      if (c.length < 6) return null;
+
+      const month = c[1];
+      const year = parseInt(c[2]); // ปีปฏิทิน (พ.ศ.)
+
+      const fiscalYear =
+        ["ตุลาคม", "พฤศจิกายน", "ธันวาคม"].includes(month)
+          ? year + 1
+          : year;
 
       return {
-        month: c[1],
-        fiscalYear: parseInt(c[2]),
+        month,
+        year,
+        fiscalYear,
         province: c[3],
         expected: parseFloat(c[4]) || 0,
         returned: parseFloat(c[5]) || 0,
-        percentage: parseFloat(c[6]) || 0,
-        expectedAll: parseFloat(c[7]) || 0,
-        returnedAll: parseFloat(c[8]) || 0,
-        percentageAll: parseFloat(c[9]) || 0,
-        projectTotal: parseInt(c[10]) || 0,
-        projectUsed: parseInt(c[11]) || 0
+        percentage: parseFloat(c[6]) || 0
       };
     }).filter(Boolean);
 
     loadLatestFiscalMonth();
 
   } catch (e) {
-    showError(e, "ไม่สามารถโหลดข้อมูลได้");
+    showError(e, "โหลดข้อมูลไม่สำเร็จ");
   }
 }
 
 // ======================================================
-// FIND LATEST FISCAL MONTH
+// FIND LATEST FISCAL YEAR + MONTH
 // ======================================================
 function loadLatestFiscalMonth() {
   if (!allData.length) return;
 
-  // ปีงบล่าสุด
+  // ปีงบล่าสุดจริง
   const latestFiscalYear = Math.max(...allData.map(d => d.fiscalYear));
 
-  // ข้อมูลเฉพาะปีงบล่าสุด
-  const yearData = allData.filter(d => d.fiscalYear === latestFiscalYear);
+  const fiscalData = allData.filter(d => d.fiscalYear === latestFiscalYear);
 
   // เดือนล่าสุดตามลำดับปีงบ
   const latestMonth = FISCAL_MONTHS_ORDER
     .slice()
     .reverse()
-    .find(m => yearData.some(d => d.month === m));
+    .find(m => fiscalData.some(d => d.month === m));
 
-  currentData = yearData
-    .filter(d => d.month === latestMonth)
-    .map(d => ({
-      province: d.province,
-      totalReturned: d.returned,
-      totalExpected: d.expected,
-      percentage: d.percentage
-    }));
+  const monthData = fiscalData.filter(d => d.month === latestMonth);
 
-  renderGrandTotal(yearData, latestMonth, latestFiscalYear);
+  currentData = monthData.map(d => ({
+    province: d.province,
+    totalReturned: d.returned,
+    totalExpected: d.expected,
+    percentage: d.percentage
+  }));
+
+  renderGrandTotal(monthData, latestMonth, latestFiscalYear);
   renderFilteredTable();
 }
 
@@ -119,14 +122,12 @@ function loadLatestFiscalMonth() {
 function renderFilteredTable() {
   let data = [...currentData];
 
-  // search
   if (searchInput.value) {
     data = data.filter(d =>
       d.province.toLowerCase().includes(searchInput.value.toLowerCase())
     );
   }
 
-  // percent filter
   const cond = percentageCondition.value;
   const val = parseFloat(percentageValue.value);
   if (cond !== "all" && !isNaN(val)) {
@@ -137,7 +138,6 @@ function renderFilteredTable() {
     );
   }
 
-  // sort
   data.sort((a, b) => {
     const A = a[currentSort.key];
     const B = b[currentSort.key];
@@ -180,10 +180,8 @@ function renderTable(data) {
 // ======================================================
 // GRAND TOTAL
 // ======================================================
-function renderGrandTotal(data, month, year) {
-  const filtered = data.filter(d => d.month === month);
-
-  const total = filtered.reduce((a, b) => {
+function renderGrandTotal(data, month, fiscalYear) {
+  const total = data.reduce((a, b) => {
     a.r += b.returned;
     a.e += b.expected;
     return a;
@@ -192,7 +190,7 @@ function renderGrandTotal(data, month, year) {
   grandTotalContainer.innerHTML = `
     <div class="card">
       <div class="card-header">
-        <span>ภาพรวม ${month} (ปีงบ ${year})</span>
+        <span>ภาพรวม ${month} (ปีงบ ${fiscalYear})</span>
         <span>${calcPercent(total.r, total.e).toFixed(2)}%</span>
       </div>
       <div class="data-row">
