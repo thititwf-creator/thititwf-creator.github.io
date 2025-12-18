@@ -71,7 +71,7 @@ function colorScale(rank, green) {
 
 /* อัปเดตทั้งหมด */
 function updateView() {
-    if (!rawData.length) return;
+    if (!rawData.length || !svgDoc) return;
 
     const type = typeSelect.value;
     const year = yearSelect.value;
@@ -82,80 +82,80 @@ function updateView() {
 
     const percentKey = Object.keys(rows[0]).find(k => k.includes("ร้อยละ"));
 
-    // เรียงจากมาก→น้อย
     rows.sort((a, b) => parseFloat(b[percentKey]) - parseFloat(a[percentKey]));
 
-    // Top 5 / Bottom 5
     const top5 = rows.slice(0, 5);
     const bottom5 = rows.slice(-5);
 
-    // ตาราง
+    // ❗ ลบ existing rows ก่อน
     const tbody = document.querySelector("#mapTable tbody");
     tbody.innerHTML = "";
 
     // Top 5
     top5.forEach((r, i) => {
         tbody.innerHTML += `
-  <tr>
-    <td>${i + 1}. ${r["จังหวัด"]}</td>
-    <td>${Number(Object.values(r)[3] || 0).toLocaleString()}</td>
-    <td>${Number(Object.values(r)[4] || 0).toLocaleString()}</td>
-    <td>${Number(r[percentKey]).toFixed(2)}</td>
-  </tr>`;
+      <tr>
+        <td>${i + 1}. ${r["จังหวัด"]}</td>
+        <td>${Number(Object.values(r)[3] || 0).toLocaleString()}</td>
+        <td>${Number(Object.values(r)[4] || 0).toLocaleString()}</td>
+        <td>${Number(r[percentKey]).toFixed(2)}</td>
+      </tr>`;
     });
 
     // Bottom 5
     bottom5.forEach((r, i) => {
         tbody.innerHTML += `
-  <tr>
-    <td>${rows.length - 5 + i + 1}. ${r["จังหวัด"]}</td>
-    <td>${Number(Object.values(r)[3] || 0).toLocaleString()}</td>
-    <td>${Number(Object.values(r)[4] || 0).toLocaleString()}</td>
-    <td>${Number(r[percentKey]).toFixed(2)}</td>
-  </tr>`;
+      <tr>
+        <td>${rows.length - 5 + i + 1}. ${r["จังหวัด"]}</td>
+        <td>${Number(Object.values(r)[3] || 0).toLocaleString()}</td>
+        <td>${Number(Object.values(r)[4] || 0).toLocaleString()}</td>
+        <td>${Number(r[percentKey]).toFixed(2)}</td>
+      </tr>`;
     });
 
-    // แผนที่
     svgDoc.querySelectorAll("path").forEach(p => {
         const pv = mapping_pv[p.id];
-        if (!pv) return;
+        const rowTop = top5.find(r => r["จังหวัด"] === pv);
+        const rowBottom = bottom5.find(r => r["จังหวัด"] === pv);
 
-        let rowTop = top5.find(r => r["จังหวัด"] === pv);
-        let rowBottom = bottom5.find(r => r["จังหวัด"] === pv);
-
-        let color = "#eee"; // ค่า default
-
+        let color = "#eee";
         if (rowTop) {
-            color = (type === "overdue") ? colorScale(top5.indexOf(rowTop), false) : colorScale(top5.indexOf(rowTop), true);
+            color = type === "overdue"
+                ? colorScale(top5.indexOf(rowTop), false)
+                : colorScale(top5.indexOf(rowTop), true);
         } else if (rowBottom) {
-            color = (type === "overdue") ? colorScale(bottom5.indexOf(rowBottom), true) : colorScale(bottom5.indexOf(rowBottom), false);
+            color = type === "overdue"
+                ? colorScale(bottom5.indexOf(rowBottom), true)
+                : colorScale(bottom5.indexOf(rowBottom), false);
         }
 
         p.style.fill = color;
 
-        // Tooltip สำหรับ Top/Bottom 5 เท่านั้น
+        // tooltip
         const row = rowTop || rowBottom;
         p.onmousemove = e => {
             if (!row) return;
-            const rect = document.querySelector(".map-area").getBoundingClientRect();
 
-            let rank = rowTop ? top5.indexOf(row) + 1 : rows.length - 5 + bottom5.indexOf(row) + 1;
+            const rect = document.querySelector(".map-area").getBoundingClientRect();
+            let rank = rowTop
+                ? top5.indexOf(row) + 1
+                : rows.length - 5 + bottom5.indexOf(row) + 1;
 
             tooltip.style.display = "block";
-            tooltip.style.left = (e.clientX - rect.left + 15) + "px";
-            tooltip.style.top = (e.clientY - rect.top + 15) + "px";
+            tooltip.style.left = (e.clientX - rect.left + 12) + "px";
+            tooltip.style.top = (e.clientY - rect.top + 12) + "px";
 
             tooltip.innerHTML = `
-      <b>${rank}. ${pv}</b><br>
-      ค่า 1: ${Number(Object.values(row)[3] || 0).toLocaleString()}<br>
-      ค่า 2: ${Number(Object.values(row)[4] || 0).toLocaleString()}<br>
-      ${percentKey}: ${Number(row[percentKey]).toFixed(2)}%
-    `;
+        <b>${rank}. ${pv}</b><br>
+        ค่า 1: ${Number(Object.values(row)[3] || 0).toLocaleString()}<br>
+        ค่า 2: ${Number(Object.values(row)[4] || 0).toLocaleString()}<br>
+        ${percentKey}: ${Number(row[percentKey]).toFixed(2)}%
+      `;
         };
         p.onmouseleave = () => tooltip.style.display = "none";
     });
-
 }
+
 
 /* events */
 typeSelect.onchange = () => loadCSV(typeSelect.value);
