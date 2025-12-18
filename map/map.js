@@ -60,16 +60,12 @@ function initFilters() {
 
 /* สี */
 function colorScale(rank, green) {
-    const greens = ["#0a8f3c", // เข้มสุด (มาก)
+    const greens = [ "#0a8f3c", // เข้มสุด (มาก)
         "#32b45a",
         "#6fd27a",
         "#a8e6a1",
-        "#d0f0c0" ] // อ่อนสุด (น้อย)];
-    const reds = ["#8f0a0a", // เข้มสุด (มาก)
-        "#c93030",
-        "#e55c5c",
-        "#f19a9a",
-        "#f6c1c1" ]// อ่อนสุด (น้อย)"];
+        "#d0f0c0" ]; // อ่อนสุด (น้อย)
+    const reds = ["#f6c1c1", "#f19a9a", "#e55c5c", "#c93030", "#8f0a0a"];
     return green ? greens[rank] : reds[rank];
 }
 
