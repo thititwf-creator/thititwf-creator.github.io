@@ -48,7 +48,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // ======================================================
-// CSV PARSER (รองรับ comma ในตัวเลข)
+// CSV PARSER
 // ======================================================
 function parseCSVLine(line) {
   const regex = /(".*?"|[^",\s]+)(?=\s*,|\s*$)/g;
@@ -92,9 +92,16 @@ async function loadCSV() {
         year,
         fiscalYear,
         province: c[col("จังหวัด")],
+
         expected: toNumber(c[col("เงินต้นที่คาดว่าจะได้รับ")]),
         returned: toNumber(c[col("เงินต้นที่รับคืน")]),
-        percentage: toNumber(c[col("ร้อยละของการชำระคืน")])
+        percentage: toNumber(c[col("ร้อยละของการชำระคืน")]),
+
+        expectedAll: toNumber(c[col("เงินต้นที่คาดว่าจะได้รับทั้งหมด")]),
+        returnedAll: toNumber(c[col("เงินต้นที่รับคืนทั้งหมด")]),
+        percentageAll: toNumber(c[col("ร้อยละของการชำระคืนทั้งหมด")]),
+        projectTotal: toNumber(c[col("จำนวนโครงการทั้งหมด")]),
+        projectUsed: toNumber(c[col("จำนวนโครงการที่นำมาคิด")])
       };
     }).filter(Boolean);
 
@@ -121,9 +128,16 @@ function loadLatestFiscalMonth() {
 
   currentData = monthData.map(d => ({
     province: d.province,
+
     totalReturned: d.returned,
     totalExpected: d.expected,
-    percentage: d.percentage
+    percentage: d.percentage,
+
+    expectedAll: d.expectedAll,
+    returnedAll: d.returnedAll,
+    percentageAll: d.percentageAll,
+    projectTotal: d.projectTotal,
+    projectUsed: d.projectUsed
   }));
 
   renderGrandTotal(monthData, latestMonth, latestFiscalYear);
@@ -182,9 +196,18 @@ function renderTable(data) {
     tableBody.innerHTML += `
       <tr>
         <td class="province-link">${d.province}</td>
+
         <td>${formatCurrency(d.totalReturned)}</td>
         <td>${formatCurrency(d.totalExpected)}</td>
         <td>${d.percentage.toFixed(2)}%</td>
+
+        <td>${formatCurrency(d.expectedAll)}</td>
+        <td>${formatCurrency(d.returnedAll)}</td>
+        <td>${d.percentageAll.toFixed(2)}%</td>
+
+        <td>${d.projectTotal.toLocaleString()}</td>
+        <td>${d.projectUsed.toLocaleString()}</td>
+
         <td class="${status[1]}">${status[0]}</td>
       </tr>`;
   });
@@ -245,7 +268,7 @@ function formatCurrency(n) {
 }
 
 function rowMessage(msg) {
-  return `<tr><td colspan="5" class="loading-text">${msg}</td></tr>`;
+  return `<tr><td colspan="10" class="loading-text">${msg}</td></tr>`;
 }
 
 function showError(e, msg) {
