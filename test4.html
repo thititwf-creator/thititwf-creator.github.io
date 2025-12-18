@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="th">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -62,7 +63,8 @@
             flex-wrap: wrap;
         }
 
-        select, input {
+        select,
+        input {
             padding: 6px 10px;
             font-family: 'Sarabun';
             border-radius: 6px;
@@ -104,7 +106,8 @@
             z-index: 10;
         }
 
-        th, td {
+        th,
+        td {
             padding: 10px;
             border-bottom: 1px solid #eee;
             text-align: center;
@@ -115,9 +118,20 @@
         }
 
         /* Status */
-        .status-green { color: #2e7d32; font-weight: bold; }
-        .status-yellow { color: #f57c00; font-weight: bold; }
-        .status-red { color: #c62828; font-weight: bold; }
+        .status-green {
+            color: #2e7d32;
+            font-weight: bold;
+        }
+
+        .status-yellow {
+            color: #f57c00;
+            font-weight: bold;
+        }
+
+        .status-red {
+            color: #c62828;
+            font-weight: bold;
+        }
 
         .province-link {
             color: navy;
@@ -155,77 +169,84 @@
 
 <body>
 
-<div class="main-container">
+    <div class="main-container">
 
-    <!-- Header -->
-    <div class="header">
-        <div>
-            <h1>
-                <span style="color:navy;">CDD</span>
-                <span style="color:deeppink;">Women</span>
-                <span style="color:red;">Fund</span>
-            </h1>
-            <h2>ข้อมูลหนี้ครบกำหนดชำระ</h2>
+        <!-- Header -->
+        <div class="header">
+            <div>
+                <h1>
+                    <span style="color:navy;">CDD</span>
+                    <span style="color:deeppink;">Women</span>
+                    <span style="color:red;">Fund</span>
+                </h1>
+                <h2>ข้อมูลหนี้ครบกำหนดชำระ</h2>
+            </div>
         </div>
+
+        <!-- Filter ปี / เดือน -->
+        <div class="filter-container">
+            <select id="year-select">
+                <option value="">-- เลือกปีงบประมาณ --</option>
+            </select>
+            <select id="month-select" disabled>
+                <option value="">-- เลือกเดือน --</option>
+            </select>
+        </div>
+
+        <!-- Grand Total -->
+        <div id="grandTotalContainer"></div>
+
+        <!-- Toolbar -->
+        <div class="toolbar">
+            <button onclick="window.location.href='Menu.html'">🏠 เมนูหลัก</button>
+            <button onclick="exportToExcel()">📥 Export Excel</button>
+        </div>
+
+        <!-- Controls -->
+        <div class="controls-container">
+            <input type="text" id="searchInput" placeholder="ค้นหาจังหวัด">
+
+            <button id="sort-province">เรียงตามจังหวัด</button>
+            <button id="sort-percentage">เรียงตามร้อยละ</button>
+
+            <select id="percentage-condition">
+                <option value="all">ร้อยละทั้งหมด</option>
+                <option value="gt">มากกว่า</option>
+                <option value="lt">น้อยกว่า</option>
+                <option value="eq">เท่ากับ</option>
+            </select>
+
+            <input type="number" id="percentage-value" placeholder="%" disabled>
+        </div>
+
+
+        <!-- Table -->
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th data-key="province">จังหวัด</th>
+                        <th data-key="totalReturned">เงินต้นรับคืน</th>
+                        <th data-key="totalExpected">เงินต้นที่คาดว่าจะได้</th>
+                        <th data-key="percentage">ร้อยละ (%)</th>
+                        <th>สถานะ</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                    <tr>
+                        <td colspan="5" class="loading-text">
+                            กรุณาเลือกปีงบประมาณและเดือน
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
     </div>
 
-    <!-- Filter ปี / เดือน -->
-    <div class="filter-container">
-        <select id="year-select">
-            <option value="">-- เลือกปีงบประมาณ --</option>
-        </select>
-        <select id="month-select" disabled>
-            <option value="">-- เลือกเดือน --</option>
-        </select>
-    </div>
-
-    <!-- Grand Total -->
-    <div id="grandTotalContainer"></div>
-
-    <!-- Toolbar -->
-    <div class="toolbar">
-        <button onclick="window.location.href='Menu.html'">🏠 เมนูหลัก</button>
-        <button onclick="exportToExcel()">📥 Export Excel</button>
-    </div>
-
-    <!-- Controls -->
-    <div class="controls-container">
-        <input type="text" id="searchInput" placeholder="ค้นหาจังหวัด">
-        <select id="percentage-condition">
-            <option value="all">ร้อยละทั้งหมด</option>
-            <option value="gt">มากกว่า</option>
-            <option value="lt">น้อยกว่า</option>
-            <option value="eq">เท่ากับ</option>
-        </select>
-        <input type="number" id="percentage-value" placeholder="%" disabled>
-    </div>
-
-    <!-- Table -->
-    <div class="table-container">
-        <table>
-            <thead>
-                <tr>
-                    <th data-key="province">จังหวัด</th>
-                    <th data-key="totalReturned">เงินต้นรับคืน</th>
-                    <th data-key="totalExpected">เงินต้นที่คาดว่าจะได้</th>
-                    <th data-key="percentage">ร้อยละ (%)</th>
-                    <th>สถานะ</th>
-                </tr>
-            </thead>
-            <tbody id="tableBody">
-                <tr>
-                    <td colspan="5" class="loading-text">
-                        กรุณาเลือกปีงบประมาณและเดือน
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-
-</div>
-
-<!-- JS -->
-<script src="due-dept-total-1.js"></script>
+    <!-- JS -->
+    <script src="due-dept-total-1.js"></script>
 
 </body>
+
 </html>
