@@ -226,7 +226,11 @@ function renderGrandTotal(data, month, fiscalYear) {
   grandTotalContainer.innerHTML = `
     <div class="card">
       <div class="card-header">
-        <span>ภาพรวม ${month} (ปีงบ ${fiscalYear})</span>
+        <span>ภาพรวม ${month} (ปีงบ ${fiscalYear}) </span>
+        <span>${calcPercent(total.r, total.e).toFixed(2)}%</span>
+      </div>
+      <div class="data-row">
+        <span>ร้อยละการรับชำระคืนทั้งประเทศ</span>
         <span>${calcPercent(total.r, total.e).toFixed(2)}%</span>
       </div>
       <div class="data-row">
