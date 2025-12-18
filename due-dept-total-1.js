@@ -201,9 +201,9 @@ function renderTable(data) {
         <td>${formatCurrency(d.totalExpected)}</td>
         <td>${d.percentage.toFixed(2)}%</td>
 
-        <td>${formatCurrency(d.expectedAll)}</td>
+      <!--  <td>${formatCurrency(d.expectedAll)}</td>
         <td>${formatCurrency(d.returnedAll)}</td>
-        <td>${d.percentageAll.toFixed(2)}%</td>
+        <td>${d.percentageAll.toFixed(2)}%</td> -->
 
         <td>${d.projectTotal.toLocaleString()}</td>
         <td>${d.projectUsed.toLocaleString()}</td>
@@ -231,7 +231,7 @@ function renderGrandTotal(data, month, fiscalYear) {
         <span>ภาพรวม ${month} (ปีงบ ${fiscalYear}) </span>
       </div>
       <div class="card-header">
-        <span>โครงการจำนวน ${(total.pu).toLocaleString('en-US')} โครงการ จากโครงการทั้งหมด ${(total.pt).toLocaleString('en-US')} โครงการ</span>
+        <span>โครงการที่มีกำหนดชำระจำนวน ${(total.pu).toLocaleString('en-US')} โครงการ ทั้งหมด ${(total.pt).toLocaleString('en-US')} โครงการ</span>
       </div>
       <div class="data-row">
         <span>ร้อยละการรับชำระคืนทั้งประเทศ</span>
