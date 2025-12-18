@@ -1,130 +1,167 @@
 /* map/map.js */
 
 const CSV_URLS = {
-  due: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRAz577iK5UQ03hI6swaEZJaT8kpvYaUA7SRAXOAGkwwznaLe6KL6z5BP8CQ4tZLy0TQht2YWcjwzix/pub?gid=0&single=true&output=csv",
-  overdue: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRAz577iK5UQ03hI6swaEZJaT8kpvYaUA7SRAXOAGkwwznaLe6KL6z5BP8CQ4tZLy0TQht2YWcjwzix/pub?gid=1712737757&single=true&output=csv",
-  disburse: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRAz577iK5UQ03hI6swaEZJaT8kpvYaUA7SRAXOAGkwwznaLe6KL6z5BP8CQ4tZLy0TQht2YWcjwzix/pub?gid=815669108&single=true&output=csv"
+    due: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRAz577iK5UQ03hI6swaEZJaT8kpvYaUA7SRAXOAGkwwznaLe6KL6z5BP8CQ4tZLy0TQht2YWcjwzix/pub?gid=0&single=true&output=csv",
+    overdue: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRAz577iK5UQ03hI6swaEZJaT8kpvYaUA7SRAXOAGkwwznaLe6KL6z5BP8CQ4tZLy0TQht2YWcjwzix/pub?gid=1712737757&single=true&output=csv",
+    disburse: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRAz577iK5UQ03hI6swaEZJaT8kpvYaUA7SRAXOAGkwwznaLe6KL6z5BP8CQ4tZLy0TQht2YWcjwzix/pub?gid=815669108&single=true&output=csv"
 };
 
 let rawData = [];
 let svgDoc;
 
 // 🔑 DOM elements (สำคัญมาก)
-const typeSelect  = document.getElementById("typeSelect");
-const yearSelect  = document.getElementById("yearSelect");
+const typeSelect = document.getElementById("typeSelect");
+const yearSelect = document.getElementById("yearSelect");
 const monthSelect = document.getElementById("monthSelect");
-const tooltip     = document.getElementById("mapTooltip");
+const tooltip = document.getElementById("mapTooltip");
 
 /* โหลดแผนที่ */
 fetch("map/thailandHigh.svg")
-  .then(r => r.text())
-  .then(svg => {
-    document.getElementById("map").innerHTML = svg;
+    .then(r => r.text())
+    .then(svg => {
+        document.getElementById("map").innerHTML = svg;
 
-    const svgEl = document.querySelector("#map svg");
-    svgEl.removeAttribute("width");
-    svgEl.removeAttribute("height");
+        const svgEl = document.querySelector("#map svg");
+        svgEl.removeAttribute("width");
+        svgEl.removeAttribute("height");
 
-    if (!svgEl.getAttribute("viewBox")) {
-      svgEl.setAttribute("viewBox", "0 0 900 1400");
-    }
+        if (!svgEl.getAttribute("viewBox")) {
+            svgEl.setAttribute("viewBox", "0 0 900 1400");
+        }
 
-    svgEl.setAttribute("preserveAspectRatio", "xMidYMid meet");
-    svgDoc = svgEl;
-  });
+        svgEl.setAttribute("preserveAspectRatio", "xMidYMid meet");
+        svgDoc = svgEl;
+    });
+
+
+function bindMapHover(dataByProvince) {
+    const tooltip = document.getElementById("mapTooltip");
+
+    document.querySelectorAll("#map svg path").forEach(path => {
+        const pvCode = path.id;                 // TH-10
+        const pvName = mapping_pv[pvCode];      // กรุงเทพมหานคร
+        if (!pvName) return;
+
+        path.addEventListener("mousemove", e => {
+            const info = dataByProvince[pvName];
+            if (!info) return;
+
+            path.style.stroke = "#000";
+            path.style.strokeWidth = "1.5";
+
+            tooltip.innerHTML = `
+        <strong>${pvName}</strong><br>
+        ค่า 1 : ${info.v1.toLocaleString()}<br>
+        ค่า 2 : ${info.v2.toLocaleString()}<br>
+        ร้อยละ : ${info.percent.toFixed(2)}%
+      `;
+
+            tooltip.style.left = e.pageX + 15 + "px";
+            tooltip.style.top = e.pageY + 15 + "px";
+            tooltip.style.display = "block";
+        });
+
+        path.addEventListener("mouseleave", () => {
+            path.style.stroke = "#fff";
+            path.style.strokeWidth = "0.5";
+            tooltip.style.display = "none";
+        });
+    });
+}
+
 
 /* โหลด CSV */
 async function loadCSV(type) {
-  const res = await fetch(CSV_URLS[type]);
-  const text = await res.text();
+    const res = await fetch(CSV_URLS[type]);
+    const text = await res.text();
 
-  const rows = text.trim().split("\n").map(r => r.split(","));
-  const headers = rows.shift();
+    const rows = text.trim().split("\n").map(r => r.split(","));
+    const headers = rows.shift();
 
-  rawData = rows.map(r =>
-    Object.fromEntries(headers.map((h, i) => [h.trim(), r[i]]))
-  );
+    rawData = rows.map(r =>
+        Object.fromEntries(headers.map((h, i) => [h.trim(), r[i]]))
+    );
 
-  initFilters();
-  updateView();
+    initFilters();
+    updateView();
 }
 
 /* dropdown */
 function initFilters() {
-  const years = [...new Set(rawData.map(r => r["ปีงบ"]))];
-  const months = [...new Set(rawData.map(r => r["เดือน"]))];
+    const years = [...new Set(rawData.map(r => r["ปีงบ"]))];
+    const months = [...new Set(rawData.map(r => r["เดือน"]))];
 
-  yearSelect.innerHTML = years.map(y => `<option value="${y}">${y}</option>`).join("");
-  monthSelect.innerHTML = months.map(m => `<option value="${m}">${m}</option>`).join("");
+    yearSelect.innerHTML = years.map(y => `<option value="${y}">${y}</option>`).join("");
+    monthSelect.innerHTML = months.map(m => `<option value="${m}">${m}</option>`).join("");
 }
 
 /* สี */
 function colorScale(rank, green) {
-  const greens = ["#d0f0c0","#a8e6a1","#6fd27a","#32b45a","#0a8f3c"];
-  const reds   = ["#f6c1c1","#f19a9a","#e55c5c","#c93030","#8f0a0a"];
-  return green ? greens[rank] : reds[rank];
+    const greens = ["#d0f0c0", "#a8e6a1", "#6fd27a", "#32b45a", "#0a8f3c"];
+    const reds = ["#f6c1c1", "#f19a9a", "#e55c5c", "#c93030", "#8f0a0a"];
+    return green ? greens[rank] : reds[rank];
 }
 
 /* อัปเดตทั้งหมด */
 function updateView() {
-  if (!rawData.length) return;
+    if (!rawData.length) return;
 
-  const type  = typeSelect.value;
-  const year  = yearSelect.value;
-  const month = monthSelect.value;
+    const type = typeSelect.value;
+    const year = yearSelect.value;
+    const month = monthSelect.value;
 
-  const rows = rawData.filter(r => r["ปีงบ"] === year && r["เดือน"] === month);
-  if (!rows.length) return;
+    const rows = rawData.filter(r => r["ปีงบ"] === year && r["เดือน"] === month);
+    if (!rows.length) return;
 
-  const percentKey = Object.keys(rows[0]).find(k => k.includes("ร้อยละ"));
+    const percentKey = Object.keys(rows[0]).find(k => k.includes("ร้อยละ"));
 
-  rows.sort((a,b)=>parseFloat(b[percentKey]) - parseFloat(a[percentKey]));
+    rows.sort((a, b) => parseFloat(b[percentKey]) - parseFloat(a[percentKey]));
 
-  const top5 = rows.slice(0,5);
-  const bottom5 = rows.slice(-5);
+    const top5 = rows.slice(0, 5);
+    const bottom5 = rows.slice(-5);
 
-  /* ตาราง */
-  const tbody = document.querySelector("#mapTable tbody");
-  tbody.innerHTML = "";
+    /* ตาราง */
+    const tbody = document.querySelector("#mapTable tbody");
+    tbody.innerHTML = "";
 
-  rows.forEach(r=>{
-    tbody.innerHTML += `
+    rows.forEach(r => {
+        tbody.innerHTML += `
       <tr>
         <td>${r["จังหวัด"]}</td>
         <td>${Number(Object.values(r)[3] || 0).toLocaleString()}</td>
         <td>${Number(Object.values(r)[4] || 0).toLocaleString()}</td>
         <td>${r[percentKey]}</td>
       </tr>`;
-  });
+    });
 
-  /* แผนที่ */
-  svgDoc.querySelectorAll("path").forEach(p=>{
-    const pv = mapping_pv[p.id];
-    const row = rows.find(r=>r["จังหวัด"]===pv);
-    if(!row) return p.style.fill="#eee";
+    /* แผนที่ */
+    svgDoc.querySelectorAll("path").forEach(p => {
+        const pv = mapping_pv[p.id];
+        const row = rows.find(r => r["จังหวัด"] === pv);
+        if (!row) return p.style.fill = "#eee";
 
-    let color = "#ccc";
-    if (top5.includes(row)) {
-      color = (type==="overdue") ? colorScale(top5.indexOf(row), false) : colorScale(top5.indexOf(row), true);
-    }
-    if (bottom5.includes(row)) {
-      color = (type==="overdue") ? colorScale(bottom5.indexOf(row), true) : colorScale(bottom5.indexOf(row), false);
-    }
+        let color = "#ccc";
+        if (top5.includes(row)) {
+            color = (type === "overdue") ? colorScale(top5.indexOf(row), false) : colorScale(top5.indexOf(row), true);
+        }
+        if (bottom5.includes(row)) {
+            color = (type === "overdue") ? colorScale(bottom5.indexOf(row), true) : colorScale(bottom5.indexOf(row), false);
+        }
 
-    p.style.fill = color;
+        p.style.fill = color;
 
-    p.onmousemove = e=>{
-      tooltip.style.display="block";
-      tooltip.style.left = e.pageX + 10 + "px";
-      tooltip.style.top  = e.pageY + 10 + "px";
-      tooltip.innerHTML = `<b>${pv}</b><br>${percentKey}: ${row[percentKey]}%`;
-    };
-    p.onmouseleave = ()=>tooltip.style.display="none";
-  });
+        p.onmousemove = e => {
+            tooltip.style.display = "block";
+            tooltip.style.left = e.pageX + 10 + "px";
+            tooltip.style.top = e.pageY + 10 + "px";
+            tooltip.innerHTML = `<b>${pv}</b><br>${percentKey}: ${row[percentKey]}%`;
+        };
+        p.onmouseleave = () => tooltip.style.display = "none";
+    });
 }
 
 /* events */
-typeSelect.onchange = ()=>loadCSV(typeSelect.value);
+typeSelect.onchange = () => loadCSV(typeSelect.value);
 yearSelect.onchange = updateView;
 monthSelect.onchange = updateView;
 
