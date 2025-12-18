@@ -1,27 +1,18 @@
 // ======================================================
 // CONFIG
 // ======================================================
-const ROLLBACK_CSV_URL =
-  'https://docs.google.com/spreadsheets/d/e/2PACX-1vSriF3pc_Y5lQhZNYoD1jEa8mV7o0Nn0AmXsGhqMD5qXlEMVL86FFYE3o59VIZ6srMk4yeox0bupsGQ/pub?gid=0&single=true&output=csv';
+const CSV_URL =
+  "https://docs.google.com/spreadsheets/d/e/2PACX-1vSriF3pc_Y5lQhZNYoD1jEa8mV7o0Nn0AmXsGhqMD5qXlEMVL86FFYE3o59VIZ6srMk4yeox0bupsGQ/pub?gid=0&single=true&output=csv";
 
 // ======================================================
 // GLOBAL STATE
 // ======================================================
 let allData = [];
-let provincialData = [];
-let currentSort = { key: 'province', order: 'asc' };
+let currentData = [];
+let currentSort = { key: "province", order: "asc" };
 
 // ======================================================
-// DOM
-// ======================================================
-const searchInput = document.getElementById('searchInput');
-const tableBody = document.getElementById('tableBody');
-const grandTotalContainer = document.getElementById('grandTotalContainer');
-const percentageCondition = document.getElementById('percentage-condition');
-const percentageValue = document.getElementById('percentage-value');
-
-// ======================================================
-// CONSTANTS
+// CONSTANT
 // ======================================================
 const FISCAL_MONTHS_ORDER = [
   "ตุลาคม", "พฤศจิกายน", "ธันวาคม",
@@ -31,165 +22,168 @@ const FISCAL_MONTHS_ORDER = [
 ];
 
 // ======================================================
+// DOM
+// ======================================================
+const tableBody = document.getElementById("tableBody");
+const searchInput = document.getElementById("searchInput");
+const percentageCondition = document.getElementById("percentage-condition");
+const percentageValue = document.getElementById("percentage-value");
+const grandTotalContainer = document.getElementById("grandTotalContainer");
+
+// ======================================================
 // INIT
 // ======================================================
 document.addEventListener("DOMContentLoaded", () => {
+  searchInput.addEventListener("input", renderFilteredTable);
+  percentageCondition.addEventListener("change", onPercentConditionChange);
+  percentageValue.addEventListener("input", renderFilteredTable);
 
-  searchInput.addEventListener('input', renderFilteredAndSortedTable);
+  document.getElementById("sort-province")
+    .addEventListener("click", () => handleSort("province"));
 
-  document.getElementById('sort-province')
-    .addEventListener('click', () => handleSort('province'));
+  document.getElementById("sort-percentage")
+    .addEventListener("click", () => handleSort("percentage"));
 
-  document.getElementById('sort-percentage')
-    .addEventListener('click', () => handleSort('percentage'));
-
-  percentageCondition.addEventListener('change', handlePercentageFilterChange);
-  percentageValue.addEventListener('input', renderFilteredAndSortedTable);
-
-  document.querySelectorAll("th[data-key]").forEach(th => {
-    th.addEventListener("click", () => handleSort(th.dataset.key));
-  });
-
-  loadInitialData();
+  loadCSV();
 });
 
 // ======================================================
-// LOAD DATA
+// LOAD CSV
 // ======================================================
-async function loadInitialData() {
+async function loadCSV() {
   try {
-    const res = await fetch(ROLLBACK_CSV_URL);
-    const csvText = await res.text();
-    const rows = csvText.split(/\r?\n/).slice(1);
+    const res = await fetch(CSV_URL);
+    const csv = await res.text();
+    const rows = csv.split(/\r?\n/).slice(1);
 
     allData = rows.map(r => {
-      const c = r.split(',').map(s => s.trim());
-      if (c.length < 6 || !c[3]) return null;
+      const c = r.split(",").map(v => v.trim());
+      if (c.length < 12) return null;
+
       return {
         month: c[1],
-        year: parseInt(c[2]),
+        fiscalYear: parseInt(c[2]),
         province: c[3],
         expected: parseFloat(c[4]) || 0,
-        returned: parseFloat(c[5]) || 0
+        returned: parseFloat(c[5]) || 0,
+        percentage: parseFloat(c[6]) || 0,
+        expectedAll: parseFloat(c[7]) || 0,
+        returnedAll: parseFloat(c[8]) || 0,
+        percentageAll: parseFloat(c[9]) || 0,
+        projectTotal: parseInt(c[10]) || 0,
+        projectUsed: parseInt(c[11]) || 0
       };
     }).filter(Boolean);
 
-    loadLatestFiscalData();
+    loadLatestFiscalMonth();
 
   } catch (e) {
-    showError(e, 'โหลดข้อมูลไม่สำเร็จ');
+    showError(e, "ไม่สามารถโหลดข้อมูลได้");
   }
 }
 
 // ======================================================
-// AUTO LATEST MONTH
+// FIND LATEST FISCAL MONTH
 // ======================================================
-function loadLatestFiscalData() {
+function loadLatestFiscalMonth() {
   if (!allData.length) return;
 
-  const maxYear = Math.max(...allData.map(d => d.year));
-  const dataInMaxYear = allData.filter(d => d.year === maxYear);
+  // ปีงบล่าสุด
+  const latestFiscalYear = Math.max(...allData.map(d => d.fiscalYear));
 
-  const latestMonth = [...FISCAL_MONTHS_ORDER]
+  // ข้อมูลเฉพาะปีงบล่าสุด
+  const yearData = allData.filter(d => d.fiscalYear === latestFiscalYear);
+
+  // เดือนล่าสุดตามลำดับปีงบ
+  const latestMonth = FISCAL_MONTHS_ORDER
+    .slice()
     .reverse()
-    .find(m => dataInMaxYear.some(d => d.month === m));
+    .find(m => yearData.some(d => d.month === m));
 
-  if (!latestMonth) return;
+  currentData = yearData
+    .filter(d => d.month === latestMonth)
+    .map(d => ({
+      province: d.province,
+      totalReturned: d.returned,
+      totalExpected: d.expected,
+      percentage: d.percentage
+    }));
 
-  const idx = FISCAL_MONTHS_ORDER.indexOf(latestMonth);
-  const fiscalYear = idx <= 2 ? maxYear + 1 : maxYear;
-
-  renderByMonthAndYear(latestMonth, fiscalYear);
+  renderGrandTotal(yearData, latestMonth, latestFiscalYear);
+  renderFilteredTable();
 }
 
 // ======================================================
-// MAIN RENDER
+// RENDER TABLE
 // ======================================================
-function renderByMonthAndYear(month, fiscalYear) {
+function renderFilteredTable() {
+  let data = [...currentData];
 
-  const idx = FISCAL_MONTHS_ORDER.indexOf(month);
-  const calendarYear = idx <= 2 ? fiscalYear - 1 : fiscalYear;
-
-  const raw = allData.filter(
-    d => d.year === calendarYear && d.month === month
-  );
-
-  provincialData = raw.map(d => ({
-    province: d.province,
-    totalReturned: d.returned,
-    totalExpected: d.expected,
-    percentage: calcPercent(d.returned, d.expected)
-  }));
-
-  renderGrandTotal(raw, month, fiscalYear);
-  renderFilteredAndSortedTable();
-}
-
-// ======================================================
-// TABLE
-// ======================================================
-function renderFilteredAndSortedTable() {
-  let data = [...provincialData];
-
+  // search
   if (searchInput.value) {
     data = data.filter(d =>
       d.province.toLowerCase().includes(searchInput.value.toLowerCase())
     );
   }
 
+  // percent filter
   const cond = percentageCondition.value;
   const val = parseFloat(percentageValue.value);
-  if (cond !== 'all' && !isNaN(val)) {
+  if (cond !== "all" && !isNaN(val)) {
     data = data.filter(d =>
-      cond === 'gt' ? d.percentage > val :
-      cond === 'lt' ? d.percentage < val :
+      cond === "gt" ? d.percentage > val :
+      cond === "lt" ? d.percentage < val :
       Math.round(d.percentage) === Math.round(val)
     );
   }
 
+  // sort
   data.sort((a, b) => {
     const A = a[currentSort.key];
     const B = b[currentSort.key];
-    return typeof A === 'string'
-      ? (currentSort.order === 'asc'
-        ? A.localeCompare(B, 'th')
-        : B.localeCompare(A, 'th'))
-      : (currentSort.order === 'asc' ? A - B : B - A);
+    return typeof A === "string"
+      ? (currentSort.order === "asc"
+          ? A.localeCompare(B, "th")
+          : B.localeCompare(A, "th"))
+      : (currentSort.order === "asc" ? A - B : B - A);
   });
 
   renderTable(data);
 }
 
 function renderTable(data) {
-  tableBody.innerHTML = '';
+  tableBody.innerHTML = "";
 
   if (!data.length) {
-    tableBody.innerHTML = rowMessage('ไม่พบข้อมูล');
+    tableBody.innerHTML = rowMessage("ไม่พบข้อมูล");
     return;
   }
 
   data.forEach(d => {
     const status =
-      d.percentage >= 80 ? ['เสี่ยงสูง', 'status-red'] :
-      d.percentage >= 50 ? ['เฝ้าระวัง', 'status-yellow'] :
-                           ['ปกติ', 'status-green'];
+      d.percentage >= 80 ? ["ดี", "status-green"] :
+      d.percentage >= 50 ? ["ปานกลาง", "status-yellow"] :
+                           ["เฝ้าระวัง", "status-red"];
 
     tableBody.innerHTML += `
       <tr>
-        <td class="province-link" onclick="goProvince('${d.province}')">${d.province}</td>
+        <td class="province-link">${d.province}</td>
         <td>${formatCurrency(d.totalReturned)}</td>
         <td>${formatCurrency(d.totalExpected)}</td>
         <td>${d.percentage.toFixed(2)}%</td>
         <td class="${status[1]}">${status[0]}</td>
-      </tr>`;
+      </tr>
+    `;
   });
 }
 
 // ======================================================
-// GRAND TOTAL (แบบเรียบ ไม่มี card logic เก่า)
+// GRAND TOTAL
 // ======================================================
-function renderGrandTotal(raw, month, year) {
-  const total = raw.reduce((a, b) => {
+function renderGrandTotal(data, month, year) {
+  const filtered = data.filter(d => d.month === month);
+
+  const total = filtered.reduce((a, b) => {
     a.r += b.returned;
     a.e += b.expected;
     return a;
@@ -202,12 +196,15 @@ function renderGrandTotal(raw, month, year) {
         <span>${calcPercent(total.r, total.e).toFixed(2)}%</span>
       </div>
       <div class="data-row">
-        <span>รับคืนรวม</span><span>${formatCurrency(total.r)}</span>
+        <span>เงินต้นรับคืนรวม</span>
+        <span>${formatCurrency(total.r)}</span>
       </div>
       <div class="data-row">
-        <span>คาดว่าจะได้</span><span>${formatCurrency(total.e)}</span>
+        <span>เงินต้นที่คาดว่าจะได้รับ</span>
+        <span>${formatCurrency(total.e)}</span>
       </div>
-    </div>`;
+    </div>
+  `;
 }
 
 // ======================================================
@@ -215,16 +212,15 @@ function renderGrandTotal(raw, month, year) {
 // ======================================================
 function handleSort(key) {
   currentSort.order =
-    currentSort.key === key && currentSort.order === 'asc'
-      ? 'desc' : 'asc';
+    currentSort.key === key && currentSort.order === "asc" ? "desc" : "asc";
   currentSort.key = key;
-  renderFilteredAndSortedTable();
+  renderFilteredTable();
 }
 
-function handlePercentageFilterChange() {
-  percentageValue.disabled = percentageCondition.value === 'all';
-  if (percentageValue.disabled) percentageValue.value = '';
-  renderFilteredAndSortedTable();
+function onPercentConditionChange() {
+  percentageValue.disabled = percentageCondition.value === "all";
+  if (percentageValue.disabled) percentageValue.value = "";
+  renderFilteredTable();
 }
 
 function calcPercent(r, e) {
@@ -232,9 +228,9 @@ function calcPercent(r, e) {
 }
 
 function formatCurrency(n) {
-  return new Intl.NumberFormat('th-TH', {
-    style: 'currency',
-    currency: 'THB'
+  return new Intl.NumberFormat("th-TH", {
+    style: "currency",
+    currency: "THB"
   }).format(n || 0);
 }
 
@@ -242,26 +238,7 @@ function rowMessage(msg) {
   return `<tr><td colspan="5" class="loading-text">${msg}</td></tr>`;
 }
 
-function goProvince(p) {
-  location.href = `province.html?province=${encodeURIComponent(p)}`;
-}
-
 function showError(e, msg) {
   tableBody.innerHTML = rowMessage(`${msg}: ${e.message}`);
   console.error(e);
-}
-
-// ======================================================
-// EXPORT
-// ======================================================
-function exportToExcel() {
-  let csv = 'จังหวัด,รับคืน,คาดว่าจะได้,ร้อยละ\n';
-  provincialData.forEach(d => {
-    csv += `"${d.province}",${d.totalReturned},${d.totalExpected},${d.percentage.toFixed(2)}\n`;
-  });
-  const blob = new Blob([csv], { type: 'text/csv' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'CDD_WomenFund.csv';
-  a.click();
 }
