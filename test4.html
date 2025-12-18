@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CDD Women Fund – ข้อมูลหนี้ครบกำหนดชำระ</title>
+
+    <!-- Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --pink: #e91e63;
+            --light-pink: #f8bbd0;
+            --deep-pink: #f06292;
+            --orange: #ff9800;
+            --bg-gradient: linear-gradient(to bottom right, #fce4ec, #f3e5f5);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Sarabun', sans-serif;
+            background: var(--bg-gradient);
+            padding: 20px;
+        }
+
+        .main-container {
+            max-width: 1200px;
+            margin: auto;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            font-size: 2.3rem;
+        }
+
+        h2 {
+            font-size: 1.4rem;
+            margin-top: 5px;
+        }
+
+        /* Filters */
+        .filter-container,
+        .controls-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        select, input {
+            padding: 6px 10px;
+            font-family: 'Sarabun';
+            border-radius: 6px;
+            border: 1px solid #aaa;
+        }
+
+        /* Toolbar */
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+
+        .toolbar button {
+            background: var(--light-pink);
+            border: none;
+            border-radius: 8px;
+            padding: 6px 12px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        /* Table */
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+
+        thead th {
+            position: sticky;
+            top: 0;
+            background: var(--deep-pink);
+            cursor: pointer;
+            z-index: 10;
+        }
+
+        th, td {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            text-align: center;
+        }
+
+        tbody tr:hover {
+            background: #fce4ec;
+        }
+
+        /* Status */
+        .status-green { color: #2e7d32; font-weight: bold; }
+        .status-yellow { color: #f57c00; font-weight: bold; }
+        .status-red { color: #c62828; font-weight: bold; }
+
+        .province-link {
+            color: navy;
+            text-decoration: underline;
+            cursor: pointer;
+        }
+
+        .loading-text {
+            padding: 20px;
+            font-weight: bold;
+        }
+
+        /* Card (Grand Total) */
+        .card {
+            background: var(--pink);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .data-row {
+            display: flex;
+            justify-content: space-between;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="main-container">
+
+    <!-- Header -->
+    <div class="header">
+        <div>
+            <h1>
+                <span style="color:navy;">CDD</span>
+                <span style="color:deeppink;">Women</span>
+                <span style="color:red;">Fund</span>
+            </h1>
+            <h2>ข้อมูลหนี้ครบกำหนดชำระ</h2>
+        </div>
+    </div>
+
+    <!-- Filter ปี / เดือน -->
+    <div class="filter-container">
+        <select id="year-select">
+            <option value="">-- เลือกปีงบประมาณ --</option>
+        </select>
+        <select id="month-select" disabled>
+            <option value="">-- เลือกเดือน --</option>
+        </select>
+    </div>
+
+    <!-- Grand Total -->
+    <div id="grandTotalContainer"></div>
+
+    <!-- Toolbar -->
+    <div class="toolbar">
+        <button onclick="window.location.href='Menu.html'">🏠 เมนูหลัก</button>
+        <button onclick="exportToExcel()">📥 Export Excel</button>
+    </div>
+
+    <!-- Controls -->
+    <div class="controls-container">
+        <input type="text" id="searchInput" placeholder="ค้นหาจังหวัด">
+        <select id="percentage-condition">
+            <option value="all">ร้อยละทั้งหมด</option>
+            <option value="gt">มากกว่า</option>
+            <option value="lt">น้อยกว่า</option>
+            <option value="eq">เท่ากับ</option>
+        </select>
+        <input type="number" id="percentage-value" placeholder="%" disabled>
+    </div>
+
+    <!-- Table -->
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th data-key="province">จังหวัด</th>
+                    <th data-key="totalReturned">เงินต้นรับคืน</th>
+                    <th data-key="totalExpected">เงินต้นที่คาดว่าจะได้</th>
+                    <th data-key="percentage">ร้อยละ (%)</th>
+                    <th>สถานะ</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody">
+                <tr>
+                    <td colspan="5" class="loading-text">
+                        กรุณาเลือกปีงบประมาณและเดือน
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+<!-- JS -->
+<script src="due-dept-total.js"></script>
+
+</body>
+</html>
