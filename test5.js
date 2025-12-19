@@ -254,7 +254,7 @@ function updateSummaryFromFiltered(data) {
 
     const set = (id, v) => document.getElementById(id).textContent = v;
     set("overdue-count",overdueCount.toLocaleString());
-    set("overdue-count",overdueAmount.toLocaleString());
+    set("overdue-amount",overdueAmount.toLocaleString());
 
     set("normal-count", normalCount.toLocaleString());
     set("normal-amount", normalAmount.toLocaleString());
