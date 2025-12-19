@@ -215,6 +215,12 @@ function updateSummaryFromFiltered(data) {
         const ng5 = parseFloat(r["ป.วิ แพ่ง มาตรา 20 ตรี(ง5)"]) || 0;
         const ng6 = parseFloat(r["ดำเนินคดีอาญา(ง6)"]) || 0;
 
+        // --- หนี้เกินกำหนดชำระ ---
+        if (g > 0 && kh === 0 && k === 0 && ng === 0) {
+            overdueCount++;
+            overdueAmount += g; // นับยอดรวมลูกหนี้คงเหลือ ณ ปัจจุบัน
+        }
+
         if (g > 0 && kh > 0 && k === 0 && ng1 === 0 && ng2 === 0) {
             normalCount++;
             normalAmount += kh;
