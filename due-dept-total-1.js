@@ -246,8 +246,10 @@ function renderGrandTotal(data, month, fiscalYear) {
         <span>${(total.e).toLocaleString('en-US')}</span>
       </div>
       <div class="data-row">
-        <span>- ประเภทโครงการที่นำมาคำนวน ได้แก่ โครงการที่ชำระ</span>
-        
+        <span>- ประเภทโครงการที่นำมาคำนวน ได้แก่ โครงการที่...</span>
+      </div>
+      <div class="data-row">
+        <span>- ประเภทโครงการที่ไม่นำมาคำนวน ได้แก่ โครงการที่...</span>
       </div>
     </div>`;
 }
