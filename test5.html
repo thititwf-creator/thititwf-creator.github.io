@@ -1,204 +1,170 @@
 <!DOCTYPE html>
 <html lang="th">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CDD Women Fund – ข้อมูลจังหวัด</title>
+        <meta charset="UTF-8" />
+    <title>CDD Women Fund Province 2569</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap" rel="stylesheet" />
 
-    <!-- Font -->
-    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css" />
+    <link rel="stylesheet" href="https://cdn.datatables.net/fixedheader/3.4.0/css/fixedHeader.dataTables.min.css" />
 
-    <!-- DataTables -->
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css">
-    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
-
-    <!-- Style -->
     <style>
         body {
-            font-family: "Sarabun", sans-serif;
-            background: #f8f9fa;
+            font-family: 'Sarabun', sans-serif;
             margin: 0;
-            padding: 0;
+            background: linear-gradient(to bottom right, #fce4ec, #f3e5f5);
+            color: #000;
         }
 
-        header {
-            background: #ffffff;
-            padding: 15px 20px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        .dashboard-container {
+            padding: 40px;
+            background-color: rgba(255, 255, 255, 0.95);
+            width: 100%;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+
+        .header {
             display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
             flex-wrap: wrap;
-            align-items: center;
-            gap: 10px;
         }
 
-        header h2 {
+        .header-text h1 {
             margin: 0;
-            font-size: 20px;
-            font-weight: bold;
-            flex: 1 1 100%;
+            font-size: 2.5rem;
         }
 
-        header select {
-            padding: 6px 10px;
-            border-radius: 6px;
-            border: 1px solid #ccc;
-            font-size: 14px;
-            background: white;
+        .header-text h2 {
+            margin: 0;
+            font-size: 1.5rem;
         }
 
-        header button {
-            padding: 6px 16px;
-            background: #0d6efd;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-        }
-
-        header button:hover {
-            background: #084298;
-        }
-
-        /* Summary Cards */
-        .summary-container {
+        .cards {
             display: flex;
+            gap: 20px;
+            margin-top: 30px;
             flex-wrap: wrap;
-            gap: 15px;
-            margin: 20px;
         }
 
         .card {
-            flex: 1 1 calc(25% - 15px);
-            background: white;
+            flex: 1;
+            min-width: 200px;
             padding: 20px;
-            border-radius: 15px;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        .card h3 {
-            margin: 0 0 10px;
-            font-size: 18px;
-            color: #333;
-        }
-
-        .card p {
-            margin: 5px 0;
-            font-size: 16px;
+            border-radius: 12px;
+            color: white;
             font-weight: bold;
         }
 
-        /* Table */
-        .table-container {
-            margin: 20px;
-            background: white;
-            padding: 20px;
-            border-radius: 15px;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        .card .value {
+            font-size: 1.75rem;
+            color: black;
+            margin-top: 10px;
+            font-weight: normal;
+            white-space: nowrap;
+        }
+
+        .pink {
+            background-color: #e91e63;
+        }
+
+        .light-pink {
+            background-color: #f8bbd0;
+        }
+
+        .orange {
+            background-color: #ff9800;
+        }
+
+        .deep-pink {
+            background-color: #f06292;
         }
 
         table.dataTable {
             width: 100% !important;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+            color: black;
         }
 
-        /* Responsive Fix */
-        @media (max-width: 768px) {
-            .summary-container {
-                flex-direction: column;
-            }
+        table.dataTable th,
+        table.dataTable td {
+            border: 1px solid #ccc;
+            padding: 4px 6px;
+            text-align: center;
+            vertical-align: middle;
+            white-space: nowrap;
+        }
 
-            .card {
-                flex: 1 1 100%;
-            }
+        table.dataTable thead th {
+            background-color: #f06292;
+            color: black;
+            font-weight: bold;
+        }
 
-            header {
-                flex-direction: column;
-                align-items: flex-start;
-            }
+        .filter-container {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: flex-end;
+            gap: 15px;
+            padding: 15px;
+            background-color: #f8bbd0;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            margin-top: 20px;
+        }
 
-            header select,
-            header button {
-                width: 100%;
-            }
+        .filter-item {
+            display: flex;
+            flex-direction: column;
+            min-width: 160px;
+            flex-grow: 1;
+        }
+
+        .filter-item label {
+            font-weight: bold;
+            font-size: 0.8rem;
+            margin-bottom: 4px;
+            color: #333;
+        }
+
+        .filter-item select {
+            width: 100%;
+            padding: 6px;
+            border: 1px solid #aaa;
+            border-radius: 4px;
+            font-family: 'Sarabun', sans-serif;
+            font-size: 0.85rem;
+            height: 35px;
+        }
+
+        .action-button-container {
+            display: flex;
+            gap: 10px;
+        }
+
+        button {
+            padding: 6px 15px;
+            border: none;
+            border-radius: 4px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        #btnResetFilter {
+            background-color: #d9534f;
+        }
+
+        #btnDownload {
+            background-color: #5cb85c;
         }
     </style>
 </head>
-
 <body>
+    <div class="dashboard-container"> ... (HTML body inserted here) ... </div>
 
-    <!-- Header -->
-    <header>
-        <h2>CDD Women Fund – ข้อมูลจังหวัด</h2>
-
-        <label>จังหวัด:</label>
-        <select id="provinceSelect">
-            <option value="">-- เลือกจังหวัด --</option>
-        </select>
-
-        <button id="export-data">Export CSV</button>
-    </header>
-
-    <!-- Summary Cards -->
-    <div class="summary-container">
-        <div class="card">
-            <h3>สรุปข้อมูลทั้งหมดในจังหวัด</h3>
-            <p id="total-count">-</p>
-            <p id="total-sum">-</p>
-        </div>
-
-        <div class="card">
-            <h3>ตาย</h3>
-            <p id="dead-count">-</p>
-            <p id="dead-sum">-</p>
-        </div>
-
-        <div class="card">
-            <h3>พิการทุพพลภาพ</h3>
-            <p id="old-count">-</p>
-            <p id="old-sum">-</p>
-        </div>
-
-        <div class="card">
-            <h3>ป่วยเรื้อรังภาระพึ่งพิง</h3>
-            <p id="sick-count">-</p>
-            <p id="sick-sum">-</p>
-        </div>
-
-        <div class="card">
-            <h3>พิการและป่วยเรื้อรัง</h3>
-            <p id="special-count">-</p>
-            <p id="special-sum">-</p>
-        </div>
-
-        <div class="card">
-            <h3>ทุจริต/ติดคดีความ</h3>
-            <p id="criminal-count">-</p>
-            <p id="criminal-sum">-</p>
-        </div>
-    </div>
-
-    <!-- Table -->
-    <div class="table-container">
-        <table id="dataTable" class="display nowrap">
-            <thead>
-                <tr>
-                    <th>ลำดับ</th>
-                    <th>ข้อมูล</th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
-    </div>
-
-    <!-- jQuery & DataTables -->
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
-    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
-
-    <!-- External JS -->
     <script src="test5.js"></script>
-
 </body>
-
 </html>
