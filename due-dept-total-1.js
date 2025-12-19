@@ -239,11 +239,11 @@ function renderGrandTotal(data, month, fiscalYear) {
       </div>
       <div class="data-row">
         <span>เงินต้นรับคืนรวม</span>
-        <span>${formatCurrency(total.r)}</span>
+        <span>${(total.r).toLocaleString('en-US')}</span>
       </div>
       <div class="data-row">
         <span>เงินต้นที่คาดว่าจะได้รับรวม</span>
-        <span>${formatCurrency(total.e)}</span>
+        <span>${(total.e).toLocaleString('en-US')}</span>
       </div>
     </div>`;
 }
