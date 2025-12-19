@@ -2,23 +2,24 @@ const API_URL = "https://script.google.com/macros/s/AKfycbwwxjRdiPSd7SOuZAOO5OmW
 
 let originalData = [];
 let summary = {};
+let allData = [], filteredData = [], originalSummary = null;
 
+const formatNumber = v => isNaN(parseFloat(v)) ? "-" : parseFloat(v).toLocaleString("th-TH", { minimumFractionDigits: 2 });
+const formatPercent = v => isNaN(parseFloat(v)) ? "-" : `${parseFloat(v).toFixed(2)}%`;
+
+/* --------------------------- Load Data ---------------------------- */
 async function loadData() {
     try {
-        const res = await fetch(API_URL);
+        const res = await fetch("URL_API");
         const json = await res.json();
 
-        // เก็บสรุป
         summary = json.summary;
 
-        // ตัดภาพรวมจังหวัดออก
         originalData = (json.data || []).filter(r => r["ลำดับ"] !== "ภาพรวมจังหวัด");
 
-        // โหลด dropdown
         loadDistrictOptions(originalData);
         loadSubDistrictOptions(originalData);
 
-        // render
         renderTable(originalData);
         updateSummaryFromFiltered(originalData);
         updateSummaryCards(summary);
@@ -27,18 +28,6 @@ async function loadData() {
         console.error("เกิดข้อผิดพลาดในการโหลดข้อมูล", err);
     }
 }
-
-
-let allData = [], filteredData = [], dataTable, originalSummary = null;
-
-const formatNumber = v =>
-    isNaN(parseFloat(v)) ? "-" :
-        parseFloat(v).toLocaleString("th-TH", { minimumFractionDigits: 2 });
-
-const formatPercent = v =>
-    isNaN(parseFloat(v)) ? "-" :
-        `${parseFloat(v).toFixed(2)}%`;
-
 
 $(document).ready(async function () {
     const province = new URLSearchParams(window.location.search).get("province");
@@ -56,8 +45,7 @@ $(document).ready(async function () {
     await fetchData(province);
 });
 
-
-
+/* ---------------------- Fetch API ----------------------- */
 async function fetchData(province) {
     try {
         const res = await fetch(`${API_URL}?province=${encodeURIComponent(province)}`);
@@ -72,7 +60,6 @@ async function fetchData(province) {
 
         renderTable(allData);
         updateSummaryFromFiltered(allData);
-
         setupFilters(allData);
 
     } catch (err) {
@@ -80,11 +67,7 @@ async function fetchData(province) {
     }
 }
 
-
-
-// =====================================================
-// Render DataTable
-// =====================================================
+/* ---------------------- Render Table ---------------------- */
 function renderTable(data) {
     const table = $("#detailsTable");
 
@@ -94,9 +77,7 @@ function renderTable(data) {
 
     let indexCounter = 1;
     data = data.map(row => {
-        if (row["ลำดับ"] === "ภาพรวมจังหวัด") {
-            return { ...row, _index: "ภาพรวมจังหวัด" };
-        }
+        if (row["ลำดับ"] === "ภาพรวมจังหวัด") return { ...row, _index: "ภาพรวมจังหวัด" };
         return { ...row, _index: indexCounter++ };
     });
 
@@ -122,20 +103,11 @@ function renderTable(data) {
     table.DataTable({
         scrollX: true,
         pageLength: 10,
-        columnDefs: [
-            {
-                targets: 0,
-                type: "custom-ladub"
-            }
-        ]
+        columnDefs: [{ targets: 0, type: "custom-ladub" }]
     });
 }
 
-
-
-// =====================================================
-// Filters
-// =====================================================
+/* ---------------------- Filters ---------------------- */
 function setupFilters(data) {
 
     const keys = ["อำเภอ/เขต", "ตำบล", "ปีงบประมาณ", "สถานะโครงการ"];
@@ -159,19 +131,14 @@ function setupFilters(data) {
             const key = $(this).data("key");
             const current = String($(this).val() || "");
 
-            let options = [...new Set(filtered
-                .map(r => r[key])
-                .filter(v => v !== undefined && v !== null)
-            )].map(v => String(v));
+            let options = [...new Set(filtered.map(r => r[key]).filter(v => v != null))].map(v => String(v));
 
             $(this).html(
                 `<option value="">-- ทั้งหมด --</option>` +
                 options.map(v => `<option value="${v}">${v}</option>`).join("")
             );
 
-            if (current && options.includes(current)) {
-                $(this).val(current);
-            }
+            if (current && options.includes(current)) $(this).val(current);
         });
     }
 
@@ -183,54 +150,41 @@ function setupFilters(data) {
         selects.each(function () {
             const key = $(this).data("key");
             const val = $(this).val();
-            if (val) {
-                filtered = filtered.filter(r => r[key] == val);
-            }
+
+            if (val) filtered = filtered.filter(r => r[key] == val);
         });
 
         filteredData = filtered;
-
-        renderTable(filtered);
-        updateSummaryFromFiltered(filtered);
+        renderTable(filteredData);
+        updateSummaryFromFiltered(filteredData);
         refreshDropdowns(filtered);
     }
 
     selects.on("change", filterData);
 }
 
-
-
-// =====================================================
-// Summary Cards
-// =====================================================
+/* ---------------------- Summary Cards ---------------------- */
 function updateSummaryCards(s) {
     s = s || {};
 
-    const safeNum = v => {
-        if (v === null || v === undefined || v === "") return 0;
-        const n = Number(v);
-        return Number.isFinite(n) ? n : 0;
-    };
+    const safeNum = v => Number.isFinite(Number(v)) ? Number(v) : 0;
+    const fmtNum = v => formatNumber(v);
+    const fmtPct = v => formatPercent(v);
 
-    const fmtNum = v => formatNumber ? formatNumber(v) : safeNum(v).toLocaleString();
-    const fmtPct = v => formatPercent ? formatPercent(v) : `${safeNum(v)}%`;
-
-    const setText = (id, text) => {
-        const el = document.getElementById(id);
-        if (!el) return;
-        el.textContent = text;
-    };
-
-    // ดึงค่าจาก summary
-    const totalProjects = safeNum(s.totalProjects);
+    const totalProjects = safeNum(s.totalProjects || s.numProjects);
     const approvedMoney = safeNum(s.approvedMoney);
     const debtStart = safeNum(s.debtStart);
     const debtNow = safeNum(s.debtNow);
     const overdue = safeNum(s.overdue);
-    const percentOverdue = safeNum(s.percentOverdue);
+    const percentOverdue = s.percentOverdue || 0;
     const legal = safeNum(s.legal);
 
-    setText("num-projects", totalProjects.toLocaleString());
+    const setText = (id, value) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = value;
+    };
+
+    setText("num-projects", totalProjects.toLocaleString("th-TH"));
     setText("approved-money", fmtNum(approvedMoney));
     setText("debt-start", fmtNum(debtStart));
     setText("debt-now", fmtNum(debtNow));
@@ -239,47 +193,29 @@ function updateSummaryCards(s) {
     setText("legal", fmtNum(legal));
 }
 
-
-
-// =====================================================
-// Summary from filtered data
-// =====================================================
+/* ---------------------- Summary (Filtered) ---------------------- */
 function updateSummaryFromFiltered(data) {
-
     data = data.filter(row => row["ลำดับ"] !== "ภาพรวมจังหวัด");
 
     let normalCount = 0, normalAmount = 0;
     let restructureCount = 0, restructureSum = 0;
-    let civilCount = 0, civilSum = 0, civilCount1 = 0, civilSum1 = 0, civilCount2 = 0, civilSum2 = 0;
+    let civilCount = 0, civilSum = 0, civil1C = 0, civil1S = 0, civil2C = 0, civil2S = 0;
 
-    let judgedCount = 0;
-    let judged3Count = 0, judged3Sum = 0;
-    let judged4Count = 0, judged4Sum = 0;
-    let judged5Count = 0, judged5Sum = 0;
-    let judgedSum = 0;
+    let judged = { count: 0, sum: 0, g3C: 0, g3S: 0, g4C: 0, g4S: 0, g5C: 0, g5S: 0 };
+    let criminalCount = 0, criminalSum = 0;
 
-    let criminalCount = 0;
-    let criminalSum = 0;
+    data.forEach(r => {
+        const g = parseFloat(r["ลูกหนี้คงเหลือ ณ ปัจจุบัน (ก)"]) || 0;
+        const kh = parseFloat(r["หนี้ยังไม่ถึงกำหนดชำระ (ข)"]) || 0;
+        const k = parseFloat(r["การไกล่เกลี่ยที่สามารถใช้บังคับคดีได้ (ค)"]) || 0;
+        const ng1 = parseFloat(r["พนักงานอัยการรับเรื่อง(ง1)"]) || 0;
+        const ng2 = parseFloat(r["ศาลประทับรับฟ้อง(ง2)"]) || 0;
+        const ng3 = parseFloat(r["ศาลได้มีคำพิพากษาให้ลูกหนี้ชำระหนี้(ง3)"]) || 0;
+        const ng4 = parseFloat(r["ศาลมีคำพิพากษาตามยอม(ง4)"]) || 0;
+        const ng5 = parseFloat(r["ป.วิ แพ่ง มาตรา 20 ตรี(ง5)"]) || 0;
+        const ng6 = parseFloat(r["ดำเนินคดีอาญา(ง6)"]) || 0;
 
-
-    data.forEach(row => {
-
-        const g = parseFloat(row["ลูกหนี้คงเหลือ ณ ปัจจุบัน (ก)"]) || 0;
-        const kh = parseFloat(row["หนี้ยังไม่ถึงกำหนดชำระ (ข)"]) || 0;
-        const k = parseFloat(row["การไกล่เกลี่ยที่สามารถใช้บังคับคดีได้ (ค)"]) || 0;
-        const ng = parseFloat(row["ลูกหนี้ที่ได้ดำเนินการตามกฎหมาย (ง)"]) || 0;
-        const b = parseFloat(row["จำนวนหนี้ที่เกินกำหนดชำระ (B)"]) || 0;
-
-        const ng1 = parseFloat(row["พนักงานอัยการรับเรื่อง(ง1)"]) || 0;
-        const ng2 = parseFloat(row["ศาลประทับรับฟ้อง(ง2)"]) || 0;
-
-        const ng3 = parseFloat(row["ศาลได้มีคำพิพากษาให้ลูกหนี้ชำระหนี้(ง3)"]) || 0;
-        const ng4 = parseFloat(row["ศาลมีคำพิพากษาตามยอม(ง4)"]) || 0;
-        const ng5 = parseFloat(row["ป.วิ แพ่ง มาตรา 20 ตรี(ง5)"]) || 0;
-
-        const ng6 = parseFloat(row["ดำเนินคดีอาญา(ง6)"]) || 0;
-
-        if (g > 0 && kh > 0 && k === 0 && ng === 0) {
+        if (g > 0 && kh > 0 && k === 0 && ng1 === 0 && ng2 === 0) {
             normalCount++;
             normalAmount += kh;
         }
@@ -292,24 +228,16 @@ function updateSummaryFromFiltered(data) {
         if (g > 0 && (ng1 > 0 || ng2 > 0)) {
             civilCount++;
             civilSum += (ng1 + ng2);
-
-            if (ng1 > 0) {
-                civilCount1++;
-                civilSum1 += ng1;
-            }
-            if (ng2 > 0) {
-                civilCount2++;
-                civilSum2 += ng2;
-            }
+            if (ng1 > 0) { civil1C++; civil1S += ng1; }
+            if (ng2 > 0) { civil2C++; civil2S += ng2; }
         }
 
         if (g > 0 && (ng3 > 0 || ng4 > 0 || ng5 > 0)) {
-            judgedCount++;
-            judgedSum += (ng3 + ng4 + ng5);
-
-            if (ng3 > 0) { judged3Count++; judged3Sum += ng3; }
-            if (ng4 > 0) { judged4Count++; judged4Sum += ng4; }
-            if (ng5 > 0) { judged5Count++; judged5Sum += ng5; }
+            judged.count++;
+            judged.sum += (ng3 + ng4 + ng5);
+            if (ng3 > 0) { judged.g3C++; judged.g3S += ng3; }
+            if (ng4 > 0) { judged.g4C++; judged.g4S += ng4; }
+            if (ng5 > 0) { judged.g5C++; judged.g5S += ng5; }
         }
 
         if (g > 0 && ng6 > 0) {
@@ -318,32 +246,30 @@ function updateSummaryFromFiltered(data) {
         }
     });
 
-    document.getElementById("normal-count").textContent = normalCount.toLocaleString();
-    document.getElementById("normal-amount").textContent = normalAmount.toLocaleString();
+    const set = (id, v) => document.getElementById(id).textContent = v;
 
-    document.getElementById("restructure-count").textContent = restructureCount.toLocaleString();
-    document.getElementById("restructure-sum").textContent = restructureSum.toLocaleString();
+    set("normal-count", normalCount.toLocaleString());
+    set("normal-amount", normalAmount.toLocaleString());
 
-    document.getElementById("civil-count").textContent = civilCount.toLocaleString();
-    document.getElementById("civil-prosecutor").textContent = `${civilCount1.toLocaleString()} / ${civilSum1.toLocaleString()}`;
-    document.getElementById("civil-court").textContent = `${civilCount2.toLocaleString()} / ${civilSum2.toLocaleString()}`;
-    document.getElementById("civil-sum").textContent = civilSum.toLocaleString();
+    set("restructure-count", restructureCount.toLocaleString());
+    set("restructure-sum", restructureSum.toLocaleString());
 
-    document.getElementById("judged-count").textContent = judgedCount.toLocaleString();
-    document.getElementById("judged-3").textContent = `${judged3Count} / ${judged3Sum.toLocaleString()}`;
-    document.getElementById("judged-4").textContent = `${judged4Count} / ${judged4Sum.toLocaleString()}`;
-    document.getElementById("judged-5").textContent = `${judged5Count} / ${judged5Sum.toLocaleString()}`;
-    document.getElementById("judged-sum").textContent = judgedSum.toLocaleString();
+    set("civil-count", civilCount.toLocaleString());
+    set("civil-prosecutor", `${civil1C} / ${civil1S.toLocaleString()}`);
+    set("civil-court", `${civil2C} / ${civil2S.toLocaleString()}`);
+    set("civil-sum", civilSum.toLocaleString());
 
-    document.getElementById("criminal-count").textContent = criminalCount.toLocaleString();
-    document.getElementById("criminal-sum").textContent = criminalSum.toLocaleString();
+    set("judged-count", judged.count.toLocaleString());
+    set("judged-3", `${judged.g3C} / ${judged.g3S.toLocaleString()}`);
+    set("judged-4", `${judged.g4C} / ${judged.g4S.toLocaleString()}`);
+    set("judged-5", `${judged.g5C} / ${judged.g5S.toLocaleString()}`);
+    set("judged-sum", judged.sum.toLocaleString());
+
+    set("criminal-count", criminalCount.toLocaleString());
+    set("criminal-sum", criminalSum.toLocaleString());
 }
 
-
-
-// =====================================================
-// Export Excel
-// =====================================================
+/* ---------------------- Export Excel ---------------------- */
 function downloadData() {
     const wb = XLSX.utils.book_new();
     const ws = XLSX.utils.json_to_sheet(allData);

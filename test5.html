@@ -1,10 +1,14 @@
 <!DOCTYPE html>
 <html lang="th">
+
 <head>
-        <meta charset="UTF-8" />
+    <meta charset="UTF-8" />
     <title>CDD Women Fund Province 2569</title>
+
+    <!-- Font -->
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap" rel="stylesheet" />
 
+    <!-- DataTables -->
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css" />
     <link rel="stylesheet" href="https://cdn.datatables.net/fixedheader/3.4.0/css/fixedHeader.dataTables.min.css" />
 
@@ -162,9 +166,150 @@
         }
     </style>
 </head>
-<body>
-    <div class="dashboard-container"> </div>
 
+<body>
+    <div class="dashboard-container">
+        <div class="header">
+            <div class="header-text">
+                <h1>
+                    <span style="color:navy;">CDD</span>
+                    <span style="color:deeppink;">Women</span>
+                    <span style="color:red;">Fund</span>
+                </h1>
+                <h2>
+                    <span style="color:black;">รายจังหวัด:</span>
+                    <span style="color:red;" id="province-title"></span>
+                </h2>
+            </div>
+
+            <div class="logo-container">
+                <img src="https://i.postimg.cc/507bjy9Z/cdd.png" width="60" height="100" />
+                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQZtkPBp_xmIFgEEmX2cyScE1QzabzZbtNdbQ&s"
+                    width="70" height="100" />
+            </div>
+        </div>
+
+        <div style="text-align:right;font-weight:bold;color:navy;margin-top:1rem;font-size:1.2rem;">
+            <span id="update-date">ข้อมูล ณ วันที่ -</span>
+        </div>
+
+        <!-- Summary Cards -->
+        <div class="cards">
+
+            <div class="card pink">
+                จำนวนโครงการ
+                <div class="value" id="num-projects">-</div>
+            </div>
+
+            <div class="card light-pink">
+                เงินอนุมัติ
+                <div class="value" id="approved-money">-</div>
+            </div>
+
+            <div class="card orange">
+                ลูกหนี้คงเหลือ ณ 1 ต.ค. 2568
+                <div class="value" id="debt-start">-</div>
+                ลูกหนี้ปัจจุบัน
+                <div class="value" id="debt-now">-</div>
+            </div>
+
+            <div class="card deep-pink">
+                หนี้เกินกำหนด
+                <div class="value" id="overdue">-</div>
+                ร้อยละ
+                <div class="value" id="percent-overdue">-</div>
+            </div>
+
+            <div class="card orange">
+                ดำเนินการตามกฎหมาย
+                <div class="value" id="legal">-</div>
+            </div>
+
+            <div class="card pink">
+                หนี้ปกติ (จำนวนโครงการ)
+                <div class="value" id="normal-count">-</div>
+                จำนวนเงินรวม (หนี้ยังไม่ถึงกำหนดชำระ)
+                <div class="value" id="normal-amount">-</div>
+            </div>
+
+            <div class="card light-pink">
+                หนี้ปรับโครงสร้าง (ค) – จำนวนโครงการ
+                <div class="value" id="restructure-count">-</div>
+                ผลรวมยอด “การไกล่เกลี่ย (ค)”
+                <div class="value" id="restructure-sum">-</div>
+            </div>
+
+            <div class="card orange">
+                หนี้ที่อยู่ระหว่างดำเนินคดีแพ่ง – จำนวนโครงการ (ง1,ง2)
+                <div class="value" id="civil-count">-</div>
+
+                พนักงานอัยการรับเรื่อง (ง1)
+                <div class="value" id="civil-prosecutor">-</div>
+
+                ศาลประทับรับฟ้อง (ง2)
+                <div class="value" id="civil-court">-</div>
+
+                จำนวนเงินรวม (ง1,ง2)
+                <div class="value" id="civil-sum">-</div>
+            </div>
+
+            <div class="card deep-pink">
+                หนี้ที่มีคำพิพากษาแล้ว – จำนวนโครงการ (ง3,ง4,ง5)
+                <div class="value" id="judged-count">-</div>
+
+                ศาลพิพากษาให้ชำระหนี้ (ง3)
+                <div class="value" id="judged-3">-</div>
+
+                ศาลพิพากษาตามยอม (ง4)
+                <div class="value" id="judged-4">-</div>
+
+                ป.วิ แพ่ง มาตรา 20 ตรี (ง5)
+                <div class="value" id="judged-5">-</div>
+
+                จำนวนเงินรวม (ง3,ง4,ง5)
+                <div class="value" id="judged-sum">-</div>
+            </div>
+
+            <div class="card orange">
+                หนี้ที่อยู่ระหว่างดำเนินคดีอาญา – จำนวนโครงการ
+                <div class="value" id="criminal-count">-</div>
+
+                จำนวนเงินรวม (ง6)
+                <div class="value" id="criminal-sum">-</div>
+            </div>
+        </div>
+
+        <h3>ตัวกรองข้อมูล</h3>
+        <div id="filter-section" class="filter-container"></div>
+
+        <div class="filter-container">
+            <div class="filter-item">
+                <label for="downloadType">ดาวน์โหลดข้อมูล:</label>
+                <select id="downloadType">
+                    <option value="excel">Excel</option>
+                </select>
+            </div>
+            <div class="action-button-container">
+                <button id="btnDownload">ดาวน์โหลด</button>
+                <button id="btnResetFilter">ล้างตัวกรอง</button>
+            </div>
+        </div>
+
+        <h3>ตารางรายละเอียดข้อมูลโครงการรายอำเภอ</h3>
+        <table id="detailsTable" class="display" style="width:100%">
+            <thead></thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+    <!-- Load your JS -->
     <script src="test5.js"></script>
+
 </body>
+
 </html>
