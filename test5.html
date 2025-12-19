@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CDD Women Fund – ข้อมูลจังหวัด</title>
+
+    <!-- Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap" rel="stylesheet">
+
+    <!-- DataTables -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
+
+    <!-- Style -->
+    <style>
+        body {
+            font-family: "Sarabun", sans-serif;
+            background: #f8f9fa;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background: #ffffff;
+            padding: 15px 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 10px;
+        }
+
+        header h2 {
+            margin: 0;
+            font-size: 20px;
+            font-weight: bold;
+            flex: 1 1 100%;
+        }
+
+        header select {
+            padding: 6px 10px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            font-size: 14px;
+            background: white;
+        }
+
+        header button {
+            padding: 6px 16px;
+            background: #0d6efd;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        header button:hover {
+            background: #084298;
+        }
+
+        /* Summary Cards */
+        .summary-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin: 20px;
+        }
+
+        .card {
+            flex: 1 1 calc(25% - 15px);
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .card h3 {
+            margin: 0 0 10px;
+            font-size: 18px;
+            color: #333;
+        }
+
+        .card p {
+            margin: 5px 0;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        /* Table */
+        .table-container {
+            margin: 20px;
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        table.dataTable {
+            width: 100% !important;
+        }
+
+        /* Responsive Fix */
+        @media (max-width: 768px) {
+            .summary-container {
+                flex-direction: column;
+            }
+
+            .card {
+                flex: 1 1 100%;
+            }
+
+            header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            header select,
+            header button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Header -->
+    <header>
+        <h2>CDD Women Fund – ข้อมูลจังหวัด</h2>
+
+        <label>จังหวัด:</label>
+        <select id="provinceSelect">
+            <option value="">-- เลือกจังหวัด --</option>
+        </select>
+
+        <button id="export-data">Export CSV</button>
+    </header>
+
+    <!-- Summary Cards -->
+    <div class="summary-container">
+        <div class="card">
+            <h3>สรุปข้อมูลทั้งหมดในจังหวัด</h3>
+            <p id="total-count">-</p>
+            <p id="total-sum">-</p>
+        </div>
+
+        <div class="card">
+            <h3>ตาย</h3>
+            <p id="dead-count">-</p>
+            <p id="dead-sum">-</p>
+        </div>
+
+        <div class="card">
+            <h3>พิการทุพพลภาพ</h3>
+            <p id="old-count">-</p>
+            <p id="old-sum">-</p>
+        </div>
+
+        <div class="card">
+            <h3>ป่วยเรื้อรังภาระพึ่งพิง</h3>
+            <p id="sick-count">-</p>
+            <p id="sick-sum">-</p>
+        </div>
+
+        <div class="card">
+            <h3>พิการและป่วยเรื้อรัง</h3>
+            <p id="special-count">-</p>
+            <p id="special-sum">-</p>
+        </div>
+
+        <div class="card">
+            <h3>ทุจริต/ติดคดีความ</h3>
+            <p id="criminal-count">-</p>
+            <p id="criminal-sum">-</p>
+        </div>
+    </div>
+
+    <!-- Table -->
+    <div class="table-container">
+        <table id="dataTable" class="display nowrap">
+            <thead>
+                <tr>
+                    <th>ลำดับ</th>
+                    <th>ข้อมูล</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <!-- jQuery & DataTables -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+
+    <!-- External JS -->
+    <script src="test5.js"></script>
+
+</body>
+
+</html>
