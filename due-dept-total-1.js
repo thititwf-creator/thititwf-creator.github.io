@@ -197,8 +197,8 @@ function renderTable(data) {
       <tr>
         <td class="province-link">${d.province}</td>
 
-        <td>${formatCurrency(d.totalExpected)}</td>
-        <td>${formatCurrency(d.totalReturned)}</td>
+        <td>${(d.totalExpected).toLocaleString('en-US')}</td>
+        <td>${(d.totalReturned).toLocaleString('en-US')}</td>
         <td>${d.percentage.toFixed(2)}%</td>
 
       <!--  <td>${formatCurrency(d.expectedAll)}</td>
@@ -231,10 +231,10 @@ function renderGrandTotal(data, month, fiscalYear) {
         <span>ภาพรวม ${month} (ปีงบ ${fiscalYear}) </span>
       </div> -->
       <div class="card-header">
-        <span>โครงการที่มีกำหนดชำระจำนวน ${(total.pu).toLocaleString('en-US')} โครงการ ทั้งหมด ${(total.pt).toLocaleString('en-US')} โครงการ</span>
+        <span>โครงการที่มีกำหนดชำระจำนวน ${(total.pu).toLocaleString('en-US')} โครงการ จาก ${(total.pt).toLocaleString('en-US')} โครงการ</span>
       </div>
       <div class="data-row">
-        <span>ร้อยละการรับชำระคืนทั้งประเทศ</span>
+        <span>คิดเป็นร้อยละการรับชำระคืนทั้งหมด</span>
         <span>${calcPercent(total.r, total.e).toFixed(2)}%</span>
       </div>
       <div class="data-row">
@@ -242,7 +242,7 @@ function renderGrandTotal(data, month, fiscalYear) {
         <span>${formatCurrency(total.r)}</span>
       </div>
       <div class="data-row">
-        <span>เงินต้นที่คาดว่าจะได้รับ</span>
+        <span>เงินต้นที่คาดว่าจะได้รับรวม</span>
         <span>${formatCurrency(total.e)}</span>
       </div>
     </div>`;
