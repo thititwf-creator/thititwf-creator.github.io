@@ -196,7 +196,7 @@ function updateSummaryCards(s) {
 /* ---------------------- Summary (Filtered) ---------------------- */
 function updateSummaryFromFiltered(data) {
     data = data.filter(row => row["ลำดับ"] !== "ภาพรวมจังหวัด");
-
+    let overdueCount = 0, overdueAmount = 0;
     let normalCount = 0, normalAmount = 0;
     let restructureCount = 0, restructureSum = 0;
     let civilCount = 0, civilSum = 0, civil1C = 0, civil1S = 0, civil2C = 0, civil2S = 0;
@@ -253,6 +253,8 @@ function updateSummaryFromFiltered(data) {
     });
 
     const set = (id, v) => document.getElementById(id).textContent = v;
+    set("overdue-count",overdueCount.toLocaleString());
+    set("overdue-count",overdueAmount.toLocaleString());
 
     set("normal-count", normalCount.toLocaleString());
     set("normal-amount", normalAmount.toLocaleString());
