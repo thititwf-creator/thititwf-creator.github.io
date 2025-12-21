@@ -195,18 +195,18 @@ function updateView() {
     svgDoc.querySelectorAll(".map-pin").forEach(el => el.remove());
 
     // ฟังก์ชันวางหมุดเข็ม + ตัวเลขบนหมุด
-    function addPin(path, rank, type) {
+    function addPin(path, rank, type, rowData) {
         const bbox = path.getBBox();
 
-        // ขนาดหมุดใหม่
-        const pinSize = 52;     // เดิม 40
+        const pinSize = 52;
         const pinHalf = pinSize / 2;
 
-        // ตำแหน่งใหม่นิดหน่อยให้สมดุล
         const pinX = bbox.x + bbox.width / 2 - pinHalf;
-        const pinY = bbox.y + bbox.height / 2 - pinSize + 8; // ขยับลง 8px ให้หมุดดูพอดีขึ้น
+        const pinY = bbox.y + bbox.height / 2 - pinSize + 8;
 
-        // pin SVG
+        // -----------------------------------------------------
+        // หมุด (SVG image)
+        // -----------------------------------------------------
         const pin = document.createElementNS("http://www.w3.org/2000/svg", "image");
         pin.setAttribute("href", type === "top" ? "map/pin-green.svg" : "map/pin-red.svg");
         pin.setAttribute("width", pinSize);
@@ -217,19 +217,56 @@ function updateView() {
 
         svgDoc.appendChild(pin);
 
-        // -------- ตัวเลขบนหมุด (ใหญ่ขึ้น) --------
+        // -----------------------------------------------------
+        // หมายเลขบนหมุด
+        // -----------------------------------------------------
         const label = document.createElementNS("http://www.w3.org/2000/svg", "text");
         label.setAttribute("x", bbox.x + bbox.width / 2);
-        label.setAttribute("y", pinY + pinSize / 2 + 4); // ขยับเลขลงให้กลางหัวหมุด
+        label.setAttribute("y", pinY + pinSize / 2 + 4);
         label.setAttribute("text-anchor", "middle");
-        label.setAttribute("font-size", "20");           // เดิม 16
+        label.setAttribute("font-size", "20");
         label.setAttribute("font-weight", "bold");
         label.setAttribute("fill", "#fff");
         label.setAttribute("class", "map-pin");
         label.textContent = rank;
 
         svgDoc.appendChild(label);
+
+        // =====================================================
+        // ⭐ พื้นที่รับ hover สำหรับ tooltip บนหมุด
+        // (transparent rect)
+        // =====================================================
+        const hitbox = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+        hitbox.setAttribute("x", pinX);
+        hitbox.setAttribute("y", pinY);
+        hitbox.setAttribute("width", pinSize);
+        hitbox.setAttribute("height", pinSize);
+        hitbox.setAttribute("fill", "rgba(0,0,0,0)"); // โปร่งใส
+        hitbox.setAttribute("class", "map-pin");
+
+        svgDoc.appendChild(hitbox);
+
+        // -----------------------------------------------------
+        // Tooltip event (เฉพาะหมุด)
+        // -----------------------------------------------------
+        hitbox.onmousemove = (e) => {
+            const rect = document.querySelector(".map-area").getBoundingClientRect();
+
+            tooltip.style.display = "block";
+            tooltip.style.left = (e.clientX - rect.left + 12) + "px";
+            tooltip.style.top = (e.clientY - rect.top + 12) + "px";
+
+            tooltip.innerHTML = `
+            <b>${rank}. ${rowData["จังหวัด"]}</b><br>
+            ค่า 1: ${Number(Object.values(rowData)[3] || 0).toLocaleString()}<br>
+            ค่า 2: ${Number(Object.values(rowData)[4] || 0).toLocaleString()}<br>
+            ${percentKey}: ${Number(rowData[percentKey]).toFixed(2)}%
+        `;
+        };
+
+        hitbox.onmouseleave = () => tooltip.style.display = "none";
     }
+
 
 
     // ปักหมุด Top 5 → pin-green.svg
