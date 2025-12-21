@@ -60,14 +60,27 @@ function initFilters() {
 
 /* สี */
 function colorScale(rank, green) {
-    const greens = ["#0a8f3c", // เข้มสุด (มาก)
-        "#32b45a",
-        "#6fd27a",
-        "#a8e6a1",
-        "#d0f0c0"]; // อ่อนสุด (น้อย)
-    const reds = ["#f6c1c1", "#f19a9a", "#e55c5c", "#c93030", "#8f0a0a"];
-    return green ? greens[rank] : reds[rank];
+    // Blue scale (เข้ม → อ่อน)
+    const blues = [
+        "#0a3d91", // เข้มสุด
+        "#1f5fbf",
+        "#4b84d9",
+        "#8ab1f0",
+        "#c7dcff"  // อ่อนสุด
+    ];
+
+    // Gray scale (อ่อน → เข้ม)
+    const grays = [
+        "#d9d9d9",
+        "#bfbfbf",
+        "#8c8c8c",
+        "#595959",
+        "#262626"
+    ];
+
+    return green ? blues[rank] : grays[rank];
 }
+
 
 /* อัปเดตทั้งหมด */
 function updateView() {
