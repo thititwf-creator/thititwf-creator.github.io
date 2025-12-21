@@ -86,15 +86,13 @@ function updateView() {
     //  จัดอันดับตามประเภท
     // ------------------------------
     if (type === "overdue") {
-        // overdue → % น้อย = ดี → sort จากน้อย → มาก
         rows.sort((a, b) => parseFloat(a[percentKey]) - parseFloat(b[percentKey]));
     } else {
-        // due / disburse → % มาก = ดี → sort จากมาก → น้อย
         rows.sort((a, b) => parseFloat(b[percentKey]) - parseFloat(a[percentKey]));
     }
 
-    const top5 = rows.slice(0, 5);       // ดีสุด
-    const bottom5 = rows.slice(-5);      // แย่สุด
+    const top5 = rows.slice(0, 5);
+    const bottom5 = rows.slice(-5);
 
     // ------------------------------
     //  อัปเดตตาราง
@@ -135,27 +133,13 @@ function updateView() {
         let color = "#eee";
 
         if (rowTop) {
-            // จังหวัดดีสุด
-            if (type === "overdue") {
-                color = colorScale(top5.indexOf(rowTop), true);   // overdue: % น้อยดี
-            } else {
-                color = colorScale(top5.indexOf(rowTop), true);   // due/disburse: % มากดี
-            }
-
+            color = colorScale(top5.indexOf(rowTop), true);
         } else if (rowBottom) {
-            // จังหวัดแย่สุด
-            if (type === "overdue") {
-                color = colorScale(bottom5.indexOf(rowBottom), false);
-            } else {
-                color = colorScale(bottom5.indexOf(rowBottom), false);
-            }
+            color = colorScale(bottom5.indexOf(rowBottom), false);
         }
 
         p.style.fill = color;
 
-        // ------------------------------
-        //  Tooltip
-        // ------------------------------
         const row = rowTop || rowBottom;
         p.onmousemove = e => {
             if (!row) return;
@@ -180,46 +164,58 @@ function updateView() {
     });
 
     // ==========================================================
-    //  ⭐ เพิ่มหมุดเฉพาะ Top 5 บนแผนที่ ⭐
+    // ⭐ ปักหมุดแบบเข็ม บน Top 5 (สีน้ำเงิน) + Bottom 5 (สีแดง)
     // ==========================================================
 
-    // ลบหมุดเก่าก่อนทุกครั้ง
-    svgDoc.querySelectorAll(".rank-label").forEach(el => el.remove());
+    // ลบหมุดเก่าก่อน
+    svgDoc.querySelectorAll(".map-pin").forEach(el => el.remove());
 
-    // ฟังก์ชันวางเลขอันดับบน path
-    function addRankLabel(path, rank) {
+    // ฟังก์ชันวางหมุดเข็ม + ตัวเลขบนหมุด
+    function addPin(path, rank, type) {
         const bbox = path.getBBox();
 
+        // pin SVG
+        const pin = document.createElementNS("http://www.w3.org/2000/svg", "image");
+        pin.setAttribute("href", type === "top" ? "pin-blue.svg" : "pin-red.svg");
+        pin.setAttribute("width", 40);
+        pin.setAttribute("height", 40);
+        pin.setAttribute("x", bbox.x + bbox.width / 2 - 20);
+        pin.setAttribute("y", bbox.y + bbox.height / 2 - 40);
+        pin.setAttribute("class", "map-pin");
+
+        svgDoc.appendChild(pin);
+
+        // ตัวเลข
         const label = document.createElementNS("http://www.w3.org/2000/svg", "text");
         label.setAttribute("x", bbox.x + bbox.width / 2);
-        label.setAttribute("y", bbox.y + bbox.height / 2);
+        label.setAttribute("y", bbox.y + bbox.height / 2 - 13);
         label.setAttribute("text-anchor", "middle");
-        label.setAttribute("dominant-baseline", "middle");
-        label.setAttribute("font-size", "28");
+        label.setAttribute("font-size", "16");
         label.setAttribute("font-weight", "bold");
-        label.setAttribute("fill", "#000");
-        label.setAttribute("class", "rank-label");
+        label.setAttribute("fill", "#fff");
+        label.setAttribute("class", "map-pin");
         label.textContent = rank;
 
         svgDoc.appendChild(label);
     }
 
-    // ปักหมุดเฉพาะ Top 5
+    // ปักหมุด Top 5 → pin-blue.svg
     top5.forEach((r, i) => {
         const pv = r["จังหวัด"];
         const pathId = Object.keys(mapping_pv).find(k => mapping_pv[k] === pv);
-        if (!pathId) return;
-
         const path = svgDoc.querySelector(`path#${pathId}`);
-        if (!path) return;
-
-        addRankLabel(path, i + 1);   // 1–5
+        if (path) addPin(path, i + 1, "top");
     });
 
+    // ปักหมุด Bottom 5 → pin-red.svg
+    bottom5.forEach((r, i) => {
+        const pv = r["จังหวัด"];
+        const rank = rows.length - 5 + i + 1;
+        const pathId = Object.keys(mapping_pv).find(k => mapping_pv[k] === pv);
+        const path = svgDoc.querySelector(`path#${pathId}`);
+        if (path) addPin(path, rank, "bottom");
+    });
 }
-
-
-
 
 /* events */
 typeSelect.onchange = () => loadCSV(typeSelect.value);
