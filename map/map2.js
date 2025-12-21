@@ -234,9 +234,7 @@ function updateView() {
         const pinX = bbox.x + bbox.width / 2 - pinHalf;
         const pinY = bbox.y + bbox.height / 2 - pinSize + 8;
 
-        // -----------------------------------------------------
-        // หมุด (SVG image)
-        // -----------------------------------------------------
+        // --- Pin image ---
         const pin = document.createElementNS("http://www.w3.org/2000/svg", "image");
         pin.setAttribute("href", type === "top" ? "map/pin-green.svg" : "map/pin-red.svg");
         pin.setAttribute("width", pinSize);
@@ -244,12 +242,9 @@ function updateView() {
         pin.setAttribute("x", pinX);
         pin.setAttribute("y", pinY);
         pin.setAttribute("class", "map-pin");
-
         svgDoc.appendChild(pin);
 
-        // -----------------------------------------------------
-        // หมายเลขบนหมุด
-        // -----------------------------------------------------
+        // --- Pin label ---
         const label = document.createElementNS("http://www.w3.org/2000/svg", "text");
         label.setAttribute("x", bbox.x + bbox.width / 2);
         label.setAttribute("y", pinY + pinSize / 2 + 4);
@@ -259,27 +254,20 @@ function updateView() {
         label.setAttribute("fill", "#fff");
         label.setAttribute("class", "map-pin");
         label.textContent = rank;
-
         svgDoc.appendChild(label);
 
-        // =====================================================
-        // ⭐ พื้นที่รับ hover สำหรับ tooltip บนหมุด
-        // (transparent rect)
-        // =====================================================
+        // --- Hitbox (transparent) ---
         const hitbox = document.createElementNS("http://www.w3.org/2000/svg", "rect");
         hitbox.setAttribute("x", pinX);
         hitbox.setAttribute("y", pinY);
         hitbox.setAttribute("width", pinSize);
         hitbox.setAttribute("height", pinSize);
-        hitbox.setAttribute("fill", "rgba(0,0,0,0)"); // โปร่งใส
+        hitbox.setAttribute("fill", "transparent");
         hitbox.setAttribute("class", "map-pin");
-
         svgDoc.appendChild(hitbox);
 
-        // -----------------------------------------------------
-        // Tooltip event (เฉพาะหมุด)
-        // -----------------------------------------------------
-        hitbox.onmousemove = (e) => {
+        // ⭐ FIXED: Tooltip event ใหม่
+        hitbox.addEventListener("mousemove", (e) => {
             e.stopPropagation();
 
             const rect = document.querySelector(".map-area").getBoundingClientRect();
@@ -289,17 +277,19 @@ function updateView() {
             tooltip.style.top = (e.clientY - rect.top + 12) + "px";
 
             tooltip.innerHTML = `
-        <b>${rank}. ${rowData["จังหวัด"]}</b><br>
-        เงินต้นที่คาด : ${Number(Object.values(rowData)[3] || 0).toLocaleString()}<br>
-        เงินต้นที่รับคืน : ${Number(Object.values(rowData)[4] || 0).toLocaleString()}<br>
-        ${percentKey}: ${Number(rowData[percentKey]).toFixed(2)}%
-    `;
-        };
+            <b>${rank}. ${rowData["จังหวัด"]}</b><br>
+            เงินต้นที่คาด : ${Number(Object.values(rowData)[3] || 0).toLocaleString()}<br>
+            เงินต้นที่รับคืน : ${Number(Object.values(rowData)[4] || 0).toLocaleString()}<br>
+            ${percentKey}: ${Number(rowData[percentKey]).toFixed(2)}%
+        `;
+        });
 
-
-
-        hitbox.onmouseleave = () => tooltip.style.display = "none";
+        // ⭐ ป้องกัน tooltip ค้าง
+        hitbox.addEventListener("mouseleave", () => {
+            tooltip.style.display = "none";
+        });
     }
+
 
 
 
@@ -319,6 +309,16 @@ function updateView() {
         const path = svgDoc.querySelector(`path#${pathId}`);
         if (path) addPin(path, rank, "bottom");
     });
+    document.getElementById("map").addEventListener("mousemove", (e) => {
+
+        // ถ้า tooltip เปิดอยู่ และอยู่ในโหมด pin ให้จัดตำแหน่งใหม่เสมอ
+        if (tooltip.style.display === "block") {
+            const rect = document.querySelector(".map-area").getBoundingClientRect();
+            tooltip.style.left = (e.clientX - rect.left + 12) + "px";
+            tooltip.style.top = (e.clientY - rect.top + 12) + "px";
+        }
+    });
+
 }
 
 /* events */
