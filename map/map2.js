@@ -30,6 +30,16 @@ fetch("map/thailandHigh.svg")
 
         svgEl.setAttribute("preserveAspectRatio", "xMidYMid meet");
         svgDoc = svgEl;
+        // ⭐ ให้ map รองรับ tooltip จากทุกจุด (ไม่ต้อง hover path ก่อน)
+        document.getElementById("map").addEventListener("mousemove", () => {
+            // ถ้า tooltip เปิดอยู่ ให้ reposition ใหม่เสมอ
+            if (tooltip.style.display === "block") {
+                const rect = document.querySelector(".map-area").getBoundingClientRect();
+                tooltip.style.left = (event.clientX - rect.left + 12) + "px";
+                tooltip.style.top = (event.clientY - rect.top + 12) + "px";
+            }
+        });
+
     });
 
 
@@ -270,11 +280,7 @@ function updateView() {
         // Tooltip event (เฉพาะหมุด)
         // -----------------------------------------------------
         hitbox.onmousemove = (e) => {
-
-            // ⭐ หยุดไม่ให้ event จาก path ทำงานซ้ำ!
             e.stopPropagation();
-            // ⭐ สำคัญ: reset tooltip ทุกครั้งก่อนแสดงใหม่
-            tooltip.style.display = "none";
 
             const rect = document.querySelector(".map-area").getBoundingClientRect();
 
@@ -289,6 +295,7 @@ function updateView() {
         ${percentKey}: ${Number(rowData[percentKey]).toFixed(2)}%
     `;
         };
+
 
 
         hitbox.onmouseleave = () => tooltip.style.display = "none";
