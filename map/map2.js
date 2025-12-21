@@ -185,9 +185,10 @@ function updateView() {
             tooltip.style.top = (e.clientY - rect.top + 12) + "px";
 
             tooltip.innerHTML = `
-            <b>${rankText}${pv}</b><br>
-            เงินต้นที่คาด 1: ${Number(Object.values(row)[3] || 0).toLocaleString()}<br>
-            เงินต้นที่รับคืน 2: ${Number(Object.values(row)[4] || 0).toLocaleString()}<br>
+            <!-- <b>${rankText}${pv}</b><br>  -->
+            <b>${rank}. ${rowData["จังหวัด"]}</b><br>
+            เงินต้นที่คาด : ${Number(Object.values(row)[3] || 0).toLocaleString()}<br>
+            เงินต้นที่รับคืน : ${Number(Object.values(row)[4] || 0).toLocaleString()}<br>
             ${percentKey}: ${Number(row[percentKey]).toFixed(2)}%
         `;
         };
@@ -267,8 +268,8 @@ function updateView() {
 
             tooltip.innerHTML = `
             <b>${rank}. ${rowData["จังหวัด"]}</b><br>
-            เงินต้นที่คาด 1: ${Number(Object.values(rowData)[3] || 0).toLocaleString()}<br>
-            เงินต้นที่รับคืน 2: ${Number(Object.values(rowData)[4] || 0).toLocaleString()}<br>
+            เงินต้นที่คาด : ${Number(Object.values(rowData)[3] || 0).toLocaleString()}<br>
+            เงินต้นที่รับคืน : ${Number(Object.values(rowData)[4] || 0).toLocaleString()}<br>
             ${percentKey}: ${Number(rowData[percentKey]).toFixed(2)}%
         `;
         };
