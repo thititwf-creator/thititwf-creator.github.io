@@ -108,32 +108,43 @@ function updateView() {
     const bottom5 = rows.slice(-5);
 
     // ------------------------------
-    //  อัปเดตตาราง
+    //  อัปเดตตาราง (เวอร์ชันใหม่ แยกหัวข้อ Top5/Bottom5)
     // ------------------------------
     const tbody = document.querySelector("#mapTable tbody");
     tbody.innerHTML = "";
 
-    // Top 5
+    // ⭐ หัวตาราง Top 5
+    tbody.innerHTML += `
+<tr class="section-header"><td colspan="4">▶ Top 5 อันดับแรก</td></tr>
+`;
+
+    // ⭐ แถวข้อมูล Top 5
     top5.forEach((r, i) => {
         tbody.innerHTML += `
-        <tr>
-            <td>${i + 1}. ${r["จังหวัด"]}</td>
-            <td>${Number(Object.values(r)[3] || 0).toLocaleString()}</td>
-            <td>${Number(Object.values(r)[4] || 0).toLocaleString()}</td>
-            <td>${Number(r[percentKey]).toFixed(2)}</td>
-        </tr>`;
+    <tr>
+        <td>${i + 1}. ${r["จังหวัด"]}</td>
+        <td>${Number(Object.values(r)[3] || 0).toLocaleString()}</td>
+        <td>${Number(Object.values(r)[4] || 0).toLocaleString()}</td>
+        <td>${Number(r[percentKey]).toFixed(2)}</td>
+    </tr>`;
     });
 
-    // Bottom 5
+    // ⭐ หัวตาราง Bottom 5
+    tbody.innerHTML += `
+<tr class="section-header"><td colspan="4">▶ 5 อันดับสุดท้าย</td></tr>
+`;
+
+    // ⭐ แถวข้อมูล Bottom 5
     bottom5.forEach((r, i) => {
         tbody.innerHTML += `
-        <tr>
-            <td>${rows.length - 5 + i + 1}. ${r["จังหวัด"]}</td>
-            <td>${Number(Object.values(r)[3] || 0).toLocaleString()}</td>
-            <td>${Number(Object.values(r)[4] || 0).toLocaleString()}</td>
-            <td>${Number(r[percentKey]).toFixed(2)}</td>
-        </tr>`;
+    <tr>
+        <td>${rows.length - 5 + i + 1}. ${r["จังหวัด"]}</td>
+        <td>${Number(Object.values(r)[3] || 0).toLocaleString()}</td>
+        <td>${Number(Object.values(r)[4] || 0).toLocaleString()}</td>
+        <td>${Number(r[percentKey]).toFixed(2)}</td>
+    </tr>`;
     });
+
 
     // ------------------------------
     //  ลงสีบนแผนที่ + tooltip
