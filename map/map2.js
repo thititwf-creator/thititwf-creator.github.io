@@ -309,15 +309,6 @@ function updateView() {
         const path = svgDoc.querySelector(`path#${pathId}`);
         if (path) addPin(path, rank, "bottom");
     });
-    document.getElementById("map").addEventListener("mousemove", (e) => {
-
-        // ถ้า tooltip เปิดอยู่ และอยู่ในโหมด pin ให้จัดตำแหน่งใหม่เสมอ
-        if (tooltip.style.display === "block") {
-            const rect = document.querySelector(".map-area").getBoundingClientRect();
-            tooltip.style.left = (e.clientX - rect.left + 12) + "px";
-            tooltip.style.top = (e.clientY - rect.top + 12) + "px";
-        }
-    });
 
 }
 
