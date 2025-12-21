@@ -221,76 +221,40 @@ function updateView() {
 
     // ฟังก์ชันวางหมุดเข็ม + ตัวเลขบนหมุด
     function addPin(path, rank, type, rowData) {
-        const bbox = path.getBBox();
+    const bbox = path.getBBox();
 
-        const pinSize = 52;
-        const pinHalf = pinSize / 2;
+    const pinSize = 52;
+    const pinHalf = pinSize / 2;
 
-        const pinX = bbox.x + bbox.width / 2 - pinHalf;
-        const pinY = bbox.y + bbox.height / 2 - pinSize + 8;
+    const pinX = bbox.x + bbox.width / 2 - pinHalf;
+    const pinY = bbox.y + bbox.height / 2 - pinSize + 8;
 
-        // --- Pin image ---
-        const pin = document.createElementNS("http://www.w3.org/2000/svg", "image");
-        pin.setAttribute("href", type === "top" ? "map/pin-green.svg" : "map/pin-red.svg");
-        pin.setAttribute("width", pinSize);
-        pin.setAttribute("height", pinSize);
-        pin.setAttribute("x", pinX);
-        pin.setAttribute("y", pinY);
-        pin.setAttribute("class", "map-pin");
-        pin.style.pointerEvents = "none";
-        svgDoc.appendChild(pin);
+    // --- Pin image ---
+    const pin = document.createElementNS("http://www.w3.org/2000/svg", "image");
+    pin.setAttribute("href", type === "top" ? "map/pin-green.svg" : "map/pin-red.svg");
+    pin.setAttribute("width", pinSize);
+    pin.setAttribute("height", pinSize);
+    pin.setAttribute("x", pinX);
+    pin.setAttribute("y", pinY);
+    pin.setAttribute("class", "map-pin");
+    pin.style.pointerEvents = "none"; // ❗ ไม่ให้รับ hover ใด ๆ
+    svgDoc.appendChild(pin);
 
-        // --- Pin label ---
-        const label = document.createElementNS("http://www.w3.org/2000/svg", "text");
-        label.setAttribute("x", bbox.x + bbox.width / 2);
-        label.setAttribute("y", pinY + pinSize / 2 + 4);
-        label.setAttribute("text-anchor", "middle");
-        label.setAttribute("font-size", "20");
-        label.setAttribute("font-weight", "bold");
-        label.setAttribute("fill", "#fff");
-        label.setAttribute("class", "map-pin");
-        label.style.pointerEvents = "none";
-        label.textContent = rank;
-        svgDoc.appendChild(label);
+    // --- Pin label (number) ---
+    const label = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    label.setAttribute("x", bbox.x + bbox.width / 2);
+    label.setAttribute("y", pinY + pinSize / 2 + 4);
+    label.setAttribute("text-anchor", "middle");
+    label.setAttribute("font-size", "20");
+    label.setAttribute("font-weight", "bold");
+    label.setAttribute("fill", "#fff");
+    label.setAttribute("class", "map-pin");
+    label.style.pointerEvents = "none"; // ❗ ไม่ให้รับ hover
+    label.textContent = rank;
+    svgDoc.appendChild(label);
 
-        // --- Hitbox ---
-        const hitbox = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-        hitbox.setAttribute("x", pinX);
-        hitbox.setAttribute("y", pinY);
-        hitbox.setAttribute("width", pinSize);
-        hitbox.setAttribute("height", pinSize);
-        hitbox.setAttribute("fill", "transparent");
-        hitbox.setAttribute("class", "map-pin");
-        hitbox.style.pointerEvents = "all";
-        svgDoc.appendChild(hitbox);
-
-        // --- Tooltip Event ---
-        hitbox.addEventListener("mousemove", (e) => {
-            e.stopPropagation();
-            e.preventDefault();
-
-            const rect = document.querySelector(".map-area").getBoundingClientRect();
-
-            tooltip.style.display = "block";
-            tooltip.style.left = (e.clientX - rect.left + 12) + "px";
-            tooltip.style.top = (e.clientY - rect.top + 12) + "px";
-
-            tooltip.innerHTML = `
-            <b>${rank}. ${rowData["จังหวัด"]}</b><br>
-            เงินต้นที่คาด : ${Number(Object.values(rowData)[3] || 0).toLocaleString()}<br>
-            เงินต้นที่รับคืน : ${Number(Object.values(rowData)[4] || 0).toLocaleString()}<br>
-            ${percentKey}: ${Number(rowData[percentKey]).toFixed(2)}%
-        `;
-        });
-
-        hitbox.addEventListener("mouseleave", () => {
-            tooltip.style.display = "none";
-        });
-    }
-
-
-
-
+    // ❌ ไม่มี hitbox แล้ว
+}
 
     // ปักหมุด Top 5 → pin-green.svg
     top5.forEach((r, i) => {
