@@ -148,17 +148,17 @@ function updateView() {
         if (rowTop) {
             // จังหวัดติดอันดับ Top 5
             color = colorScale(top5.indexOf(rowTop), true);
-            path.classList.remove("map-default");
+            p.classList.remove("map-default");
 
         } else if (rowBottom) {
             // จังหวัดติดอันดับ Bottom 5
             color = colorScale(bottom5.indexOf(rowBottom), false);
-            path.classList.remove("map-default");
+            p.classList.remove("map-default");
 
         } else {
             // จังหวัดที่ไม่ติดอันดับใดๆ
             color = "#e98ae7";  // สี default
-            path.classList.add("map-default");
+            p.classList.add("map-default");
         }
 
 
