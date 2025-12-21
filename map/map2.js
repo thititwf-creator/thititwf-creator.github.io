@@ -192,7 +192,7 @@ function updateView() {
             const rect = document.querySelector(".map-area").getBoundingClientRect();
 
             // อันดับ (ถ้าไม่ติดอันดับ จะไม่ขึ้นตัวเลข)
-            let rankText = "";
+            // let rankText = "";
             if (rowTop) rankText = `${top5.indexOf(rowTop) + 1}. `;
             else if (rowBottom) rankText = `${rows.length - 5 + bottom5.indexOf(rowBottom) + 1}. `;
 
