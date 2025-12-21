@@ -136,12 +136,16 @@ function updateView() {
     });
 
     // ------------------------------
-    //  ลงสีบนแผนที่
+    //  ลงสีบนแผนที่ + tooltip
     // ------------------------------
     svgDoc.querySelectorAll("path").forEach(p => {
         const pv = mapping_pv[p.id];
+
         const rowTop = top5.find(r => r["จังหวัด"] === pv);
         const rowBottom = bottom5.find(r => r["จังหวัด"] === pv);
+
+        // ⭐ NEW: ข้อมูลของจังหวัด (รองรับทุกจังหวัด)
+        const row = rows.find(r => r["จังหวัด"] === pv);
 
         let color = "#eee";
 
@@ -157,35 +161,40 @@ function updateView() {
 
         } else {
             // จังหวัดที่ไม่ติดอันดับใดๆ
-            color = "#e98ae7";  // สี default
+            color = "#e98ae7";
             p.classList.add("map-default");
         }
 
-
         p.style.fill = color;
 
-        const row = rowTop || rowBottom;
+        // ------------------------
+        // ⭐ แสดง tooltip ทุกจังหวัด
+        // ------------------------
         p.onmousemove = e => {
-            if (!row) return;
+            if (!row) return; // ป้องกันกรณีจังหวัดไม่อยู่ใน CSV (ไม่น่าจะเกิด)
 
             const rect = document.querySelector(".map-area").getBoundingClientRect();
-            let rank = rowTop
-                ? top5.indexOf(row) + 1
-                : rows.length - 5 + bottom5.indexOf(row) + 1;
+
+            // อันดับ (ถ้าไม่ติดอันดับ จะไม่ขึ้นตัวเลข)
+            let rankText = "";
+            if (rowTop) rankText = `${top5.indexOf(rowTop) + 1}. `;
+            else if (rowBottom) rankText = `${rows.length - 5 + bottom5.indexOf(rowBottom) + 1}. `;
 
             tooltip.style.display = "block";
             tooltip.style.left = (e.clientX - rect.left + 12) + "px";
             tooltip.style.top = (e.clientY - rect.top + 12) + "px";
 
             tooltip.innerHTML = `
-                <b>${rank}. ${pv}</b><br>
-                ค่า 1: ${Number(Object.values(row)[3] || 0).toLocaleString()}<br>
-                ค่า 2: ${Number(Object.values(row)[4] || 0).toLocaleString()}<br>
-                ${percentKey}: ${Number(row[percentKey]).toFixed(2)}%
-            `;
+            <b>${rankText}${pv}</b><br>
+            ค่า 1: ${Number(Object.values(row)[3] || 0).toLocaleString()}<br>
+            ค่า 2: ${Number(Object.values(row)[4] || 0).toLocaleString()}<br>
+            ${percentKey}: ${Number(row[percentKey]).toFixed(2)}%
+        `;
         };
+
         p.onmouseleave = () => tooltip.style.display = "none";
     });
+
 
     // ==========================================================
     // ⭐ ปักหมุดแบบเข็ม บน Top 5 (สีน้ำเงิน) + Bottom 5 (สีแดง)
