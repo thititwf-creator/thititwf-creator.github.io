@@ -284,6 +284,18 @@
       display: none;
       z-index: 999;
     }
+
+    /* map hover */
+    /* สีจังหวัดที่ไม่ติดอันดับ */
+    .map-default {
+      fill: #e98ae7 !important;
+      transition: fill 0.2s ease;
+    }
+
+    /* เมื่อ hover */
+    .map-default:hover {
+      fill: #85f06a !important;
+    }
   </style>
 </head>
 
@@ -291,7 +303,7 @@
 
   <!-- ===== Banner ===== -->
   <!-- <div class="banner-slider" onmouseenter="pauseSlide()" onmouseleave="resumeSlide()"> -->
-<!-- 
+  <!-- 
     <div class="slides">
       <img src="images/banners/empower.jpg" class="slide active" data-link="#">
 
@@ -300,8 +312,8 @@
       <img src="images/banners/Vision02.jpg" class="slide" data-link="#">
     </div> -->
 
-    <!-- ❗ ปุ่มต้องอยู่ตรงนี้ -->
-    <!-- <button class="nav prev" onclick="changeSlide(-1)">❮</button>
+  <!-- ❗ ปุ่มต้องอยู่ตรงนี้ -->
+  <!-- <button class="nav prev" onclick="changeSlide(-1)">❮</button>
     <button class="nav next" onclick="changeSlide(1)">❯</button>
 
     <div class="dots">

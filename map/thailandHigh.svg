@@ -19,16 +19,6 @@
 				stroke-opacity: 1;
 				stroke-width:0.5;
 			}
-			svg path {
-     			fill: #e98ae7;
-      			stroke: #ffffff;
-      			stroke-width: .6;
-      			cursor: pointer;
-      			transition: .2s;
-    		}
-    		svg path:hover {
-      			fill: #85f06a;
-    		}
 		</style>
 
 		<amcharts:ammap projection="mercator" leftLongitude="97.344728" topLatitude="20.463430" rightLongitude="105.640023" bottomLatitude="5.614417"></amcharts:ammap>
