@@ -252,7 +252,7 @@ function updateView() {
         label.textContent = rank;
         svgDoc.appendChild(label);
 
-        // --- Hitbox (transparent) ---
+        // --- Hitbox ---
         const hitbox = document.createElementNS("http://www.w3.org/2000/svg", "rect");
         hitbox.setAttribute("x", pinX);
         hitbox.setAttribute("y", pinY);
@@ -260,7 +260,7 @@ function updateView() {
         hitbox.setAttribute("height", pinSize);
         hitbox.setAttribute("fill", "transparent");
         hitbox.setAttribute("class", "map-pin");
-        hitbox.style.pointerEvents = "all"; // ⭐ ตัวจริงที่รับ event
+        hitbox.style.pointerEvents = "all";
         svgDoc.appendChild(hitbox);
 
         // ⭐ FIXED: Tooltip event ใหม่
@@ -274,17 +274,18 @@ function updateView() {
             tooltip.style.top = (e.clientY - rect.top + 12) + "px";
 
             tooltip.innerHTML = `
-            <b>${rank}. ${rowData["จังหวัด"]}</b><br>
-            เงินต้นที่คาด : ${Number(Object.values(rowData)[3] || 0).toLocaleString()}<br>
-            เงินต้นที่รับคืน : ${Number(Object.values(rowData)[4] || 0).toLocaleString()}<br>
-            ${percentKey}: ${Number(rowData[percentKey]).toFixed(2)}%
-        `;
+        <b>${rank}. ${rowData["จังหวัด"]}</b><br>
+        เงินต้นที่คาด : ${Number(Object.values(rowData)[3] || 0).toLocaleString()}<br>
+        เงินต้นที่รับคืน : ${Number(Object.values(rowData)[4] || 0).toLocaleString()}<br>
+        ${percentKey}: ${Number(rowData[percentKey]).toFixed(2)}%
+    `;
         });
 
         // ⭐ ป้องกัน tooltip ค้าง
         hitbox.addEventListener("mouseleave", () => {
             tooltip.style.display = "none";
         });
+
     }
 
 
@@ -331,8 +332,14 @@ let dragStart = { x: 0, y: 0 };
 /* ฟังก์ชันอัปเดต Transform */
 function applyTransform() {
     if (svgDoc) {
-        svgDoc.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
-        svgDoc.style.transformOrigin = "0 0";
+
+        svgDoc.setAttribute(
+            "transform",
+            `translate(${translateX}, ${translateY}) scale(${scale})`
+        );
+        // svgDoc.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
+        // svgDoc.style.transformOrigin = "0 0";
+        
     }
 }
 
