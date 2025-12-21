@@ -82,56 +82,85 @@ function updateView() {
 
     const percentKey = Object.keys(rows[0]).find(k => k.includes("ร้อยละ"));
 
-    rows.sort((a, b) => parseFloat(b[percentKey]) - parseFloat(a[percentKey]));
+    // ------------------------------
+    //  จัดอันดับตามประเภท
+    // ------------------------------
+    if (type === "overdue") {
+        // overdue → % น้อย = ดี → sort จากน้อย → มาก
+        rows.sort((a, b) => parseFloat(a[percentKey]) - parseFloat(b[percentKey]));
+    } else {
+        // due / disburse → % มาก = ดี → sort จากมาก → น้อย
+        rows.sort((a, b) => parseFloat(b[percentKey]) - parseFloat(a[percentKey]));
+    }
 
-    const top5 = rows.slice(0, 5);
-    const bottom5 = rows.slice(-5);
+    const top5 = rows.slice(0, 5);       // ดีสุด
+    const bottom5 = rows.slice(-5);      // แย่สุด
 
-    // ❗ ลบ existing rows ก่อน
+    // ------------------------------
+    //  อัปเดตตาราง
+    // ------------------------------
     const tbody = document.querySelector("#mapTable tbody");
     tbody.innerHTML = "";
 
     // Top 5
     top5.forEach((r, i) => {
         tbody.innerHTML += `
-      <tr>
-        <td>${i + 1}. ${r["จังหวัด"]}</td>
-        <td>${Number(Object.values(r)[3] || 0).toLocaleString()}</td>
-        <td>${Number(Object.values(r)[4] || 0).toLocaleString()}</td>
-        <td>${Number(r[percentKey]).toFixed(2)}</td>
-      </tr>`;
+        <tr>
+            <td>${i + 1}. ${r["จังหวัด"]}</td>
+            <td>${Number(Object.values(r)[3] || 0).toLocaleString()}</td>
+            <td>${Number(Object.values(r)[4] || 0).toLocaleString()}</td>
+            <td>${Number(r[percentKey]).toFixed(2)}</td>
+        </tr>`;
     });
 
     // Bottom 5
     bottom5.forEach((r, i) => {
         tbody.innerHTML += `
-      <tr>
-        <td>${rows.length - 5 + i + 1}. ${r["จังหวัด"]}</td>
-        <td>${Number(Object.values(r)[3] || 0).toLocaleString()}</td>
-        <td>${Number(Object.values(r)[4] || 0).toLocaleString()}</td>
-        <td>${Number(r[percentKey]).toFixed(2)}</td>
-      </tr>`;
+        <tr>
+            <td>${rows.length - 5 + i + 1}. ${r["จังหวัด"]}</td>
+            <td>${Number(Object.values(r)[3] || 0).toLocaleString()}</td>
+            <td>${Number(Object.values(r)[4] || 0).toLocaleString()}</td>
+            <td>${Number(r[percentKey]).toFixed(2)}</td>
+        </tr>`;
     });
 
+    // ------------------------------
+    //  ลงสีบนแผนที่
+    // ------------------------------
     svgDoc.querySelectorAll("path").forEach(p => {
         const pv = mapping_pv[p.id];
         const rowTop = top5.find(r => r["จังหวัด"] === pv);
         const rowBottom = bottom5.find(r => r["จังหวัด"] === pv);
 
         let color = "#eee";
+
+        // เงื่อนไขการลงสีแต่ละประเภท
         if (rowTop) {
-            color = type === "overdue"
-                ? colorScale(top5.indexOf(rowTop), false)
-                : colorScale(top5.indexOf(rowTop), true);
+            // จังหวัดดีสุด
+            if (type === "overdue") {
+                // overdue: % น้อยดี → สีกลุ่ม "เขียว" สำหรับ top
+                color = colorScale(top5.indexOf(rowTop), true);
+            } else {
+                // due & disburse: % มากดี → สีกลุ่ม "เขียว"
+                color = colorScale(top5.indexOf(rowTop), true);
+            }
+
         } else if (rowBottom) {
-            color = type === "overdue"
-                ? colorScale(bottom5.indexOf(rowBottom), true)
-                : colorScale(bottom5.indexOf(rowBottom), false);
+            // จังหวัดแย่สุด
+            if (type === "overdue") {
+                // overdue: % มาก = แย่ → ใช้สี "แดง"
+                color = colorScale(bottom5.indexOf(rowBottom), false);
+            } else {
+                // due & disburse: % น้อย = แย่ → ใช้สี "แดง"
+                color = colorScale(bottom5.indexOf(rowBottom), false);
+            }
         }
 
         p.style.fill = color;
 
-        // tooltip
+        // ------------------------------
+        //  Tooltip
+        // ------------------------------
         const row = rowTop || rowBottom;
         p.onmousemove = e => {
             if (!row) return;
@@ -146,15 +175,16 @@ function updateView() {
             tooltip.style.top = (e.clientY - rect.top + 12) + "px";
 
             tooltip.innerHTML = `
-        <b>${rank}. ${pv}</b><br>
-        ค่า 1: ${Number(Object.values(row)[3] || 0).toLocaleString()}<br>
-        ค่า 2: ${Number(Object.values(row)[4] || 0).toLocaleString()}<br>
-        ${percentKey}: ${Number(row[percentKey]).toFixed(2)}%
-      `;
+                <b>${rank}. ${pv}</b><br>
+                ค่า 1: ${Number(Object.values(row)[3] || 0).toLocaleString()}<br>
+                ค่า 2: ${Number(Object.values(row)[4] || 0).toLocaleString()}<br>
+                ${percentKey}: ${Number(row[percentKey]).toFixed(2)}%
+            `;
         };
         p.onmouseleave = () => tooltip.style.display = "none";
     });
 }
+
 
 
 /* events */
