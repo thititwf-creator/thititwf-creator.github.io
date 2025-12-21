@@ -271,6 +271,8 @@ function updateView() {
         // -----------------------------------------------------
         hitbox.onmousemove = (e) => {
 
+            // ⭐ หยุดไม่ให้ event จาก path ทำงานซ้ำ!
+            e.stopPropagation();
             // ⭐ สำคัญ: reset tooltip ทุกครั้งก่อนแสดงใหม่
             tooltip.style.display = "none";
 
