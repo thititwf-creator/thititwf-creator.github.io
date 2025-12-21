@@ -21,15 +21,29 @@ fetch("map/thailandHigh.svg")
         document.getElementById("map").innerHTML = svg;
 
         const svgEl = document.querySelector("#map svg");
-        svgEl.removeAttribute("width");
-        svgEl.removeAttribute("height");
 
-        if (!svgEl.getAttribute("viewBox")) {
-            svgEl.setAttribute("viewBox", "0 0 900 1400");
-        }
+        // ------- ⭐ สร้าง <g id="mapGroup"> แบบ Dynamic -------
+        let group = document.createElementNS("http://www.w3.org/2000/svg", "g");
+        group.setAttribute("id", "mapGroup");
 
-        svgEl.setAttribute("preserveAspectRatio", "xMidYMid meet");
-        svgDoc = svgEl;
+        // ย้าย path ทั้งหมดเข้า <g>
+        svgEl.querySelectorAll("path").forEach(p => group.appendChild(p));
+
+        // เอา <g> ใส่กลับเข้า SVG
+        svgEl.appendChild(group);
+
+        // ให้ svgDoc กลายเป็น <g> ไม่ใช่ <svg>
+        svgDoc = group;
+
+        // svgEl.removeAttribute("width");
+        // svgEl.removeAttribute("height");
+
+        // if (!svgEl.getAttribute("viewBox")) {
+        //     svgEl.setAttribute("viewBox", "0 0 900 1400");
+        // }
+
+        // svgEl.setAttribute("preserveAspectRatio", "xMidYMid meet");
+        // svgDoc = svgEl;
         // ⭐ ให้ map รองรับ tooltip จากทุกจุด (ไม่ต้อง hover path ก่อน)
 
 
@@ -339,7 +353,7 @@ function applyTransform() {
         );
         // svgDoc.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
         // svgDoc.style.transformOrigin = "0 0";
-        
+
     }
 }
 
