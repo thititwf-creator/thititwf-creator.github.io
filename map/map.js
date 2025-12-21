@@ -176,7 +176,7 @@ function updateView() {
 
         // pin SVG
         const pin = document.createElementNS("http://www.w3.org/2000/svg", "image");
-        pin.setAttribute("href", type === "top" ? "pin-blue.svg" : "pin-red.svg");
+        pin.setAttribute("href", type === "top" ? "map/pin-blue.svg" : "map/pin-red.svg");
         pin.setAttribute("width", 40);
         pin.setAttribute("height", 40);
         pin.setAttribute("x", bbox.x + bbox.width / 2 - 20);
