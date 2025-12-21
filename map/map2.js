@@ -22,33 +22,18 @@ fetch("map/thailandHigh.svg")
 
         const svgEl = document.querySelector("#map svg");
 
-        // ------- ⭐ สร้าง <g id="mapGroup"> แบบ Dynamic -------
-        let group = document.createElementNS("http://www.w3.org/2000/svg", "g");
-        group.setAttribute("pointer-events", "bounding-box");
+        // คืนค่าแบบเก่า — ไม่ต้อง wrap <g>
+        svgEl.removeAttribute("width");
+        svgEl.removeAttribute("height");
 
-        group.setAttribute("id", "mapGroup");
+        if (!svgEl.getAttribute("viewBox")) {
+            svgEl.setAttribute("viewBox", "0 0 900 1400");
+        }
 
-        // ย้าย path ทั้งหมดเข้า <g>
-        svgEl.querySelectorAll("path").forEach(p => group.appendChild(p));
+        svgEl.setAttribute("preserveAspectRatio", "xMidYMid meet");
 
-        // เอา <g> ใส่กลับเข้า SVG
-        svgEl.appendChild(group);
-
-        // ให้ svgDoc กลายเป็น <g> ไม่ใช่ <svg>
-        svgDoc = group;
-
-        // svgEl.removeAttribute("width");
-        // svgEl.removeAttribute("height");
-
-        // if (!svgEl.getAttribute("viewBox")) {
-        //     svgEl.setAttribute("viewBox", "0 0 900 1400");
-        // }
-
-        // svgEl.setAttribute("preserveAspectRatio", "xMidYMid meet");
-        // svgDoc = svgEl;
-        // ⭐ ให้ map รองรับ tooltip จากทุกจุด (ไม่ต้อง hover path ก่อน)
-
-
+        // ⭐ svgDoc เป็น <svg> อีกครั้ง (ไม่ใช่ <g>)
+        svgDoc = svgEl;
     });
 
 
