@@ -196,8 +196,7 @@ function updateView() {
             tooltip.style.top = (e.clientY - rect.top + 12) + "px";
 
             tooltip.innerHTML = `
-            <!-- <b>${rankText}${pv}</b><br>  -->
-            <b>${rank}. ${rowData["จังหวัด"]}</b><br>
+            <b>${rankText}${pv}</b><br>
             เงินต้นที่คาด : ${Number(Object.values(row)[3] || 0).toLocaleString()}<br>
             เงินต้นที่รับคืน : ${Number(Object.values(row)[4] || 0).toLocaleString()}<br>
             ${percentKey}: ${Number(row[percentKey]).toFixed(2)}%
