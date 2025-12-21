@@ -174,23 +174,31 @@ function updateView() {
     function addPin(path, rank, type) {
         const bbox = path.getBBox();
 
+        // ขนาดหมุดใหม่
+        const pinSize = 52;     // เดิม 40
+        const pinHalf = pinSize / 2;
+
+        // ตำแหน่งใหม่นิดหน่อยให้สมดุล
+        const pinX = bbox.x + bbox.width / 2 - pinHalf;
+        const pinY = bbox.y + bbox.height / 2 - pinSize + 8; // ขยับลง 8px ให้หมุดดูพอดีขึ้น
+
         // pin SVG
         const pin = document.createElementNS("http://www.w3.org/2000/svg", "image");
         pin.setAttribute("href", type === "top" ? "map/pin-blue.svg" : "map/pin-red.svg");
-        pin.setAttribute("width", 40);
-        pin.setAttribute("height", 40);
-        pin.setAttribute("x", bbox.x + bbox.width / 2 - 20);
-        pin.setAttribute("y", bbox.y + bbox.height / 2 - 40);
+        pin.setAttribute("width", pinSize);
+        pin.setAttribute("height", pinSize);
+        pin.setAttribute("x", pinX);
+        pin.setAttribute("y", pinY);
         pin.setAttribute("class", "map-pin");
 
         svgDoc.appendChild(pin);
 
-        // ตัวเลข
+        // -------- ตัวเลขบนหมุด (ใหญ่ขึ้น) --------
         const label = document.createElementNS("http://www.w3.org/2000/svg", "text");
         label.setAttribute("x", bbox.x + bbox.width / 2);
-        label.setAttribute("y", bbox.y + bbox.height / 2 - 13);
+        label.setAttribute("y", pinY + pinSize / 2 + 4); // ขยับเลขลงให้กลางหัวหมุด
         label.setAttribute("text-anchor", "middle");
-        label.setAttribute("font-size", "16");
+        label.setAttribute("font-size", "20");           // เดิม 16
         label.setAttribute("font-weight", "bold");
         label.setAttribute("fill", "#fff");
         label.setAttribute("class", "map-pin");
@@ -198,6 +206,7 @@ function updateView() {
 
         svgDoc.appendChild(label);
     }
+
 
     // ปักหมุด Top 5 → pin-blue.svg
     top5.forEach((r, i) => {
