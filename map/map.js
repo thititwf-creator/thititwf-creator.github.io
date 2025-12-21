@@ -134,24 +134,19 @@ function updateView() {
 
         let color = "#eee";
 
-        // เงื่อนไขการลงสีแต่ละประเภท
         if (rowTop) {
             // จังหวัดดีสุด
             if (type === "overdue") {
-                // overdue: % น้อยดี → สีกลุ่ม "เขียว" สำหรับ top
-                color = colorScale(top5.indexOf(rowTop), true);
+                color = colorScale(top5.indexOf(rowTop), true);   // overdue: % น้อยดี
             } else {
-                // due & disburse: % มากดี → สีกลุ่ม "เขียว"
-                color = colorScale(top5.indexOf(rowTop), true);
+                color = colorScale(top5.indexOf(rowTop), true);   // due/disburse: % มากดี
             }
 
         } else if (rowBottom) {
             // จังหวัดแย่สุด
             if (type === "overdue") {
-                // overdue: % มาก = แย่ → ใช้สี "แดง"
                 color = colorScale(bottom5.indexOf(rowBottom), false);
             } else {
-                // due & disburse: % น้อย = แย่ → ใช้สี "แดง"
                 color = colorScale(bottom5.indexOf(rowBottom), false);
             }
         }
@@ -183,7 +178,46 @@ function updateView() {
         };
         p.onmouseleave = () => tooltip.style.display = "none";
     });
+
+    // ==========================================================
+    //  ⭐ เพิ่มหมุดเฉพาะ Top 5 บนแผนที่ ⭐
+    // ==========================================================
+
+    // ลบหมุดเก่าก่อนทุกครั้ง
+    svgDoc.querySelectorAll(".rank-label").forEach(el => el.remove());
+
+    // ฟังก์ชันวางเลขอันดับบน path
+    function addRankLabel(path, rank) {
+        const bbox = path.getBBox();
+
+        const label = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        label.setAttribute("x", bbox.x + bbox.width / 2);
+        label.setAttribute("y", bbox.y + bbox.height / 2);
+        label.setAttribute("text-anchor", "middle");
+        label.setAttribute("dominant-baseline", "middle");
+        label.setAttribute("font-size", "28");
+        label.setAttribute("font-weight", "bold");
+        label.setAttribute("fill", "#000");
+        label.setAttribute("class", "rank-label");
+        label.textContent = rank;
+
+        svgDoc.appendChild(label);
+    }
+
+    // ปักหมุดเฉพาะ Top 5
+    top5.forEach((r, i) => {
+        const pv = r["จังหวัด"];
+        const pathId = Object.keys(mapping_pv).find(k => mapping_pv[k] === pv);
+        if (!pathId) return;
+
+        const path = svgDoc.querySelector(`path#${pathId}`);
+        if (!path) return;
+
+        addRankLabel(path, i + 1);   // 1–5
+    });
+
 }
+
 
 
 
