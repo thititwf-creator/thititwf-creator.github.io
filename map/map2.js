@@ -31,7 +31,7 @@ fetch("map/thailandHigh.svg")
         svgEl.setAttribute("preserveAspectRatio", "xMidYMid meet");
         svgDoc = svgEl;
         // ⭐ ให้ map รองรับ tooltip จากทุกจุด (ไม่ต้อง hover path ก่อน)
-        
+
 
     });
 
@@ -180,6 +180,7 @@ function updateView() {
         }
 
         p.style.fill = color;
+        p.style.pointerEvents = "visibleFill";
 
         // ------------------------
         // ⭐ แสดง tooltip ทุกจังหวัด
@@ -235,6 +236,7 @@ function updateView() {
         pin.setAttribute("x", pinX);
         pin.setAttribute("y", pinY);
         pin.setAttribute("class", "map-pin");
+        pin.style.pointerEvents = "none";   // ⭐ ไม่ให้กิน event
         svgDoc.appendChild(pin);
 
         // --- Pin label ---
@@ -246,6 +248,7 @@ function updateView() {
         label.setAttribute("font-weight", "bold");
         label.setAttribute("fill", "#fff");
         label.setAttribute("class", "map-pin");
+        label.style.pointerEvents = "none"; // ⭐ ไม่ให้กิน event
         label.textContent = rank;
         svgDoc.appendChild(label);
 
@@ -257,6 +260,7 @@ function updateView() {
         hitbox.setAttribute("height", pinSize);
         hitbox.setAttribute("fill", "transparent");
         hitbox.setAttribute("class", "map-pin");
+        hitbox.style.pointerEvents = "all"; // ⭐ ตัวจริงที่รับ event
         svgDoc.appendChild(hitbox);
 
         // ⭐ FIXED: Tooltip event ใหม่
