@@ -24,6 +24,8 @@ fetch("map/thailandHigh.svg")
 
         // ------- ⭐ สร้าง <g id="mapGroup"> แบบ Dynamic -------
         let group = document.createElementNS("http://www.w3.org/2000/svg", "g");
+        group.setAttribute("pointer-events", "bounding-box");
+
         group.setAttribute("id", "mapGroup");
 
         // ย้าย path ทั้งหมดเข้า <g>
@@ -280,6 +282,7 @@ function updateView() {
         // ⭐ FIXED: Tooltip event ใหม่
         hitbox.addEventListener("mousemove", (e) => {
             e.stopPropagation();
+            e.preventDefault();
 
             const rect = document.querySelector(".map-area").getBoundingClientRect();
 
@@ -293,113 +296,116 @@ function updateView() {
         เงินต้นที่รับคืน : ${Number(Object.values(rowData)[4] || 0).toLocaleString()}<br>
         ${percentKey}: ${Number(rowData[percentKey]).toFixed(2)}%
     `;
-        });
 
-        // ⭐ ป้องกัน tooltip ค้าง
-        hitbox.addEventListener("mouseleave", () => {
-            tooltip.style.display = "none";
-        });
-
-    }
+        }
 
 
 
 
     // ปักหมุด Top 5 → pin-green.svg
     top5.forEach((r, i) => {
-        const pv = r["จังหวัด"];
-        const pathId = Object.keys(mapping_pv).find(k => mapping_pv[k] === pv);
-        const path = svgDoc.querySelector(`path#${pathId}`);
-        if (path) addPin(path, i + 1, "top");
-    });
+            const pv = r["จังหวัด"];
+            const pathId = Object.keys(mapping_pv).find(k => mapping_pv[k] === pv);
+            const path = svgDoc.querySelector(`path#${pathId}`);
+            if (path) addPin(path, i + 1, "top");
+        });
 
-    // ปักหมุด Bottom 5 → pin-red.svg
-    bottom5.forEach((r, i) => {
-        const pv = r["จังหวัด"];
-        const rank = rows.length - 5 + i + 1;
-        const pathId = Object.keys(mapping_pv).find(k => mapping_pv[k] === pv);
-        const path = svgDoc.querySelector(`path#${pathId}`);
-        if (path) addPin(path, rank, "bottom");
-    });
-
-}
-
-/* events */
-typeSelect.onchange = () => loadCSV(typeSelect.value);
-yearSelect.onchange = updateView;
-monthSelect.onchange = updateView;
-
-/* init */
-loadCSV("due");
-
-/* ============================================================
-   ⭐ ระบบ Zoom & Pan (Drag) สำหรับ SVG Map
-   ============================================================ */
-
-let scale = 1;
-let translateX = 0;
-let translateY = 0;
-
-let isDragging = false;
-let dragStart = { x: 0, y: 0 };
-
-/* ฟังก์ชันอัปเดต Transform */
-function applyTransform() {
-    if (svgDoc) {
-
-        svgDoc.setAttribute(
-            "transform",
-            `translate(${translateX}, ${translateY}) scale(${scale})`
-        );
-        // svgDoc.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
-        // svgDoc.style.transformOrigin = "0 0";
+        // ปักหมุด Bottom 5 → pin-red.svg
+        bottom5.forEach((r, i) => {
+            const pv = r["จังหวัด"];
+            const rank = rows.length - 5 + i + 1;
+            const pathId = Object.keys(mapping_pv).find(k => mapping_pv[k] === pv);
+            const path = svgDoc.querySelector(`path#${pathId}`);
+            if (path) addPin(path, rank, "bottom");
+        });
 
     }
-}
 
-/* -------------------------------
-   ปุ่ม Zoom In / Zoom Out
---------------------------------- */
-document.getElementById("zoomIn").onclick = () => {
-    scale = Math.min(scale + 0.1, 4);
-    applyTransform();
-};
+    /* events */
+    typeSelect.onchange = () => loadCSV(typeSelect.value);
+    yearSelect.onchange = updateView;
+    monthSelect.onchange = updateView;
 
-document.getElementById("zoomOut").onclick = () => {
-    scale = Math.max(scale - 0.1, 0.5);
-    applyTransform();
-};
+    /* init */
+    loadCSV("due");
 
-/* -------------------------------
-   Zoom ด้วยล้อเมาส์
---------------------------------- */
-document.getElementById("map").addEventListener("wheel", function (e) {
-    e.preventDefault();
+    /* ============================================================
+       ⭐ ระบบ Zoom & Pan (Drag) สำหรับ SVG Map
+       ============================================================ */
 
-    const delta = e.deltaY > 0 ? -0.1 : 0.1;
-    scale = Math.min(Math.max(scale + delta, 0.5), 4);
+    let scale = 1;
+    let translateX = 0;
+    let translateY = 0;
 
-    applyTransform();
-});
+    let isDragging = false;
+    let dragStart = { x: 0, y: 0 };
 
-/* -------------------------------
-   Drag / Pan (กดเมาส์ลาก)
---------------------------------- */
-document.getElementById("map").addEventListener("mousedown", function (e) {
-    isDragging = true;
-    dragStart.x = e.clientX - translateX;
-    dragStart.y = e.clientY - translateY;
-});
+    /* ฟังก์ชันอัปเดต Transform */
+    function applyTransform() {
+        if (svgDoc) {
 
-document.addEventListener("mousemove", function (e) {
-    if (!isDragging) return;
+            svgDoc.setAttribute(
+                "transform",
+                `translate(${translateX}, ${translateY}) scale(${scale})`
+            );
+            // svgDoc.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
+            // svgDoc.style.transformOrigin = "0 0";
 
-    translateX = e.clientX - dragStart.x;
-    translateY = e.clientY - dragStart.y;
+        }
+    }
 
-    applyTransform();
-});
+    /* -------------------------------
+       ปุ่ม Zoom In / Zoom Out
+    --------------------------------- */
+    document.getElementById("zoomIn").onclick = () => {
+        scale = Math.min(scale + 0.1, 4);
+        applyTransform();
+    };
 
-document.addEventListener("mouseup", function () {
-    isDragging = false;
-});
+    document.getElementById("zoomOut").onclick = () => {
+        scale = Math.max(scale - 0.1, 0.5);
+        applyTransform();
+    };
+
+    /* -------------------------------
+       Zoom ด้วยล้อเมาส์
+    --------------------------------- */
+    document.getElementById("map").addEventListener("wheel", function (e) {
+        e.preventDefault();
+
+        const delta = e.deltaY > 0 ? -0.1 : 0.1;
+        scale = Math.min(Math.max(scale + delta, 0.5), 4);
+
+        applyTransform();
+    });
+
+    /* -------------------------------
+       Drag / Pan (กดเมาส์ลาก)
+    --------------------------------- */
+    document.getElementById("map").addEventListener("mousedown", function (e) {
+        isDragging = true;
+        dragStart.x = e.clientX - translateX;
+        dragStart.y = e.clientY - translateY;
+    });
+
+    document.addEventListener("mousemove", function (e) {
+        if (!isDragging) return;
+
+        translateX = e.clientX - dragStart.x;
+        translateY = e.clientY - dragStart.y;
+
+        applyTransform();
+    });
+
+    document.addEventListener("mouseup", function () {
+        isDragging = false;
+    });
+    // -----------------------------------------------------
+    // Global mousemove: ถ้าอยู่นอก hitbox หรือ path ให้ล้าง tooltip
+    // -----------------------------------------------------
+    document.querySelector(".map-area").addEventListener("mousemove", (e) => {
+        // เช็ค target ถ้าไม่ใช่ path และไม่ใช่ hitbox → reset
+        if (!(e.target.tagName === "path" || e.target.classList.contains("map-pin"))) {
+            tooltip.style.display = "none";
+        }
+    });
