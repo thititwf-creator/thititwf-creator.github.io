@@ -222,23 +222,27 @@
     }
 
     .map-area {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 20px 0;
+      flex: 1;
+      height: 520px;
+      border: 1px solid #ddd;
+      border-radius: 12px;
+      overflow: hidden;
+      position: relative;
+      background: #fafafa;
+
+      padding-left: 30px;
+      /* ⭐ เพิ่มแค่นี้ */
     }
+
 
     #map {
       width: 100%;
-      display: flex;
-      justify-content: center;
+      height: 100%;
     }
 
     #map svg {
-      max-width: 90%;
-      height: auto;
-      display: block;
-      margin: 0 auto;
+      width: 100%;
+      height: 100%;
     }
 
     .map-control {
