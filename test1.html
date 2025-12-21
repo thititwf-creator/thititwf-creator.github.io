@@ -301,6 +301,31 @@
     .map-default:hover {
       fill: #85f06a !important;
     }
+
+    .zoom-controls {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      z-index: 9999;
+    }
+
+    .zoom-controls button {
+      width: 36px;
+      height: 36px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      background: white;
+      cursor: pointer;
+      font-size: 20px;
+      font-weight: bold;
+    }
+
+    .zoom-controls button:hover {
+      background: #f0f0f0;
+    }
   </style>
 </head>
 
@@ -370,6 +395,13 @@
       <div class="map-layout">
         <!-- Map -->
         <div class="map-area">
+
+          <!-- ปุ่ม Zoom -->
+          <div class="zoom-controls">
+            <button id="zoomIn">＋</button>
+            <button id="zoomOut">－</button>
+          </div>
+
           <div id="map"></div>
           <div class="map-tooltip" id="mapTooltip"></div>
         </div>

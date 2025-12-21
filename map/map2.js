@@ -303,3 +303,69 @@ monthSelect.onchange = updateView;
 
 /* init */
 loadCSV("due");
+
+/* ============================================================
+   ⭐ ระบบ Zoom & Pan (Drag) สำหรับ SVG Map
+   ============================================================ */
+
+let scale = 1;
+let translateX = 0;
+let translateY = 0;
+
+let isDragging = false;
+let dragStart = { x: 0, y: 0 };
+
+/* ฟังก์ชันอัปเดต Transform */
+function applyTransform() {
+    if (svgDoc) {
+        svgDoc.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
+        svgDoc.style.transformOrigin = "0 0";
+    }
+}
+
+/* -------------------------------
+   ปุ่ม Zoom In / Zoom Out
+--------------------------------- */
+document.getElementById("zoomIn").onclick = () => {
+    scale = Math.min(scale + 0.1, 4);
+    applyTransform();
+};
+
+document.getElementById("zoomOut").onclick = () => {
+    scale = Math.max(scale - 0.1, 0.5);
+    applyTransform();
+};
+
+/* -------------------------------
+   Zoom ด้วยล้อเมาส์
+--------------------------------- */
+document.getElementById("map").addEventListener("wheel", function (e) {
+    e.preventDefault();
+
+    const delta = e.deltaY > 0 ? -0.1 : 0.1;
+    scale = Math.min(Math.max(scale + delta, 0.5), 4);
+
+    applyTransform();
+});
+
+/* -------------------------------
+   Drag / Pan (กดเมาส์ลาก)
+--------------------------------- */
+document.getElementById("map").addEventListener("mousedown", function (e) {
+    isDragging = true;
+    dragStart.x = e.clientX - translateX;
+    dragStart.y = e.clientY - translateY;
+});
+
+document.addEventListener("mousemove", function (e) {
+    if (!isDragging) return;
+
+    translateX = e.clientX - dragStart.x;
+    translateY = e.clientY - dragStart.y;
+
+    applyTransform();
+});
+
+document.addEventListener("mouseup", function () {
+    isDragging = false;
+});
