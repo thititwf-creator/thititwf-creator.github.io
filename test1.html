@@ -222,23 +222,23 @@
     }
 
     .map-area {
-      flex: 1;
-      height: 520px;
-      border: 1px solid #ddd;
-      border-radius: 12px;
-      overflow: hidden;
-      position: relative;
-      background: #fafafa;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px 0;
     }
 
     #map {
       width: 100%;
-      height: 100%;
+      display: flex;
+      justify-content: center;
     }
 
     #map svg {
-      width: 100%;
-      height: 100%;
+      max-width: 90%;
+      height: auto;
+      display: block;
+      margin: 0 auto;
     }
 
     .map-control {
