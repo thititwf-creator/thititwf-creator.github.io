@@ -270,6 +270,10 @@ function updateView() {
         // Tooltip event (เฉพาะหมุด)
         // -----------------------------------------------------
         hitbox.onmousemove = (e) => {
+
+            // ⭐ สำคัญ: reset tooltip ทุกครั้งก่อนแสดงใหม่
+            tooltip.style.display = "none";
+
             const rect = document.querySelector(".map-area").getBoundingClientRect();
 
             tooltip.style.display = "block";
@@ -277,12 +281,13 @@ function updateView() {
             tooltip.style.top = (e.clientY - rect.top + 12) + "px";
 
             tooltip.innerHTML = `
-            <b>${rank}. ${rowData["จังหวัด"]}</b><br>
-            เงินต้นที่คาด : ${Number(Object.values(rowData)[3] || 0).toLocaleString()}<br>
-            เงินต้นที่รับคืน : ${Number(Object.values(rowData)[4] || 0).toLocaleString()}<br>
-            ${percentKey}: ${Number(rowData[percentKey]).toFixed(2)}%
-        `;
+        <b>${rank}. ${rowData["จังหวัด"]}</b><br>
+        เงินต้นที่คาด : ${Number(Object.values(rowData)[3] || 0).toLocaleString()}<br>
+        เงินต้นที่รับคืน : ${Number(Object.values(rowData)[4] || 0).toLocaleString()}<br>
+        ${percentKey}: ${Number(rowData[percentKey]).toFixed(2)}%
+    `;
         };
+
 
         hitbox.onmouseleave = () => tooltip.style.display = "none";
     }
