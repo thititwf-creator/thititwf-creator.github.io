@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard – สรุปข้อมูลทุกจังหวัด</title>
+
+    <!-- Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap" rel="stylesheet">
+
+    <!-- DataTables -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.dataTables.min.css">
+
+    <style>
+        body {
+            font-family: "Sarabun", sans-serif;
+            margin: 20px;
+        }
+
+        h2 {
+            margin-top: 0;
+        }
+
+        .summary-box {
+            padding: 15px;
+            border: 1px solid #9b59b6;
+            background: #f7f1fb;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .filters {
+            margin-bottom: 20px;
+        }
+
+        select {
+            font-size: 16px;
+            padding: 6px;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h2>สรุปข้อมูลทุกจังหวัด</h2>
+
+    <div class="summary-box">
+        <p><strong>หนี้ปกติ:</strong> <span id="sumNormal">0</span> บาท</p>
+        <p><strong>หนี้เกินกำหนดชำระ:</strong> <span id="sumOverdue">0</span> บาท</p>
+        <p><strong>อยู่ระหว่างการบังคับคดี:</strong> <span id="sumLegal">0</span> บาท</p>
+    </div>
+
+    <div class="filters">
+        <label>ปีงบประมาณ:</label>
+        <select id="yearFilter"></select>
+
+        <label>เดือน:</label>
+        <select id="monthFilter"></select>
+    </div>
+
+    <table id="provinceTable" class="display" style="width: 100%;">
+        <thead>
+            <tr>
+                <th>จังหวัด</th>
+                <th>หนี้ปกติ</th>
+                <th>หนี้เกินกำหนดชำระ</th>
+                <th>อยู่ระหว่างการบังคับคดี</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <!-- jQuery & DataTables -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
+    <script src="test6.js"></script>
+
+</body>
+
+</html>
