@@ -202,8 +202,8 @@ function updateView() {
 
             tooltip.innerHTML = `
             <b>${rankText}${pv}</b><br>
-            เงินต้นที่คาด : ${Number(Object.values(row)[3] || 0).toLocaleString()}<br>
-            เงินต้นที่รับคืน : ${Number(Object.values(row)[4] || 0).toLocaleString()}<br>
+            ค่าเป้าหมาย : ${Number(Object.values(row)[3] || 0).toLocaleString()}<br>
+            ค่าผลลัพธ์ : ${Number(Object.values(row)[4] || 0).toLocaleString()}<br>
             ${percentKey}: ${Number(row[percentKey]).toFixed(2)}%
         `;
         };
