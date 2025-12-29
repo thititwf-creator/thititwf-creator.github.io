@@ -329,7 +329,7 @@
     <button onclick="location.href='#'">งานปี 2569</button>
     <button
       onclick="location.href='https://tnah097.github.io/cdwomenpod-dashboard/missed_payment.html'">โปรแกรมคำนวนดอกเบี้ย</button>
-      
+
     <!-- dropdown: มาตรการบริหารจัดการหนี้ -->
     <div class="dropdown">
       <button class="dropbtn">มาตรการบริหารจัดการหนี้ ▾</button>
@@ -355,83 +355,84 @@
         <a href="/org-total.html">องค์กรสตรี</a>
       </div>
     </div>
+  </div>
 
-    <!-- ===== Main ===== -->
-    <div class="main">
+  <!-- ===== Main ===== -->
+  <div class="main">
 
-      <!-- Summary Cards -->
-      <div class="cards">
-        <div class="card">
-          <h3>จำนวนโครงการ</h3>
-          <div class="value">46,813</div>
-        </div>
-        <div class="card">
-          <h3>สมาชิกกองทุน</h3>
-          <div class="value">17,250,000</div>
-        </div>
-        <div class="card">
-          <h3>ผลเบิกจ่ายเงินทุนหมุนเวียน</h3>
-          <div class="value">12,540</div>
-        </div>
-        <div class="card">
-          <h3>อัตราชำระคืน</h3>
-          <div class="value">92.4</div>
-        </div>
-        <div class="card">
-          <h3>อัตราหนี้เกินกำหนดชำระ</h3>
-          <div class="value">92.4</div>
-        </div>
+    <!-- Summary Cards -->
+    <div class="cards">
+      <div class="card">
+        <h3>จำนวนโครงการ</h3>
+        <div class="value">46,813</div>
       </div>
-
-      <!-- ===== Overview Map Section ===== -->
-      <div class="section">
-        <h2>ภาพรวมรายจังหวัด</h2>
-
-        <div class="map-layout">
-          <!-- Map -->
-          <div class="map-area">
-
-            <!-- ปุ่ม Zoom -->
-            <div class="zoom-controls">
-              <button id="zoomIn">＋</button>
-              <button id="zoomOut">－</button>
-            </div>
-
-            <div id="map"></div>
-            <div class="map-tooltip" id="mapTooltip"></div>
-          </div>
-
-          <!-- Control -->
-          <div class="map-control">
-
-            <select id="typeSelect">
-              <option value="due">หนี้ครบกำหนดชำระ</option>
-              <option value="overdue">หนี้เกินกำหนดชำระ</option>
-              <option value="disburse">ผลเบิกจ่ายเงินทุนหมุนเวียน</option>
-            </select>
-
-            <select id="yearSelect"></select>
-            <select id="monthSelect"></select>
-
-            <table class="map-table" id="mapTable">
-              <thead>
-                <tr>
-                  <th>จังหวัด</th>
-                  <th>ค่าเป้าหมาย</th>
-                  <th>ค่าผลลัพธ์</th>
-                  <th>ร้อยละ</th>
-                </tr>
-              </thead>
-              <tbody></tbody>
-            </table>
-
-          </div>
-        </div>
+      <div class="card">
+        <h3>สมาชิกกองทุน</h3>
+        <div class="value">17,250,000</div>
       </div>
-      <script src="map/mapping_pv.js"></script>
-      <script src="map/map2.js"></script>
-
+      <div class="card">
+        <h3>ผลเบิกจ่ายเงินทุนหมุนเวียน</h3>
+        <div class="value">12,540</div>
+      </div>
+      <div class="card">
+        <h3>อัตราชำระคืน</h3>
+        <div class="value">92.4</div>
+      </div>
+      <div class="card">
+        <h3>อัตราหนี้เกินกำหนดชำระ</h3>
+        <div class="value">92.4</div>
+      </div>
     </div>
+
+    <!-- ===== Overview Map Section ===== -->
+    <div class="section">
+      <h2>ภาพรวมรายจังหวัด</h2>
+
+      <div class="map-layout">
+        <!-- Map -->
+        <div class="map-area">
+
+          <!-- ปุ่ม Zoom -->
+          <div class="zoom-controls">
+            <button id="zoomIn">＋</button>
+            <button id="zoomOut">－</button>
+          </div>
+
+          <div id="map"></div>
+          <div class="map-tooltip" id="mapTooltip"></div>
+        </div>
+
+        <!-- Control -->
+        <div class="map-control">
+
+          <select id="typeSelect">
+            <option value="due">หนี้ครบกำหนดชำระ</option>
+            <option value="overdue">หนี้เกินกำหนดชำระ</option>
+            <option value="disburse">ผลเบิกจ่ายเงินทุนหมุนเวียน</option>
+          </select>
+
+          <select id="yearSelect"></select>
+          <select id="monthSelect"></select>
+
+          <table class="map-table" id="mapTable">
+            <thead>
+              <tr>
+                <th>จังหวัด</th>
+                <th>ค่าเป้าหมาย</th>
+                <th>ค่าผลลัพธ์</th>
+                <th>ร้อยละ</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+
+        </div>
+      </div>
+    </div>
+    <script src="map/mapping_pv.js"></script>
+    <script src="map/map2.js"></script>
+
+  </div>
 
 </body>
 
