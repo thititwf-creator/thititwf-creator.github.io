@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>งานปี 2568 – CDD Women Fund</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --pink: #e91e63;
+      --navy: #1a237e;
+      --bg: #f5f5f5;
+      --card: #ffffff;
+    }
+
+    body {
+      font-family: 'Sarabun', sans-serif;
+      margin: 0;
+      background: var(--bg);
+    }
+
+    /* ===== Top Navbar ===== */
+    .navbar {
+      background: var(--navy);
+      padding: 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      color: white;
+    }
+
+    .navbar-title {
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin-right: 20px;
+    }
+
+    .navbar button {
+      background: #fff;
+      color: var(--navy);
+      border: none;
+      border-radius: 6px;
+      padding: 6px 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: .2s;
+    }
+
+    .navbar button:hover,
+    .navbar button.active {
+      background: var(--pink);
+      color: #fff;
+    }
+
+    /* ===== Dropdown ===== */
+    .dropdown {
+      position: relative;
+      display: inline-block;
+    }
+
+    .dropdown-btn {
+      background: #fff;
+      color: var(--navy);
+      padding: 6px 14px;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    .dropdown-btn:hover {
+      background: var(--pink);
+      color: white;
+    }
+
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      background: #fff;
+      min-width: 220px;
+      border-radius: 6px;
+      box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15);
+      z-index: 999;
+    }
+
+    .dropdown-content a {
+      display: block;
+      padding: 10px 12px;
+      color: #333;
+      text-decoration: none;
+    }
+
+    .dropdown-content a:hover {
+      background: #f7d7e5;
+    }
+
+    .dropdown:hover .dropdown-content {
+      display: block;
+    }
+
+    /* ===== Layout: Sidebar + Content ===== */
+    .layout {
+      display: flex;
+      margin-top: 10px;
+    }
+
+    /* Left Sidebar */
+    .sidebar {
+      width: 240px;
+      background: white;
+      border-right: 1px solid #ddd;
+      padding: 16px;
+      height: calc(100vh - 70px);
+      position: sticky;
+      top: 0;
+    }
+
+    .sidebar h3 {
+      color: var(--pink);
+      margin-bottom: 12px;
+    }
+
+    .sidebar a {
+      display: block;
+      padding: 8px 4px;
+      color: #333;
+      text-decoration: none;
+      border-radius: 4px;
+      margin-bottom: 6px;
+    }
+
+    .sidebar a:hover {
+      background: #f7d7e5;
+    }
+
+    /* Content */
+    .content {
+      flex: 1;
+      padding: 20px;
+    }
+
+    .section {
+      background: var(--card);
+      padding: 16px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+    }
+
+    .section h2 {
+      color: var(--pink);
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ===== Top Navbar ===== -->
+  <div class="navbar">
+    <div class="navbar-title">งานปี 2568</div>
+
+    <button onclick="location.href='https://thititwf-creator.github.io/test1.html'">หน้าแรก</button>
+
+    <div class="dropdown">
+      <button class="dropdown-btn active">งานปี 2568 ▾</button>
+      <div class="dropdown-content">
+        <a href="#">ผลงานภาพรวม</a>
+        <a href="#">โครงการปี 2568</a>
+        <a href="#">ไฟล์รายงาน</a>
+      </div>
+    </div>
+
+    <button onclick="location.href='#'">งานปี 2569</button>
+
+    <button onclick="location.href='https://tnah097.github.io/cdwomenpod-dashboard/missed_payment.html'">
+      โปรแกรมคำนวนดอกเบี้ย
+    </button>
+
+    <!-- Dropdown 1 -->
+    <div class="dropdown">
+      <button class="dropdown-btn">มาตรการบริหารจัดการหนี้ ▾</button>
+      <div class="dropdown-content">
+        <a href="law001.html">มาตรการไกล่เกลี่ยฯ</a>
+        <a href="law002.html">ลด/งด ดอกเบี้ยผิดนัด</a>
+        <a href="law003.html">ยกเลิกสัญญาค้ำประกัน</a>
+        <a href="law004.html">ลดอัตราดอกเบี้ย</a>
+        <a href="law005.html">ผู้ทุพพลภาพ/ชราภาพ</a>
+      </div>
+    </div>
+
+    <!-- Dropdown 2 -->
+    <div class="dropdown">
+      <button class="dropdown-btn">ตรวจสอบสมาชิก ▾</button>
+      <div class="dropdown-content">
+        <a href="/member-total.html">บุคคลธรรมดา</a>
+        <a href="/org-total.html">องค์กรสตรี</a>
+      </div>
+    </div>
+
+    <button onclick="location.href='https://thititwf-creator.github.io/q&a.html'">Q&A</button>
+  </div>
+
+  <!-- ===== Layout ===== -->
+  <div class="layout">
+
+    <!-- Sidebar Left -->
+    <div class="sidebar">
+      <h3>เมนูงานปี 2568</h3>
+      <a href="#">ภาพรวมโครงการ</a>
+      <a href="#">งบประมาณปี 2568</a>
+      <a href="#">ผลการดำเนินงาน</a>
+      <a href="#">กิจกรรมสำคัญ</a>
+      <a href="#">ดาวน์โหลดไฟล์</a>
+    </div>
+
+    <!-- Main Content -->
+    <div class="content">
+      <div class="section">
+        <h2>สรุปข้อมูลสำคัญปี 2568</h2>
+        <p>พื้นที่นี้สามารถใส่ Dashboard, ตาราง หรือข้อมูลที่คุณต้องการได้</p>
+      </div>
+
+      <div class="section">
+        <h2>รายละเอียดโครงการ</h2>
+        <p>เพิ่มเนื้อหาตามต้องการ…</p>
+      </div>
+    </div>
+  </div>
+
+</body>
+
+</html>
