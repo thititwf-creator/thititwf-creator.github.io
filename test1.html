@@ -284,6 +284,42 @@
       font-weight: bold;
       text-align: left;
     }
+
+    .dropdown {
+      position: relative;
+      display: inline-block;
+    }
+
+    .dropdown-btn {
+      padding: 10px 16px;
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      border-radius: 6px;
+    }
+
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      background-color: #fff;
+      min-width: 180px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+      z-index: 999;
+    }
+
+    .dropdown-content a {
+      display: block;
+      padding: 10px 12px;
+      color: #333;
+      text-decoration: none;
+    }
+
+    .dropdown-content a:hover {
+      background-color: #f1f1f1;
+    }
   </style>
 </head>
 
@@ -296,8 +332,8 @@
     <button onclick="location.href='#'">งานปี 2569</button>
     <button onclick="location.href='#'">โปรแกรมคำนวนดอกเบี้ย</button>
     <div class="dropdown">
-      <button class="dropdown-btn">มาตรการบริหารจัดการหนี้ ▾</button>
-      <div class="dropdown-content">
+      <button class="dropdown-btn" onclick="toggleDropdown()">มาตรการบริหารจัดการหนี้ ▾</button>
+      <div id="dropdownMenu" class="dropdown-content">
         <a href="measure1.html">มาตรการที่ 1</a>
         <a href="measure2.html">มาตรการที่ 2</a>
         <a href="measure3.html">มาตรการที่ 3</a>
@@ -381,6 +417,19 @@
     </div>
     <script src="map/mapping_pv.js"></script>
     <script src="map/map2.js"></script>
+    <script>
+      function toggleDropdown() {
+        const menu = document.getElementById("dropdownMenu");
+        menu.style.display = (menu.style.display === "block") ? "none" : "block";
+      }
+
+      // ปิด dropdown เมื่อคลิกนอกเมนู
+      window.onclick = function (e) {
+        if (!e.target.matches('.dropdown-btn')) {
+          document.getElementById("dropdownMenu").style.display = "none";
+        }
+      };
+    </script>
 
   </div>
 
