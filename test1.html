@@ -333,8 +333,8 @@
     <button
       onclick="location.href='https://tnah097.github.io/cdwomenpod-dashboard/missed_payment.html'">โปรแกรมคำนวนดอกเบี้ย</button>
     <div class="dropdown">
-      <button class="dropdown-btn" onclick="toggleDropdown()">มาตรการบริหารจัดการหนี้ ▾</button>
-      <div id="dropdownMenu" class="dropdown-content">
+      <button class="dropdown-btn" data-target="menu1">มาตรการบริหารจัดการหนี้ ▾</button>
+      <div id="menu1" class="dropdown-content">
         <a
           href="https://tnah097.github.io/cdwomenpod-dashboard/law001.html">มาตรการไกล่เกลี่ยและประนีประนอมยอมความกรณีลูกหนี้ผิดนัด</a>
         <a href="https://tnah097.github.io/cdwomenpod-dashboard/law002.html">หลักเกณฑ์ วิธีการ และเงื่อนไข
@@ -348,8 +348,8 @@
       </div>
     </div>
     <div class="dropdown">
-      <button class="dropdown-btn" onclick="toggleDropdown()">ตรวจสอบสมาชิก ▾</button>
-      <div id="dropdownMenu2" class="dropdown-content">
+      <button class="dropdown-btn" data-target="menu2">ตรวจสอบสมาชิก ▾</button>
+      <div id="menu2" class="dropdown-content">
         <a href="/member-total.html">บุคคลธรรมดา</a>
         <a href="/org-total.html">องค์กรสตรี</a>
       </div>
@@ -432,22 +432,32 @@
     <script src="map/mapping_pv.js"></script>
     <script src="map/map2.js"></script>
     <script>
-      function toggleDropdown() {
-        const menu = document.getElementById("dropdownMenu");
-        const menu2 = document.getElementById("dropdownMenu2");
+      function toggleDropdown(targetId) {
+        const menu = document.getElementById(targetId);
+
+        // ปิด dropdown อื่นทั้งหมดก่อน
+        document.querySelectorAll('.dropdown-content').forEach(m => {
+          if (m.id !== targetId) m.style.display = 'none';
+        });
+
+        // เปิด/ปิด dropdown ที่กดอยู่
         menu.style.display = (menu.style.display === "block") ? "none" : "block";
-        menu2.style.display = (menu2.style.display === "block") ? "none" : "block";
       }
 
-      // ปิด dropdown เมื่อคลิกนอกเมนู
-      window.onclick = function (e) {
-        if (!e.target.matches('.dropdown-btn')) {
-          document.getElementById("dropdownMenu").style.display = "none";
-        } else if (!e.target.matches('.dropdown-btn')) {
-          document.getElementById("dropdownMenu2").style.display = "none";
-        }
-      };
+      // คลิกปุ่ม dropdown
+      document.querySelectorAll('.dropdown-btn').forEach(btn => {
+        btn.addEventListener('click', function (e) {
+          e.stopPropagation(); // กันไม่ให้ใน window onclick ทำงานซ้อน
+          toggleDropdown(this.dataset.target);
+        });
+      });
 
+      // ปิดทั้งหมดเมื่อคลิกนอกพื้นที่
+      window.addEventListener('click', function () {
+        document.querySelectorAll('.dropdown-content').forEach(m => {
+          m.style.display = 'none';
+        });
+      });
 
     </script>
 
