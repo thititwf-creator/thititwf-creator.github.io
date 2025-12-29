@@ -29,54 +29,6 @@
       color: #000;
     }
 
-    /* ===== Banner ===== */
-    .banner-slider {
-      position: relative;
-      width: 100%;
-      overflow: hidden;
-      background: #000;
-      /* กันขอบขาว */
-    }
-
-    /* รูปแบนเนอร์ */
-    .slides img {
-      width: 100%;
-      height: auto;
-      display: none;
-      cursor: pointer;
-      opacity: 0;
-      transition: opacity .4s ease;
-    }
-
-    /* รูปที่แสดง */
-    .slides img.active {
-      display: block;
-      opacity: 1;
-    }
-
-    /* ปุ่มซ้ายขวา */
-    .nav {
-      position: absolute;
-      top: 50%;
-      transform: translateY(-50%);
-      background: rgba(0, 0, 0, .45);
-      color: #fff;
-      border: none;
-      font-size: 22px;
-      padding: 6px 12px;
-      cursor: pointer;
-      border-radius: 6px;
-      z-index: 10;
-    }
-
-    .prev {
-      left: 10px
-    }
-
-    .next {
-      right: 10px
-    }
-
     /* จุด indicator */
     .dots {
       position: absolute;
@@ -343,7 +295,14 @@
     <button onclick="location.href='#'">งานปี 2568</button>
     <button onclick="location.href='#'">งานปี 2569</button>
     <button onclick="location.href='#'">โปรแกรมคำนวนดอกเบี้ย</button>
-    <button onclick="location.href='#'">มาตรการบริหารจัดการหนี้</button>
+    <div class="dropdown">
+      <button class="dropdown-btn">มาตรการบริหารจัดการหนี้ ▾</button>
+      <div class="dropdown-content">
+        <a href="measure1.html">มาตรการที่ 1</a>
+        <a href="measure2.html">มาตรการที่ 2</a>
+        <a href="measure3.html">มาตรการที่ 3</a>
+      </div>
+    </div>
     <button onclick="location.href='#'">ตรวจสอบสมาชิก</button>
     <button onclick="location.href='#'">Q&A</button>
   </div>
