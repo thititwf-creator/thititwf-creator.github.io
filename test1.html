@@ -337,57 +337,12 @@
 
 <body>
 
-  <!-- ===== Banner ===== -->
-  <!-- <div class="banner-slider" onmouseenter="pauseSlide()" onmouseleave="resumeSlide()"> -->
-  <!-- 
-    <div class="slides">
-      <img src="images/banners/empower.jpg" class="slide active" data-link="#">
-
-      <img src="images/banners/vision301065-1905x400.jpg" class="slide" data-link="#">
-
-      <img src="images/banners/Vision02.jpg" class="slide" data-link="#">
-    </div> -->
-
-  <!-- ❗ ปุ่มต้องอยู่ตรงนี้ -->
-  <!-- <button class="nav prev" onclick="changeSlide(-1)">❮</button>
-    <button class="nav next" onclick="changeSlide(1)">❯</button>
-
-    <div class="dots">
-      <span onclick="goSlide(0)" class="dot active"></span>
-      <span onclick="goSlide(1)" class="dot"></span>
-      <span onclick="goSlide(2)" class="dot"></span>
-    </div> -->
-
-  <!-- </div> -->
-
   <!-- ===== Navigation ===== -->
   <div class="navbar">
     <button class="home" onclick="location.href='https://thititwf-creator.github.io/test1.html'">หน้าแรก</button>
     <button onclick="location.href='#'">งานปี 2568</button>
     <button onclick="location.href='#'">งานปี 2569</button>
     <button onclick="location.href='#'">โปรแกรมคำนวนดอกเบี้ย</button>
-    <!-- <div class="card debt-management">
-      มาตรการบริหารจัดการหนี้
-      <br />
-      <select class="dropdown" onchange="openDebtLink(this.value)">
-        <option value="">-- เลือกหัวข้อ --</option>
-        <option onclick="location.href='https://tnah097.github.io/cdwomenpod-dashboard/law001.html'">
-          มาตรการไกล่เกลี่ยและประนีประนอมยอมความกรณีลูกหนี้ผิดนัด
-        </option>
-        <option value="https://tnah097.github.io/cdwomenpod-dashboard/law002.html">
-          หลักเกณฑ์ วิธีการ และเงื่อนไข การพิจารณาลด/งดเบี้ยปรับ/ดอกเบี้ยผิดนัด
-        </option>
-        <option value="https://tnah097.github.io/cdwomenpod-dashboard/law003.html">
-          มาตรการยกเลิกสัญญาค้ำประกันเงินกู้รายบุคคลและการปลดหนี้รายบุคคล
-        </option>
-        <option value="https://tnah097.github.io/cdwomenpod-dashboard/law004.html">
-          หลักเกณฑ์ วิธีการ และเงื่อนไขการลดอัตราดอกเบี้ยเงินกู้และดอกเบี้ยผิดนัด พ.ศ. 2566
-        </option>
-        <option value="https://tnah097.github.io/cdwomenpod-dashboard/law005.html">
-          มาตรการให้ความช่วยเหลือกรณีทุพพลภาพ ชราภาพ ถึงแก่ความตาย หรือไม่สามารถประกอบอาชีพได้ตามปกติ พ.ศ. 2568
-        </option>
-      </select>
-    </div> -->
     <button onclick="location.href='#'">มาตรการบริหารจัดการหนี้</button>
     <button onclick="location.href='#'">ตรวจสอบสมาชิก</button>
     <button onclick="location.href='#'">Q&A</button>
@@ -473,66 +428,3 @@
 </body>
 
 </html>
-
-
-
-
-
-
-<!-- <script>
-  let current = 0;
-  let timer = null;
-  const interval = 5000; // ⭐ ระยะเวลา Auto slide (ms)
-
-  const slides = document.querySelectorAll('.slide');
-  const dots = document.querySelectorAll('.dot');
-
-  function showSlide(i) {
-    slides.forEach(s => s.classList.remove('active'));
-    dots.forEach(d => d.classList.remove('active'));
-
-    slides[i].classList.add('active');
-    dots[i].classList.add('active');
-    current = i;
-  }
-
-  function changeSlide(step) {
-    let i = current + step;
-    if (i < 0) i = slides.length - 1;
-    if (i >= slides.length) i = 0;
-    showSlide(i);
-  }
-
-  function goSlide(i) {
-    showSlide(i);
-  }
-
-  function autoSlide() {
-    changeSlide(1);
-  }
-
-  function startAutoSlide() {
-    timer = setInterval(autoSlide, interval);
-  }
-
-  function pauseSlide() {
-    clearInterval(timer);
-  }
-
-  function resumeSlide() {
-    startAutoSlide();
-  }
-
-  // ⭐ คลิกที่รูปแล้วไปลิงก์
-  slides.forEach(slide => {
-    slide.addEventListener('click', () => {
-      const link = slide.dataset.link;
-      if (link) {
-        window.open(link, '_blank'); // หรือใช้ location.href = link;
-      }
-    });
-  });
-
-  // เริ่มทำงาน
-  startAutoSlide();
-</script> -->
