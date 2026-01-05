@@ -11,7 +11,7 @@ let svgDoc;
 // 🔑 DOM elements (สำคัญมาก)
 const typeSelect = document.getElementById("typeSelect");
 const yearSelect = document.getElementById("yearSelect");
-const monthSelect = document.getElementById("monthSelect");
+// const monthSelect = document.getElementById("monthSelect");
 const tooltip = document.getElementById("mapTooltip");
 
 /* โหลดแผนที่ */
@@ -56,10 +56,10 @@ async function loadCSV(type) {
 /* dropdown */
 function initFilters() {
     const years = [...new Set(rawData.map(r => r["ปีงบ"]))];
-    const months = [...new Set(rawData.map(r => r["เดือน"]))];
+    // const months = [...new Set(rawData.map(r => r["เดือน"]))];
 
     yearSelect.innerHTML = years.map(y => `<option value="${y}">${y}</option>`).join("");
-    monthSelect.innerHTML = months.map(m => `<option value="${m}">${m}</option>`).join("");
+    // monthSelect.innerHTML = months.map(m => `<option value="${m}">${m}</option>`).join("");
 }
 
 /* สี */
@@ -92,9 +92,11 @@ function updateView() {
 
     const type = typeSelect.value;
     const year = yearSelect.value;
-    const month = monthSelect.value;
+    // const month = monthSelect.value;
 
-    const rows = rawData.filter(r => r["ปีงบ"] === year && r["เดือน"] === month);
+    // const rows = rawData.filter(r => r["ปีงบ"] === year && r["เดือน"] === month);
+    const rows = rawData.filter(r => r["ปีงบ"] === year );
+
     if (!rows.length) return;
 
     const percentKey = Object.keys(rows[0]).find(k => k.includes("ร้อยละ"));
@@ -278,7 +280,7 @@ function updateView() {
 /* events */
 typeSelect.onchange = () => loadCSV(typeSelect.value);
 yearSelect.onchange = updateView;
-monthSelect.onchange = updateView;
+// monthSelect.onchange = updateView;
 
 /* init */
 loadCSV("due");
