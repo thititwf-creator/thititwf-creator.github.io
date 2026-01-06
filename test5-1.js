@@ -201,33 +201,58 @@ function updateSummaryFromFiltered(data) {
         }
 
         /* --- ปรับโครงสร้าง (ค) --- */
-        if (k > 0) {
+        if (k !== "" && !isNaN(k) && Number(k) !== 0) {
             restructureCount++;
-            restructureSum += k;
+            restructureSum += Number(k);
         }
 
         /* --- ระหว่างดำเนินคดีแพ่ง --- */
-        if (ng1 > 0 || ng2 > 0) {
+        if (
+            (ng1 !== "" && !isNaN(ng1) && Number(ng1) !== 0) ||
+            (ng2 !== "" && !isNaN(ng2) && Number(ng2) !== 0)
+        ) {
             civilCount++;
-            civilSum += (ng1 + ng2);
-            if (ng1 > 0) { civil1C++; civil1S += ng1; }
-            if (ng2 > 0) { civil2C++; civil2S += ng2; }
+            civilSum += (Number(ng1) || 0) + (Number(ng2) || 0);
+
+            if (ng1 !== "" && !isNaN(ng1) && Number(ng1) !== 0) {
+                civil1C++;
+                civil1S += Number(ng1);
+            }
+            if (ng2 !== "" && !isNaN(ng2) && Number(ng2) !== 0) {
+                civil2C++;
+                civil2S += Number(ng2);
+            }
         }
 
         /* --- คำพิพากษาแล้ว (ง3,ง4,ง5) --- */
-        if (ng3 > 0 || ng4 > 0 || ng5 > 0) {
+        if (
+            (ng3 !== "" && !isNaN(ng3) && Number(ng3) !== 0) ||
+            (ng4 !== "" && !isNaN(ng4) && Number(ng4) !== 0) ||
+            (ng5 !== "" && !isNaN(ng5) && Number(ng5) !== 0)
+        ) {
             judged.count++;
-            judged.sum += (ng3 + ng4 + ng5);
-            if (ng3 > 0) { judged.g3C++; judged.g3S += ng3; }
-            if (ng4 > 0) { judged.g4C++; judged.g4S += ng4; }
-            if (ng5 > 0) { judged.g5C++; judged.g5S += ng5; }
+            judged.sum += (Number(ng3) || 0) + (Number(ng4) || 0) + (Number(ng5) || 0);
+
+            if (ng3 !== "" && !isNaN(ng3) && Number(ng3) !== 0) {
+                judged.g3C++;
+                judged.g3S += Number(ng3);
+            }
+            if (ng4 !== "" && !isNaN(ng4) && Number(ng4) !== 0) {
+                judged.g4C++;
+                judged.g4S += Number(ng4);
+            }
+            if (ng5 !== "" && !isNaN(ng5) && Number(ng5) !== 0) {
+                judged.g5C++;
+                judged.g5S += Number(ng5);
+            }
         }
 
         /* --- คดีอาญา --- */
-        if (ng6 > 0) {
+        if (ng6 !== "" && !isNaN(ng6) && Number(ng6) !== 0) {
             criminalCount++;
-            criminalSum += ng6;
+            criminalSum += Number(ng6);
         }
+
     });
 
     const set = (id, v) => document.getElementById(id).textContent = v;
