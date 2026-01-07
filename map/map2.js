@@ -10,7 +10,7 @@ let svgDoc;
 
 // 🔑 DOM elements (สำคัญมาก)
 const typeSelect = document.getElementById("typeSelect");
-const yearSelect = document.getElementById("yearSelect");
+// const yearSelect = document.getElementById("yearSelect");
 // const monthSelect = document.getElementById("monthSelect");
 const tooltip = document.getElementById("mapTooltip");
 
@@ -55,10 +55,10 @@ async function loadCSV(type) {
 
 /* dropdown */
 function initFilters() {
-    const years = [...new Set(rawData.map(r => r["ปีงบ"]))];
+    // const years = [...new Set(rawData.map(r => r["ปีงบ"]))];
     // const months = [...new Set(rawData.map(r => r["เดือน"]))];
 
-    yearSelect.innerHTML = years.map(y => `<option value="${y}">${y}</option>`).join("");
+    // yearSelect.innerHTML = years.map(y => `<option value="${y}">${y}</option>`).join("");
     // monthSelect.innerHTML = months.map(m => `<option value="${m}">${m}</option>`).join("");
 }
 
@@ -91,11 +91,28 @@ function updateView() {
     if (!rawData.length || !svgDoc) return;
 
     const type = typeSelect.value;
-    const year = yearSelect.value;
+    // const year = yearSelect.value;
     // const month = monthSelect.value;
 
     // const rows = rawData.filter(r => r["ปีงบ"] === year && r["เดือน"] === month);
-    const rows = rawData.filter(r => r["ปีงบ"] === year );
+    // const rows = rawData.filter(r => r["ปีงบ"] === year );
+
+     const latestRow = rawData
+        .slice()
+        .sort((a, b) => {
+            if (a["ปีงบ"] !== b["ปีงบ"]) {
+                return Number(b["ปีงบ"]) - Number(a["ปีงบ"]);
+            }
+            return Number(b["เดือน"]) - Number(a["เดือน"]);
+        })[0];
+
+    const latestYear = latestRow["ปีงบ"];
+    const latestMonth = latestRow["เดือน"];
+
+    // 🔥 ใช้ข้อมูลล่าสุดเท่านั้น
+    const rows = rawData.filter(
+        r => r["ปีงบ"] === latestYear && r["เดือน"] === latestMonth
+    );
 
     if (!rows.length) return;
 
@@ -279,7 +296,7 @@ function updateView() {
 
 /* events */
 typeSelect.onchange = () => loadCSV(typeSelect.value);
-yearSelect.onchange = updateView;
+// yearSelect.onchange = updateView;
 // monthSelect.onchange = updateView;
 
 /* init */
