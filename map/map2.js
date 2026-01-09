@@ -181,7 +181,7 @@ function updateView() {
         // ⭐ NEW: ข้อมูลของจังหวัด (รองรับทุกจังหวัด)
         const row = rows.find(r => r["จังหวัด"] === pv);
 
-        let color = "#a0999980";
+        let color = "#eee";
         let color2 = "#eee";
 
         if (rowTop) {
@@ -201,6 +201,7 @@ function updateView() {
         }
 
         p.style.fill = color;
+        p.style.fill2 = color2;
         p.style.pointerEvents = "visibleFill";
 
         // ------------------------
@@ -267,7 +268,8 @@ function updateView() {
     label.setAttribute("text-anchor", "middle");
     label.setAttribute("font-size", "20");
     label.setAttribute("font-weight", "bold");
-    label.setAttribute("fill", "#fff");
+    label.setAttribute("fill", "#2841ccc7");
+    label.setAttribute("fill2", "#ffffff8e");
     label.setAttribute("class", "map-pin");
     label.style.pointerEvents = "none"; // ❗ ไม่ให้รับ hover
     label.textContent = rank;
