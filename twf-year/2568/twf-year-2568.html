@@ -280,54 +280,51 @@
                 <h2>สรุปข้อมูลสำคัญปี 2568</h2>
                 <p>พื้นที่นี้สามารถใส่ Dashboard, ตาราง หรือข้อมูลที่คุณต้องการได้</p>
             </div>
+            <div class="section">
+                <h2>ภาพรวมรายจังหวัด</h2>
 
-        </div>
-        <!-- ===== Overview Map Section ===== -->
-        <div class="section">
-            <h2>ภาพรวมรายจังหวัด</h2>
+                <div class="map-layout">
+                    <!-- Map -->
+                    <div class="map-area">
 
-            <div class="map-layout">
-                <!-- Map -->
-                <div class="map-area">
+                        <!-- ปุ่ม Zoom -->
+                        <div class="zoom-controls">
+                            <button id="zoomIn">＋</button>
+                            <button id="zoomOut">－</button>
+                        </div>
 
-                    <!-- ปุ่ม Zoom -->
-                    <div class="zoom-controls">
-                        <button id="zoomIn">＋</button>
-                        <button id="zoomOut">－</button>
+                        <div id="map"></div>
+                        <div class="map-tooltip" id="mapTooltip"></div>
                     </div>
 
-                    <div id="map"></div>
-                    <div class="map-tooltip" id="mapTooltip"></div>
-                </div>
+                    <!-- Control -->
+                    <div class="map-control">
+                        ประเภทของข้อมูล
+                        <select id="typeSelect">
+                            <option value="due">การรับชำระคืน</option>
+                            <option value="overdue">หนี้เกินกำหนดชำระ</option>
+                            <option value="disburse">ผลการใช้จ่ายเงินทุนหมุนเวียน</option>
+                        </select>
 
-                <!-- Control -->
-                <div class="map-control">
-                    ประเภทของข้อมูล
-                    <select id="typeSelect">
-                        <option value="due">การรับชำระคืน</option>
-                        <option value="overdue">หนี้เกินกำหนดชำระ</option>
-                        <option value="disburse">ผลการใช้จ่ายเงินทุนหมุนเวียน</option>
-                    </select>
+                        <!-- <select id="yearSelect"></select> -->
+                        <!-- <select id="monthSelect"></select> -->
 
-                    <!-- <select id="yearSelect"></select> -->
-                    <!-- <select id="monthSelect"></select> -->
+                        <table class="map-table" id="mapTable">
+                            <thead>
+                                <tr>
+                                    <th>จังหวัด</th>
+                                    <th>ค่าเป้าหมาย</th>
+                                    <th>ค่าผลลัพธ์</th>
+                                    <th>ร้อยละ</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
 
-                    <table class="map-table" id="mapTable">
-                        <thead>
-                            <tr>
-                                <th>จังหวัด</th>
-                                <th>ค่าเป้าหมาย</th>
-                                <th>ค่าผลลัพธ์</th>
-                                <th>ร้อยละ</th>
-                            </tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
-
+                    </div>
                 </div>
             </div>
         </div>
-
     </div>
     <script src="map/mapping_pv.js"></script>
     <script src="map/mapfor68.js"></script>
