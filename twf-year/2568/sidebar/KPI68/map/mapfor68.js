@@ -15,7 +15,7 @@ const typeSelect = document.getElementById("typeSelect");
 const tooltip = document.getElementById("mapTooltip");
 
 /* โหลดแผนที่ */
-fetch("map/thailandHigh.svg")
+fetch("/sidebar/KPI68/map/thailandHigh.svg")
     .then(r => r.text())
     .then(svg => {
         document.getElementById("map").innerHTML = svg;
@@ -85,7 +85,6 @@ function colorScale(rank, green) {
     return green ? blues[rank] : grays[rank];
 }
 
-
 /* อัปเดตทั้งหมด */
 function updateView() {
     if (!rawData.length || !svgDoc) return;
@@ -149,7 +148,6 @@ function updateView() {
     </tr>`;
     });
 
-
     // ------------------------------
     //  ลงสีบนแผนที่ + tooltip
     // ------------------------------
@@ -204,7 +202,6 @@ function updateView() {
 
         p.onmouseleave = () => tooltip.style.display = "none";
     });
-
 
     // ==========================================================
     // ⭐ ปักหมุดแบบเข็ม บน Top 5 (สีน้ำเงิน) + Bottom 5 (สีแดง)
