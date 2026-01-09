@@ -181,7 +181,8 @@ function updateView() {
         // ⭐ NEW: ข้อมูลของจังหวัด (รองรับทุกจังหวัด)
         const row = rows.find(r => r["จังหวัด"] === pv);
 
-        let color = "#eee";
+        let color = "#a0999980";
+        let color2 = "#eee";
 
         if (rowTop) {
             // จังหวัดติดอันดับ Top 5
@@ -190,7 +191,7 @@ function updateView() {
 
         } else if (rowBottom) {
             // จังหวัดติดอันดับ Bottom 5
-            color = colorScale(bottom5.indexOf(rowBottom), false);
+            color2 = colorScale(bottom5.indexOf(rowBottom), false);
             p.classList.remove("map-default");
 
         } else {
