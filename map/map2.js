@@ -253,8 +253,8 @@ function updateView() {
     // =========================
     const pinHref =
         type === "top"
-            ? "map/pin-blue.svg"   // 🔵 Top 5
-            : "map/pin-white.svg"; // ⚪ Bottom 5
+            ? "map/pin-green.svg"   // 🔵 Top 5
+            : "map/pin-red.svg"; // ⚪ Bottom 5
 
     const textColor =
         type === "top"
