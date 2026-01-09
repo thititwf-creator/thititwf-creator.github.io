@@ -182,7 +182,6 @@ function updateView() {
         const row = rows.find(r => r["จังหวัด"] === pv);
 
         let color = "#eee";
-        let color2 = "#eee";
 
         if (rowTop) {
             // จังหวัดติดอันดับ Top 5
@@ -191,7 +190,7 @@ function updateView() {
 
         } else if (rowBottom) {
             // จังหวัดติดอันดับ Bottom 5
-            color2 = colorScale(bottom5.indexOf(rowBottom), false);
+            color = colorScale(bottom5.indexOf(rowBottom), false);
             p.classList.remove("map-default");
 
         } else {
@@ -201,7 +200,6 @@ function updateView() {
         }
 
         p.style.fill = color;
-        p.style.fill2 = color2;
         p.style.pointerEvents = "visibleFill";
 
         // ------------------------
@@ -250,15 +248,28 @@ function updateView() {
     const pinX = bbox.x + bbox.width / 2 - pinHalf;
     const pinY = bbox.y + bbox.height / 2 - pinSize + 8;
 
+    // =========================
+    // กำหนดสีตามประเภท
+    // =========================
+    const pinHref =
+        type === "top"
+            ? "map/pin-blue.svg"   // 🔵 Top 5
+            : "map/pin-white.svg"; // ⚪ Bottom 5
+
+    const textColor =
+        type === "top"
+            ? "#1e88e5"   // ฟ้า
+            : "#ffffff"; // ขาว
+
     // --- Pin image ---
     const pin = document.createElementNS("http://www.w3.org/2000/svg", "image");
-    pin.setAttribute("href", type === "top" ? "map/pin-green.svg" : "map/pin-red.svg");
+    pin.setAttribute("href", pinHref);
     pin.setAttribute("width", pinSize);
     pin.setAttribute("height", pinSize);
     pin.setAttribute("x", pinX);
     pin.setAttribute("y", pinY);
     pin.setAttribute("class", "map-pin");
-    pin.style.pointerEvents = "none"; // ❗ ไม่ให้รับ hover ใด ๆ
+    pin.style.pointerEvents = "none";
     svgDoc.appendChild(pin);
 
     // --- Pin label (number) ---
@@ -268,15 +279,14 @@ function updateView() {
     label.setAttribute("text-anchor", "middle");
     label.setAttribute("font-size", "20");
     label.setAttribute("font-weight", "bold");
-    label.setAttribute("fill", "#2841ccc7");
-    label.setAttribute("fill2", "#ffffff8e");
+    label.setAttribute("fill", textColor); // ✅ ใช้ fill ตัวเดียว
     label.setAttribute("class", "map-pin");
-    label.style.pointerEvents = "none"; // ❗ ไม่ให้รับ hover
+    label.style.pointerEvents = "none";
     label.textContent = rank;
-    svgDoc.appendChild(label);
 
-    // ❌ ไม่มี hitbox แล้ว
+    svgDoc.appendChild(label);
 }
+
 
     // ปักหมุด Top 5 → pin-green.svg
     top5.forEach((r, i) => {
