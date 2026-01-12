@@ -8,17 +8,26 @@ const SUMMARY_CSV_URLS = {
 };
 
 /* ==============================
-   CSV PARSER
+   COLUMN INDEX (A–F)
+================================ */
+const COL = {
+  FY: 0,        // ปีงบ
+  MONTH: 1,     // เดือน
+  PROVINCE: 2,  // จังหวัด
+  TARGET: 3,    // เป้า
+  ACTUAL: 4,    // ค่าที่ได้
+  PERCENT: 5    // ร้อยละ (ไม่ใช้)
+};
+
+/* ==============================
+   CSV PARSER (ARRAY)
 ================================ */
 function parseCSV(text) {
-  const lines = text.trim().split("\n");
-  const headers = lines.shift().split(",");
-  return lines.map(line => {
-    const values = line.split(",");
-    const obj = {};
-    headers.forEach((h, i) => obj[h.trim()] = values[i]?.trim());
-    return obj;
-  });
+  return text
+    .trim()
+    .split("\n")
+    .slice(1)           // ข้าม header
+    .map(line => line.split(","));
 }
 
 /* ==============================
@@ -29,25 +38,36 @@ async function calculateSummaryRate(url) {
   const csvText = await res.text();
   const data = parseCSV(csvText);
 
-  const FY = "ปีงบ";
-  const MONTH = "เดือน";
-  const TARGET = "เป้า";
-  const ACTUAL = "ค่าที่ได้";
+  // ปีงบล่าสุด
+  const latestFY = Math.max(
+    ...data.map(r => Number(r[COL.FY]))
+  );
 
-  const latestFY = Math.max(...data.map(d => +d[FY]));
+  // เดือนล่าสุดของปีงบล่าสุด
   const latestMonth = Math.max(
-    ...data.filter(d => +d[FY] === latestFY).map(d => +d[MONTH])
+    ...data
+      .filter(r => Number(r[COL.FY]) === latestFY)
+      .map(r => Number(r[COL.MONTH]))
   );
 
-  const filtered = data.filter(d =>
-    +d[FY] === latestFY &&
-    +d[MONTH] === latestMonth
+  // ข้อมูลล่าสุด (ทุกจังหวัด)
+  const filtered = data.filter(r =>
+    Number(r[COL.FY]) === latestFY &&
+    Number(r[COL.MONTH]) === latestMonth
   );
 
-  const totalTarget = filtered.reduce((s, d) => s + (+d[TARGET] || 0), 0);
-  const totalActual = filtered.reduce((s, d) => s + (+d[ACTUAL] || 0), 0);
+  // รวมค่า
+  const totalTarget = filtered.reduce(
+    (sum, r) => sum + (Number(r[COL.TARGET]) || 0), 0
+  );
 
-  return totalTarget ? (totalActual * 100 / totalTarget) : 0;
+  const totalActual = filtered.reduce(
+    (sum, r) => sum + (Number(r[COL.ACTUAL]) || 0), 0
+  );
+
+  return totalTarget
+    ? (totalActual * 100) / totalTarget
+    : 0;
 }
 
 /* ==============================
