@@ -4,7 +4,9 @@
 const SUMMARY_CSV_URLS = {
   due: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRAz577iK5UQ03hI6swaEZJaT8kpvYaUA7SRAXOAGkwwznaLe6KL6z5BP8CQ4tZLy0TQht2YWcjwzix/pub?gid=0&single=true&output=csv",
   overdue: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRAz577iK5UQ03hI6swaEZJaT8kpvYaUA7SRAXOAGkwwznaLe6KL6z5BP8CQ4tZLy0TQht2YWcjwzix/pub?gid=1712737757&single=true&output=csv",
-  disburse: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRAz577iK5UQ03hI6swaEZJaT8kpvYaUA7SRAXOAGkwwznaLe6KL6z5BP8CQ4tZLy0TQht2YWcjwzix/pub?gid=815669108&single=true&output=csv"
+  disburse: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRAz577iK5UQ03hI6swaEZJaT8kpvYaUA7SRAXOAGkwwznaLe6KL6z5BP8CQ4tZLy0TQht2YWcjwzix/pub?gid=815669108&single=true&output=csv",
+  member: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRAz577iK5UQ03hI6swaEZJaT8kpvYaUA7SRAXOAGkwwznaLe6KL6z5BP8CQ4tZLy0TQht2YWcjwzix/pub?gid=1451100374&single=true&output=csv",
+  project: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRAz577iK5UQ03hI6swaEZJaT8kpvYaUA7SRAXOAGkwwznaLe6KL6z5BP8CQ4tZLy0TQht2YWcjwzix/pub?gid=1260845558&single=true&output=csv"
 };
 
 /* ==============================
@@ -99,6 +101,41 @@ async function calculateSummaryRate(url) {
     ? (totalActual * 100) / totalTarget
     : 0;
 }
+/* ==============================
+   CALCULATE TOTAL
+================================ */
+async function calculateLatestTotal(url) {
+  if (!url) return 0;
+
+  const res = await fetch(url);
+  const csvText = await res.text();
+  const data = parseCSV(csvText);
+
+  // ปีงบล่าสุด
+  const latestFY = Math.max(
+    ...data.map(r => toNumber(r[COL_SIMPLE.FY]))
+  );
+
+  // เดือนล่าสุด (ภาษาไทย)
+  const latestMonth = Math.max(
+    ...data
+      .filter(r => toNumber(r[COL_SIMPLE.FY]) === latestFY)
+      .map(r => monthIndex(r[COL_SIMPLE.MONTH]))
+  );
+
+  // กรองข้อมูลล่าสุด
+  const filtered = data.filter(r =>
+    toNumber(r[COL_SIMPLE.FY]) === latestFY &&
+    monthIndex(r[COL_SIMPLE.MONTH]) === latestMonth
+  );
+
+  // รวมค่าทุกจังหวัด
+  return filtered.reduce(
+    (sum, r) => sum + toNumber(r[COL_SIMPLE.VALUE]),
+    0
+  );
+}
+
 
 /* ==============================
    LOAD TO CARD
@@ -107,6 +144,8 @@ async function loadSummaryCards() {
   const disburse = await calculateSummaryRate(SUMMARY_CSV_URLS.disburse);
   const due = await calculateSummaryRate(SUMMARY_CSV_URLS.due);
   const overdue = await calculateSummaryRate(SUMMARY_CSV_URLS.overdue);
+  const member = await calculateSummaryRate(SUMMARY_CSV_URLS.member);
+  const project = await calculateSummaryRate(SUMMARY_CSV_URLS.project);
 
   document.getElementById("disburseRate").textContent =
     disburse.toFixed(2) + "%";
@@ -116,6 +155,13 @@ async function loadSummaryCards() {
 
   document.getElementById("overdueRate").textContent =
     overdue.toFixed(2) + "%";
+
+  document.getElementById("memberTotal").textContent =
+    member.toLocaleString();
+
+  document.getElementById("projectTotal").textContent =
+    project.toLocaleString();
+
 }
 
 /* ==============================
