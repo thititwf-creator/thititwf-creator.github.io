@@ -152,8 +152,8 @@ async function loadSummaryCards() {
   const disburse = await calculateSummaryRate(SUMMARY_CSV_URLS.disburse);
   const due = await calculateSummaryRate(SUMMARY_CSV_URLS.due);
   const overdue = await calculateSummaryRate(SUMMARY_CSV_URLS.overdue);
-  const member = await calculateSummaryRate(SUMMARY_CSV_URLS.member);
-  const project = await calculateSummaryRate(SUMMARY_CSV_URLS.project);
+  const member = await calculateLatestTotal(SUMMARY_CSV_URLS.member);
+  const project = await calculateLatestTotal(SUMMARY_CSV_URLS.project);
 
   document.getElementById("disburseRate").textContent =
     disburse.toFixed(2) + "%";
