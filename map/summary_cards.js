@@ -12,21 +12,51 @@ const SUMMARY_CSV_URLS = {
 ================================ */
 const COL = {
   FY: 0,        // ปีงบ
-  MONTH: 1,     // เดือน
+  MONTH: 1,     // เดือน (ข้อความ)
   PROVINCE: 2,  // จังหวัด
   TARGET: 3,    // เป้า
   ACTUAL: 4,    // ค่าที่ได้
-  PERCENT: 5    // ร้อยละ (ไม่ใช้)
+  PERCENT: 5
 };
+
+/* ==============================
+   MONTH MAP (TH)
+================================ */
+const TH_MONTH = {
+  "มกราคม": 1,
+  "กุมภาพันธ์": 2,
+  "มีนาคม": 3,
+  "เมษายน": 4,
+  "พฤษภาคม": 5,
+  "มิถุนายน": 6,
+  "กรกฎาคม": 7,
+  "สิงหาคม": 8,
+  "กันยายน": 9,
+  "ตุลาคม": 10,
+  "พฤศจิกายน": 11,
+  "ธันวาคม": 12
+};
+
+/* ==============================
+   UTILS
+================================ */
+function toNumber(val) {
+  return Number(val) || 0;
+}
+
+function monthIndex(val) {
+  return TH_MONTH[val?.trim()] || 0;
+}
 
 /* ==============================
    CSV PARSER (ARRAY)
 ================================ */
 function parseCSV(text) {
   return text
+    .replace(/^\uFEFF/, "")
     .trim()
     .split("\n")
-    .slice(1)           // ข้าม header
+    .slice(1)
     .map(line => line.split(","));
 }
 
@@ -40,29 +70,29 @@ async function calculateSummaryRate(url) {
 
   // ปีงบล่าสุด
   const latestFY = Math.max(
-    ...data.map(r => Number(r[COL.FY]))
+    ...data.map(r => toNumber(r[COL.FY]))
   );
 
-  // เดือนล่าสุดของปีงบล่าสุด
+  // เดือนล่าสุด (จากชื่อเดือน)
   const latestMonth = Math.max(
     ...data
-      .filter(r => Number(r[COL.FY]) === latestFY)
-      .map(r => Number(r[COL.MONTH]))
+      .filter(r => toNumber(r[COL.FY]) === latestFY)
+      .map(r => monthIndex(r[COL.MONTH]))
   );
 
-  // ข้อมูลล่าสุด (ทุกจังหวัด)
+  // กรองข้อมูลล่าสุด
   const filtered = data.filter(r =>
-    Number(r[COL.FY]) === latestFY &&
-    Number(r[COL.MONTH]) === latestMonth
+    toNumber(r[COL.FY]) === latestFY &&
+    monthIndex(r[COL.MONTH]) === latestMonth
   );
 
-  // รวมค่า
+  // รวมยอดทุกจังหวัด
   const totalTarget = filtered.reduce(
-    (sum, r) => sum + (Number(r[COL.TARGET]) || 0), 0
+    (sum, r) => sum + toNumber(r[COL.TARGET]), 0
   );
 
   const totalActual = filtered.reduce(
-    (sum, r) => sum + (Number(r[COL.ACTUAL]) || 0), 0
+    (sum, r) => sum + toNumber(r[COL.ACTUAL]), 0
   );
 
   return totalTarget
@@ -78,9 +108,14 @@ async function loadSummaryCards() {
   const due = await calculateSummaryRate(SUMMARY_CSV_URLS.due);
   const overdue = await calculateSummaryRate(SUMMARY_CSV_URLS.overdue);
 
-  document.getElementById("disburseRate").textContent = disburse.toFixed(2) + "%";
-  document.getElementById("dueRate").textContent = due.toFixed(2) + "%";
-  document.getElementById("overdueRate").textContent = overdue.toFixed(2) + "%";
+  document.getElementById("disburseRate").textContent =
+    disburse.toFixed(2) + "%";
+
+  document.getElementById("dueRate").textContent =
+    due.toFixed(2) + "%";
+
+  document.getElementById("overdueRate").textContent =
+    overdue.toFixed(2) + "%";
 }
 
 /* ==============================
