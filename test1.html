@@ -370,15 +370,15 @@
       </div>
       <div class="card">
         <h3>ผลการใช้จ่ายเงินทุนหมุนเวียน</h3>
-        <div class="value">98</div>
+        <div class="value" id="disburseRate">-</div>
       </div>
       <div class="card">
         <h3>อัตราชำระคืน</h3>
-        <div class="value">90</div>
+        <div class="value" id="dueRate">-</div>
       </div>
       <div class="card">
         <h3>อัตราหนี้เกินกำหนดชำระ</h3>
-        <div class="value">10</div>
+        <div class="value" id="overdueRate">-</div>
       </div>
     </div>
 
@@ -432,7 +432,7 @@
       สำหรับกราฟเปรียบเทียบข้อมูลรายปี
       <div>
 
-        
+
       </div>
     </div>
 
@@ -466,6 +466,76 @@
         });
       });
 
+    </script>
+
+    <script>
+      const CSV_URLS = {
+        due: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRAz577iK5UQ03hI6swaEZJaT8kpvYaUA7SRAXOAGkwwznaLe6KL6z5BP8CQ4tZLy0TQht2YWcjwzix/pub?gid=0&single=true&output=csv",
+        overdue: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRAz577iK5UQ03hI6swaEZJaT8kpvYaUA7SRAXOAGkwwznaLe6KL6z5BP8CQ4tZLy0TQht2YWcjwzix/pub?gid=1712737757&single=true&output=csv",
+        disburse: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRAz577iK5UQ03hI6swaEZJaT8kpvYaUA7SRAXOAGkwwznaLe6KL6z5BP8CQ4tZLy0TQht2YWcjwzix/pub?gid=815669108&single=true&output=csv"
+      };
+
+      /* ---------- CSV Parser ---------- */
+      function parseCSV(text) {
+        const lines = text.trim().split("\n");
+        const headers = lines.shift().split(",");
+        return lines.map(line => {
+          const values = line.split(",");
+          const obj = {};
+          headers.forEach((h, i) => obj[h.trim()] = values[i]?.trim());
+          return obj;
+        });
+      }
+
+      /* ---------- คำนวณร้อยละรวม ---------- */
+      async function calculateRate(url) {
+        const res = await fetch(url);
+        const csvText = await res.text();
+        const data = parseCSV(csvText);
+
+        // ชื่อคอลัมน์ (ปรับถ้าชื่อจริงไม่ตรง)
+        const FY = "ปีงบ";
+        const MONTH = "เดือน";
+        const TARGET = "เป้า";
+        const ACTUAL = "ค่าที่ได้";
+
+        // ปีงบล่าสุด
+        const latestFY = Math.max(...data.map(d => Number(d[FY])));
+
+        // เดือนล่าสุดในปีงบล่าสุด
+        const latestMonth = Math.max(
+          ...data
+            .filter(d => Number(d[FY]) === latestFY)
+            .map(d => Number(d[MONTH]))
+        );
+
+        // กรองข้อมูลล่าสุด
+        const filtered = data.filter(d =>
+          Number(d[FY]) === latestFY &&
+          Number(d[MONTH]) === latestMonth
+        );
+
+        // รวมทุกจังหวัด
+        const totalTarget = filtered.reduce((s, d) => s + Number(d[TARGET] || 0), 0);
+        const totalActual = filtered.reduce((s, d) => s + Number(d[ACTUAL] || 0), 0);
+
+        if (totalTarget === 0) return 0;
+
+        return (totalActual * 100) / totalTarget;
+      }
+
+      /* ---------- โหลดข้อมูลใส่ card ---------- */
+      async function loadCards() {
+        const disburse = await calculateRate(CSV_URLS.disburse);
+        const due = await calculateRate(CSV_URLS.due);
+        const overdue = await calculateRate(CSV_URLS.overdue);
+
+        document.getElementById("disburseRate").textContent = disburse.toFixed(2) + "%";
+        document.getElementById("dueRate").textContent = due.toFixed(2) + "%";
+        document.getElementById("overdueRate").textContent = overdue.toFixed(2) + "%";
+      }
+
+      loadCards();
     </script>
 
   </div>
