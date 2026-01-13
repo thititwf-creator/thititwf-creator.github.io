@@ -66,12 +66,18 @@ function initFilters() {
 function colorScale(rank, green) {
     // Blue scale (เข้ม → อ่อน)
     const blues = [
-        "#0a3d91", // เข้มสุด
+        "#0a3d91", // เข้มมาก
+        "#134aa6",
         "#1f5fbf",
+        "#3572cf",
         "#4b84d9",
+        "#6a9be6",
         "#8ab1f0",
-        "#c7dcff"  // อ่อนสุด
+        "#a9c8f7",
+        "#c7dcff",
+        "#e3efff"  // อ่อนมาก
     ];
+
 
     // Gray scale (อ่อน → เข้ม)
     const grays = [
