@@ -1,6 +1,6 @@
 /* map/map.js */
 const CSV_URLS = {
-    due: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRAz577iK5UQ03hI6swaEZJaT8kpvYaUA7SRAXOAGkwwznaLe6KL6z5BP8CQ4tZLy0TQht2YWcjwzix/pub?gid=0&single=true&output=csv",
+    due: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRAz577iK5UQ03hI6swaEZJaT8kpvYaUA7SRAXOAGkwwznaLe6KL6z5BP8CQ4tZLy0TQht2YWcjwzix/pub?gid=1213897949&single=true&output=csv",
     overdue: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRAz577iK5UQ03hI6swaEZJaT8kpvYaUA7SRAXOAGkwwznaLe6KL6z5BP8CQ4tZLy0TQht2YWcjwzix/pub?gid=1712737757&single=true&output=csv",
     disburse: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRAz577iK5UQ03hI6swaEZJaT8kpvYaUA7SRAXOAGkwwznaLe6KL6z5BP8CQ4tZLy0TQht2YWcjwzix/pub?gid=815669108&single=true&output=csv"
 };
@@ -91,73 +91,35 @@ function colorScale(rank, green) {
     return green ? blues[rank] : grays[rank];
 }
 
-// 🔁 แปลงชื่อเดือนภาษาไทย → เลขเดือน
-const THAI_MONTH_MAP = {
-    "มกราคม": 1,
-    "กุมภาพันธ์": 2,
-    "มีนาคม": 3,
-    "เมษายน": 4,
-    "พฤษภาคม": 5,
-    "มิถุนายน": 6,
-    "กรกฎาคม": 7,
-    "สิงหาคม": 8,
-    "กันยายน": 9,
-    "ตุลาคม": 10,
-    "พฤศจิกายน": 11,
-    "ธันวาคม": 12
-};
-
-// คืนค่าเลขเดือน ไม่ว่าจะเป็น "9" หรือ "กันยายน"
-function normalizeMonth(m) {
-    if (!m) return null;
-    if (!isNaN(m)) return Number(m); // กรณีเป็นตัวเลขอยู่แล้ว
-    return THAI_MONTH_MAP[m.trim()] ?? null;
-}
 
 /* อัปเดตทั้งหมด */
 function updateView() {
     if (!rawData.length || !svgDoc) return;
 
     const type = typeSelect.value;
+    // const year = yearSelect.value;
+    // const month = monthSelect.value;
 
-    // ===============================
-    // 🔒 ตั้งค่าปีงบประมาณ (รองรับ 68 / 2568)
-    // ===============================
-    const TARGET_YEAR = 2568;
+    // const rows = rawData.filter(r => r["ปีงบ"] === year && r["เดือน"] === month);
+    // const rows = rawData.filter(r => r["ปีงบ"] === year );
 
-    // แปลงปีงบใน CSV ให้เป็น พ.ศ. 4 หลัก
-    function normalizeFiscalYear(y) {
-        y = Number(y);
-        return y < 100 ? y + 2500 : y;
-    }
+    const latestRow = rawData
+        .slice()
+        .sort((a, b) => {
+            if (a["ปีงบ"] !== b["ปีงบ"]) {
+                return Number(b["ปีงบ"]) - Number(a["ปีงบ"]);
+            }
+            return Number(b["เดือน"]) - Number(a["เดือน"]);
+        })[0];
 
-    // กรองเฉพาะปีงบที่ต้องการ
-    const yearRows = rawData.filter(
-        r => normalizeFiscalYear(r["ปีงบ"]) === TARGET_YEAR
+    const latestYear = latestRow["ปีงบ"];
+    const latestMonth = latestRow["เดือน"];
+
+    // 🔥 ใช้ข้อมูลล่าสุดเท่านั้น
+    const rows = rawData.filter(
+        r => r["ปีงบ"] === latestYear && r["เดือน"] === latestMonth
     );
 
-    if (!yearRows.length) return;
-
-    // ลำดับเดือนปีงบ (ต.ค. → ก.ย.)
-    const fiscalMonthOrder = [10, 11, 12, 1, 2, 3, 4, 5, 6, 7, 8, 9];
-
-    // 1️⃣ กรองเฉพาะปีงบ 68
-    if (!yearRows.length) return;
-
-    // 2️⃣ หาเดือนล่าสุดของปีงบ 68 (ตามลำดับปีงบ)
-    const latestFiscalMonth = fiscalMonthOrder
-        .slice()            // clone
-        .reverse()          // ไล่จาก ก.ย. → ต.ค.
-        .find(m =>
-            yearRows.some(r => normalizeMonth(r["เดือน"]) === m)
-        );
-
-    if (!latestFiscalMonth) return;
-
-    // 3️⃣ ใช้ข้อมูลเฉพาะ ปีงบ 68 + เดือนล่าสุด
-    const rows = yearRows.filter(
-        r => Number(r["เดือน"]) === latestFiscalMonth
-    );
     if (!rows.length) return;
 
     const percentKey = Object.keys(rows[0]).find(k => k.includes("ร้อยละ"));
