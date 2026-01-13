@@ -127,7 +127,7 @@ function updateView() {
         rows.sort((a, b) => parseFloat(b[percentKey]) - parseFloat(a[percentKey]));
     }
 
-    const top5 = rows.slice(0, 10);
+    const top10 = rows.slice(0, 10);
 
     // ------------------------------
     //  อัปเดตตาราง (เวอร์ชันใหม่ แยกหัวข้อ Top5/Bottom5)
@@ -188,7 +188,7 @@ function updateView() {
             // อันดับ (ถ้าไม่ติดอันดับ จะไม่ขึ้นตัวเลข)
             let rankText = "";
             if (rowTop) rankText = `${top10.indexOf(rowTop) + 1}. `;
-            
+
 
             tooltip.style.display = "block";
             tooltip.style.left = (e.clientX - rect.left + 12) + "px";
@@ -241,8 +241,8 @@ function updateView() {
         label.setAttribute("text-anchor", "middle");
         label.setAttribute("font-size", "20");
         label.setAttribute("font-weight", "bold");
-        label.setAttribute("fill", "#2841ccc7");
-        label.setAttribute("fill2", "#ffffff8e");
+        label.setAttribute("stroke", "#ffffff");
+        label.setAttribute("stroke-width", "2");
         label.setAttribute("class", "map-pin");
         label.style.pointerEvents = "none"; // ❗ ไม่ให้รับ hover
         label.textContent = rank;
@@ -252,7 +252,7 @@ function updateView() {
     }
 
     // ปักหมุด Top 10 → pin-green.svg
-    top5.forEach((r, i) => {
+    top10.forEach((r, i) => {
         const pv = r["จังหวัด"];
         const pathId = Object.keys(mapping_pv).find(k => mapping_pv[k] === pv);
         const path = svgDoc.querySelector(`path#${pathId}`);
