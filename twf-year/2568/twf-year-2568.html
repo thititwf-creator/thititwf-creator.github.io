@@ -200,6 +200,129 @@
         .sidebar .dropdown-content a:hover {
             background: #f7d7e5;
         }
+
+        /* =========================
+   MAP (จำเป็นต้องมี)
+========================= */
+
+        .map-layout {
+            display: flex;
+            gap: 16px;
+        }
+
+        @media (max-width: 768px) {
+            .map-layout {
+                flex-direction: column;
+            }
+        }
+
+        .map-area {
+            flex: 1;
+            height: 520px;
+            border: 1px solid #ddd;
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+            /* ⭐ สำคัญ */
+            background: #fafafa;
+        }
+
+        #map {
+            width: 100%;
+            height: 100%;
+        }
+
+        #map svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* ===== Control ===== */
+        .map-control {
+            flex: 1;
+        }
+
+        .map-control select {
+            padding: 6px 10px;
+            margin-bottom: 6px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            font-family: 'Sarabun';
+        }
+
+        /* ===== Table ===== */
+        .map-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        .map-table th,
+        .map-table td {
+            border: 1px solid #ddd;
+            padding: 6px;
+            font-size: .85rem;
+            text-align: right;
+        }
+
+        .map-table th:first-child,
+        .map-table td:first-child {
+            text-align: left;
+        }
+
+        #mapTable .section-header {
+            background: #f0f0f0;
+            font-weight: bold;
+        }
+
+        /* ===== Tooltip ===== */
+        .map-tooltip {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.75);
+            color: #fff;
+            padding: 8px 10px;
+            font-size: 13px;
+            border-radius: 6px;
+            pointer-events: none;
+            display: none;
+            z-index: 999;
+        }
+
+        /* ===== จังหวัดไม่ติดอันดับ ===== */
+        .map-default {
+            fill: #e98ae7 !important;
+            transition: fill 0.2s ease;
+        }
+
+        .map-default:hover {
+            fill: #85f06a !important;
+        }
+
+        /* ===== Zoom ===== */
+        .zoom-controls {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            z-index: 9999;
+        }
+
+        .zoom-controls button {
+            width: 36px;
+            height: 36px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            background: white;
+            cursor: pointer;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .zoom-controls button:hover {
+            background: #f0f0f0;
+        }
     </style>
 </head>
 
