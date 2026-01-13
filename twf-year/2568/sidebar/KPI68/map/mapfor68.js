@@ -91,6 +91,28 @@ function colorScale(rank, green) {
     return green ? blues[rank] : grays[rank];
 }
 
+// 🔁 แปลงชื่อเดือนภาษาไทย → เลขเดือน
+const THAI_MONTH_MAP = {
+    "มกราคม": 1,
+    "กุมภาพันธ์": 2,
+    "มีนาคม": 3,
+    "เมษายน": 4,
+    "พฤษภาคม": 5,
+    "มิถุนายน": 6,
+    "กรกฎาคม": 7,
+    "สิงหาคม": 8,
+    "กันยายน": 9,
+    "ตุลาคม": 10,
+    "พฤศจิกายน": 11,
+    "ธันวาคม": 12
+};
+
+// คืนค่าเลขเดือน ไม่ว่าจะเป็น "9" หรือ "กันยายน"
+function normalizeMonth(m) {
+    if (!m) return null;
+    if (!isNaN(m)) return Number(m); // กรณีเป็นตัวเลขอยู่แล้ว
+    return THAI_MONTH_MAP[m.trim()] ?? null;
+}
 
 /* อัปเดตทั้งหมด */
 function updateView() {
@@ -127,7 +149,7 @@ function updateView() {
         .slice()            // clone
         .reverse()          // ไล่จาก ก.ย. → ต.ค.
         .find(m =>
-            yearRows.some(r => Number(r["เดือน"]) === m)
+            yearRows.some(r => normalizeMonth(r["เดือน"]) === m)
         );
 
     if (!latestFiscalMonth) return;
@@ -136,9 +158,6 @@ function updateView() {
     const rows = yearRows.filter(
         r => Number(r["เดือน"]) === latestFiscalMonth
     );
-    if (!rows.length) return;
-
-
     if (!rows.length) return;
 
     const percentKey = Object.keys(rows[0]).find(k => k.includes("ร้อยละ"));
