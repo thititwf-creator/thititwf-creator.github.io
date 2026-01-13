@@ -97,28 +97,35 @@ function updateView() {
     if (!rawData.length || !svgDoc) return;
 
     const type = typeSelect.value;
-    // const year = yearSelect.value;
-    // const month = monthSelect.value;
 
-    // const rows = rawData.filter(r => r["ปีงบ"] === year && r["เดือน"] === month);
-    // const rows = rawData.filter(r => r["ปีงบ"] === year );
+    // ===============================
+    // 🔒 ตั้งค่าปีงบประมาณ
+    // ===============================
+    const TARGET_YEAR = "68";
 
-    const latestRow = rawData
-        .slice()
-        .sort((a, b) => {
-            if (a["ปีงบ"] !== b["ปีงบ"]) {
-                return Number(b["ปีงบ"]) - Number(a["ปีงบ"]);
-            }
-            return Number(b["เดือน"]) - Number(a["เดือน"]);
-        })[0];
+    // ลำดับเดือนปีงบ (ต.ค. → ก.ย.)
+    const fiscalMonthOrder = [10, 11, 12, 1, 2, 3, 4, 5, 6, 7, 8, 9];
 
-    const latestYear = latestRow["ปีงบ"];
-    const latestMonth = latestRow["เดือน"];
+    // 1️⃣ กรองเฉพาะปีงบ 68
+    const yearRows = rawData.filter(r => String(r["ปีงบ"]) === TARGET_YEAR);
+    if (!yearRows.length) return;
 
-    // 🔥 ใช้ข้อมูลล่าสุดเท่านั้น
-    const rows = rawData.filter(
-        r => r["ปีงบ"] === latestYear && r["เดือน"] === latestMonth
+    // 2️⃣ หาเดือนล่าสุดของปีงบ 68 (ตามลำดับปีงบ)
+    const latestFiscalMonth = fiscalMonthOrder
+        .slice()            // clone
+        .reverse()          // ไล่จาก ก.ย. → ต.ค.
+        .find(m =>
+            yearRows.some(r => Number(r["เดือน"]) === m)
+        );
+
+    if (!latestFiscalMonth) return;
+
+    // 3️⃣ ใช้ข้อมูลเฉพาะ ปีงบ 68 + เดือนล่าสุด
+    const rows = yearRows.filter(
+        r => Number(r["เดือน"]) === latestFiscalMonth
     );
+    if (!rows.length) return;
+
 
     if (!rows.length) return;
 
