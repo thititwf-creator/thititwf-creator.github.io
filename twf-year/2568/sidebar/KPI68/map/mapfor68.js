@@ -97,7 +97,6 @@ function colorScale(rank, green) {
         "#e3efff"  // อ่อนมาก
     ];
 
-
     // Gray scale (อ่อน → เข้ม)
     const grays = [
         "#d9d9d9",
@@ -110,10 +109,8 @@ function colorScale(rank, green) {
     return green ? blues[rank] : grays[rank];
 }
 
-
 /* อัปเดตทั้งหมด */
 function updateView() {
-
 
     if (!rawData.length || !svgDoc) return;
 
@@ -176,7 +173,6 @@ function updateView() {
     </tr>`;
     });
 
-
     // ------------------------------
     //  ลงสีบนแผนที่ + tooltip
     // ------------------------------
@@ -199,7 +195,6 @@ function updateView() {
             color = "#e98ae7";
             p.classList.add("map-default");
         }
-
 
         p.style.fill = color;
         p.style.pointerEvents = "visibleFill";
@@ -231,7 +226,6 @@ function updateView() {
 
         p.onmouseleave = () => tooltip.style.display = "none";
     });
-
 
     // ==========================================================
     // ⭐ ปักหมุดแบบเข็ม บน Top 5 (สีน้ำเงิน) + Bottom 5 (สีแดง)
