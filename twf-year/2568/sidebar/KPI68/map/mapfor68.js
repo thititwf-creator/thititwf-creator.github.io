@@ -51,7 +51,7 @@ fetch(ASSET_BASE + "thailandHigh.svg")
 
         svgDoc = g; // ⚠️ เปลี่ยนจาก svg → g
 
-        // loadCSV(DEFAULT_TYPE);
+        loadCSV(DEFAULT_TYPE);
 
     });
 
@@ -295,7 +295,7 @@ if (typeSelect) {
     typeSelect.value = DEFAULT_TYPE;
 }
 
-loadCSV(DEFAULT_TYPE);
+// loadCSV(DEFAULT_TYPE);
 /* events */
 typeSelect.onchange = () => loadCSV(typeSelect.value);
 // yearSelect.onchange = updateView;
