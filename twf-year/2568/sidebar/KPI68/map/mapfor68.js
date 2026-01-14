@@ -270,16 +270,17 @@ function updateView() {
 
 }
 
-/* events */
-typeSelect.onchange = () => loadCSV(typeSelect.value);
-// yearSelect.onchange = updateView;
-// monthSelect.onchange = updateView;
-
 /* init */
 const DEFAULT_TYPE =
     document.getElementById("typeSelect")?.value || "due";
 
 loadCSV(DEFAULT_TYPE);
+
+/* events */
+typeSelect.onchange = () => loadCSV(typeSelect.value);
+// yearSelect.onchange = updateView;
+// monthSelect.onchange = updateView;
+
 
 
 /* ============================================================
