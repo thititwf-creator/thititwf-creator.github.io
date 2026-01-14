@@ -50,8 +50,14 @@ fetch(ASSET_BASE + "thailandHigh.svg")
 
         svgEl.setAttribute("preserveAspectRatio", "xMidYMid meet");
 
-        // ⭐ svgDoc เป็น <svg> อีกครั้ง (ไม่ใช่ <g>)
-        svgDoc = svgEl;
+        // ⭐ WRAP CONTENT
+        const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+        while (svgEl.firstChild) {
+            g.appendChild(svgEl.firstChild);
+        }
+        svgEl.appendChild(g);
+
+        svgDoc = g; // ⚠️ เปลี่ยนจาก svg → g
     });
 
 
@@ -112,6 +118,8 @@ function colorScale(rank, green) {
 
 /* อัปเดตทั้งหมด */
 function updateView() {
+
+    
     if (!rawData.length || !svgDoc) return;
 
     const type = typeSelect.value;
