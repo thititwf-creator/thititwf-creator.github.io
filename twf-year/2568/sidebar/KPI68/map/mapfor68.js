@@ -1,4 +1,22 @@
 /* map/map.js */
+/* ===============================
+   AUTO BASE PATH (รองรับทุกหน้า)
+================================= */
+function getAssetBase() {
+    const p = window.location.pathname;
+
+    // ถ้าอยู่ใน sidebar/
+    if (p.includes("/sidebar/")) {
+        return "/sidebar/KPI68/map/";
+    }
+
+    // ถ้าอยู่นอก sidebar (root)
+    return "sidebar/KPI68/map/";
+}
+
+const ASSET_BASE = getAssetBase();
+
+
 const CSV_URLS = {
     due: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRAz577iK5UQ03hI6swaEZJaT8kpvYaUA7SRAXOAGkwwznaLe6KL6z5BP8CQ4tZLy0TQht2YWcjwzix/pub?gid=1213897949&single=true&output=csv",
     overdue: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRAz577iK5UQ03hI6swaEZJaT8kpvYaUA7SRAXOAGkwwznaLe6KL6z5BP8CQ4tZLy0TQht2YWcjwzix/pub?gid=1506220620&single=true&output=csv",
@@ -15,7 +33,7 @@ const typeSelect = document.getElementById("typeSelect");
 const tooltip = document.getElementById("mapTooltip");
 
 /* โหลดแผนที่ */
-fetch("sidebar/KPI68/map/thailandHigh.svg")
+fetch(ASSET_BASE + "thailandHigh.svg")
     .then(r => r.text())
     .then(svg => {
         document.getElementById("map").innerHTML = svg;
@@ -231,9 +249,10 @@ function updateView() {
 
         // --- Pin image ---
         const pin = document.createElementNS("http://www.w3.org/2000/svg", "image");
-        pin.setAttribute("href", type === "top"
-            ? "sidebar/KPI68/map/pin-green.svg"
-            : "sidebar/KPI68/map/pin-red.svg"
+        pin.setAttribute("href", ASSET_BASE + (type === "top"
+            ? "pin-green.svg"
+            : "pin-red.svg"
+        )
         );
         pin.setAttribute("width", pinSize);
         pin.setAttribute("height", pinSize);
