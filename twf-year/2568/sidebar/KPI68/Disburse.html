@@ -3,339 +3,131 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>ผลการใช้จ่ายเงินทุนหมุนเวียน</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ผลการใช้จ่ายงบประมาณ ปี 2568</title>
+
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap" rel="stylesheet">
 
-    <head>
-        <style>
-            :root {
-                --pink: #e91e63;
-                --navy: #1a237e;
-                --bg: #f5f5f5;
-                --card: #ffffff;
-            }
+    <style>
+        body {
+            font-family: 'Sarabun', sans-serif;
+            margin: 0;
+            background: #f5f5f5;
+        }
 
-            body {
-                font-family: 'Sarabun', sans-serif;
-                margin: 0;
-                background: var(--bg);
-            }
+        .section {
+            background: #fff;
+            padding: 16px;
+            border-radius: 12px;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+        }
 
-            /* ===== Top Navbar ===== */
-            .navbar {
-                background: var(--navy);
-                padding: 12px;
-                display: flex;
-                align-items: center;
-                gap: 10px;
-                flex-wrap: wrap;
-                color: white;
-            }
+        h2 {
+            color: #e91e63;
+            margin-bottom: 12px;
+        }
 
-            .navbar-title {
-                font-size: 2.4rem;
-                font-weight: 700;
-                margin-right: 20px;
-            }
+        /* ===== Map Layout ===== */
+        .map-layout {
+            display: flex;
+            gap: 16px;
+        }
 
-            .navbar button {
-                background: #fff;
-                color: var(--navy);
-                border: none;
-                border-radius: 6px;
-                padding: 6px 14px;
-                font-weight: 700;
-                cursor: pointer;
-                transition: .2s;
-            }
-
-            .navbar button:hover,
-            .navbar button.active {
-                background: var(--pink);
-                color: #fff;
-            }
-
-            /* ===== Layout: Sidebar + Content ===== */
-            .layout {
-                display: flex;
-                margin-top: 10px;
-            }
-
-            /* ===== Sidebar ===== */
-            .sidebar {
-                width: 240px;
-                background: white;
-                border-right: 1px solid #ddd;
-                padding: 16px;
-                height: calc(100vh - 70px);
-                position: sticky;
-                top: 0;
-            }
-
-            .sidebar h3 {
-                color: var(--pink);
-                margin-bottom: 12px;
-            }
-
-            .sidebar a {
-                display: block;
-                padding: 8px 4px;
-                color: #333;
-                text-decoration: none;
-                border-radius: 4px;
-                margin-bottom: 6px;
-            }
-
-            .sidebar a:hover {
-                background: #f7d7e5;
-            }
-
-            /* ===== Content ===== */
-            .content {
-                flex: 1;
-                padding: 20px;
-            }
-
-            .section {
-                background: var(--card);
-                padding: 16px;
-                border-radius: 12px;
-                margin-bottom: 20px;
-                box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
-            }
-
-            .section h2 {
-                color: var(--pink);
-                margin-bottom: 10px;
-            }
-
-            .dropdown {
-                position: relative;
-                display: inline-block;
-            }
-
-            .dropbtn {
-                background: #fff;
-                color: var(--navy);
-                border: none;
-                border-radius: 6px;
-                padding: 6px 14px;
-                font-weight: 700;
-                cursor: pointer;
-                transition: .2s;
-            }
-
-            .dropdown:hover .dropbtn {
-                background: var(--pink);
-                color: #fff;
-            }
-
-            .dropdown-content {
-                display: none;
-                position: absolute;
-                background: white;
-                min-width: 220px;
-                box-shadow: 0px 3px 8px rgba(0, 0, 0, 0.2);
-                border-radius: 6px;
-                overflow: hidden;
-                z-index: 10;
-            }
-
-            .dropdown-content a {
-                padding: 10px 14px;
-                display: block;
-                text-decoration: none;
-                color: #333;
-            }
-
-            .dropdown-content a:hover {
-                background: #f7d7e5;
-            }
-
-            .dropdown:hover .dropdown-content {
-                display: block;
-            }
-
-            /* ===== Dropdown (Sidebar Version) ===== */
-            .sidebar .dropdown {
-                width: 100%;
-                margin-bottom: 8px;
-            }
-
-            .sidebar .dropdown-btn {
-                width: 100%;
-                background: none;
-                border: none;
-                padding: 8px 4px;
-                text-align: left;
-                cursor: pointer;
-                color: #333;
-                font-size: 1rem;
-                border-radius: 4px;
-            }
-
-            .sidebar .dropdown-btn:hover {
-                background: #f7d7e5;
-            }
-
-            .sidebar .dropdown-content {
-                display: none;
-                background: #fafafa;
-                border-left: 3px solid var(--pink);
-                margin-top: 4px;
-                margin-bottom: 8px;
-                padding-left: 6px;
-                border-radius: 4px;
-            }
-
-            .sidebar .dropdown-content a {
-                display: block;
-                padding: 6px 10px;
-                color: #333;
-                text-decoration: none;
-                border-radius: 4px;
-            }
-
-            .sidebar .dropdown-content a:hover {
-                background: #f7d7e5;
-            }
-
-            /* =========================
-        MAP (จำเป็นต้องมี)
-        ========================= */
-
+        @media (max-width: 768px) {
             .map-layout {
-                display: flex;
-                gap: 16px;
-            }
-
-            @media (max-width: 768px) {
-                .map-layout {
-                    flex-direction: column;
-                }
-            }
-
-            .map-area {
-                flex: 1;
-                height: 520px;
-                border: 1px solid #ddd;
-                border-radius: 12px;
-                overflow: hidden;
-                position: relative;
-                /* ⭐ สำคัญ */
-                background: #fafafa;
-            }
-
-            #map {
-                width: 100%;
-                height: 100%;
-            }
-
-            #map svg {
-                width: 100%;
-                height: 100%;
-            }
-
-            /* ===== Control ===== */
-            .map-control {
-                flex: 1;
-            }
-
-            .map-control select {
-                padding: 6px 10px;
-                margin-bottom: 6px;
-                border-radius: 6px;
-                border: 1px solid #ccc;
-                font-family: 'Sarabun';
-            }
-
-            /* ===== Table ===== */
-            .map-table {
-                width: 100%;
-                border-collapse: collapse;
-                margin-top: 10px;
-            }
-
-            .map-table th,
-            .map-table td {
-                border: 1px solid #ddd;
-                padding: 6px;
-                font-size: .85rem;
-                text-align: right;
-            }
-
-            .map-table th:first-child,
-            .map-table td:first-child {
-                text-align: left;
-            }
-
-            #mapTable .section-header {
-                background: #f0f0f0;
-                font-weight: bold;
-            }
-
-            /* ===== Tooltip ===== */
-            .map-tooltip {
-                position: absolute;
-                background: rgba(0, 0, 0, 0.75);
-                color: #fff;
-                padding: 8px 10px;
-                font-size: 13px;
-                border-radius: 6px;
-                pointer-events: none;
-                display: none;
-                z-index: 999;
-            }
-
-            /* ===== จังหวัดไม่ติดอันดับ ===== */
-            .map-default {
-                fill: #e98ae7 !important;
-                transition: fill 0.2s ease;
-            }
-
-            .map-default:hover {
-                fill: #85f06a !important;
-            }
-
-            /* ===== Zoom ===== */
-            .zoom-controls {
-                position: absolute;
-                top: 12px;
-                left: 12px;
-                display: flex;
                 flex-direction: column;
-                gap: 6px;
-                z-index: 9999;
             }
+        }
 
-            .zoom-controls button {
-                width: 36px;
-                height: 36px;
-                border-radius: 6px;
-                border: 1px solid #ccc;
-                background: white;
-                cursor: pointer;
-                font-size: 20px;
-                font-weight: bold;
-            }
+        .map-area {
+            flex: 1;
+            height: 520px;
+            border: 1px solid #ddd;
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+            background: #fafafa;
+        }
 
-            .zoom-controls button:hover {
-                background: #f0f0f0;
-            }
-        </style>
-    </head>
+        #map {
+            width: 100%;
+            height: 100%;
+        }
 
+        #map svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .map-control {
+            flex: 1;
+        }
+
+        .map-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        .map-table th,
+        .map-table td {
+            border: 1px solid #ddd;
+            padding: 6px;
+            font-size: .85rem;
+            text-align: right;
+        }
+
+        .map-table th:first-child,
+        .map-table td:first-child {
+            text-align: left;
+        }
+
+        .map-tooltip {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.75);
+            color: #fff;
+            padding: 8px 10px;
+            font-size: 13px;
+            border-radius: 6px;
+            pointer-events: none;
+            display: none;
+            z-index: 999;
+        }
+
+        .zoom-controls {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            z-index: 9999;
+        }
+
+        .zoom-controls button {
+            width: 36px;
+            height: 36px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            background: white;
+            cursor: pointer;
+            font-size: 20px;
+            font-weight: bold;
+        }
+    </style>
+</head>
 
 <body>
-    <!-- <div class="content"> -->
 
-    <!-- ✅ หน้าแรก: แผนที่ -->
-    <!-- <div id="homeSection" class="section"> -->
-        <h2>ผลการใช้จ่ายเงินทุนหมุนเวียน ปีงบ 2568</h2>
+    <!-- ⭐ typeSelect จำเป็น แต่ซ่อนไว้ -->
+    <select id="typeSelect" style="display:none">
+        <option value="disburse" selected>disburse</option>
+    </select>
+
+    <div class="section">
+        <h2>ผลการใช้จ่ายงบประมาณ (ปีงบประมาณ 2568)</h2>
 
         <div class="map-layout">
-            <!-- Map -->
+
             <div class="map-area">
                 <div class="zoom-controls">
                     <button id="zoomIn">＋</button>
@@ -346,38 +138,31 @@
                 <div class="map-tooltip" id="mapTooltip"></div>
             </div>
 
-            <!-- Control -->
             <div class="map-control">
-                ประเภทของข้อมูล
-                <select id="typeSelect">
-                    <!-- <option value="due">การรับชำระคืน</option> -->
-                    <!-- <option value="overdue">หนี้เกินกำหนดชำระ</option> -->
-                    <option value="disburse">ผลการใช้จ่ายเงินทุนหมุนเวียน</option>
-                </select>
-
                 <table class="map-table" id="mapTable">
                     <thead>
                         <tr>
                             <th>จังหวัด</th>
-                            <th>ค่าเป้าหมาย</th>
-                            <th>ค่าผลลัพธ์</th>
+                            <th>งบประมาณจัดสรร</th>
+                            <th>ใช้จ่ายจริง</th>
                             <th>ร้อยละ</th>
                         </tr>
                     </thead>
                     <tbody></tbody>
                 </table>
             </div>
+
         </div>
-    <!-- </div> -->
+    </div>
 
-    <!-- ✅ จุดโหลด iframe -->
-    <div id="loadArea" class="section" style="display:none;"></div>
-
-    <!-- </div> -->
-
+    <!-- JS -->
     <script src="map/mapping_pv.js"></script>
     <script src="map/mapfor68.js"></script>
 
-</body>
+    <script>
+        // 🔒 override init: จาก due → disburse
+        loadCSV("disburse");
+    </script>
 
+</body>
 </html>
