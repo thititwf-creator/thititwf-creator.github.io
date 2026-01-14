@@ -291,6 +291,10 @@ const DEFAULT_TYPE =
     document.getElementById("typeSelect")?.value ||
     "due";
 
+if (typeSelect) {
+    typeSelect.value = DEFAULT_TYPE;
+}
+
 loadCSV(DEFAULT_TYPE);
 /* events */
 typeSelect.onchange = () => loadCSV(typeSelect.value);
