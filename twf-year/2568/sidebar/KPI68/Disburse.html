@@ -1,4 +1,4 @@
-<!-- ================== TRIS.html ================== -->
+<!-- ================== Disburse.html ================== -->
 
 <!-- CDN (ใส่ซ้ำได้ ไม่พัง) -->
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css">
@@ -6,25 +6,25 @@
 <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap" rel="stylesheet">
 
 <style>
-  .tris-page {
+  .disburse-page {
     font-family: 'Sarabun', sans-serif;
     background: rgba(255,255,255,0.95);
     padding: 30px;
   }
 
-  .tris-header {
+  .disburse-header {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
   }
 
-  .tris-header h1 {
+  .disburse-header h1 {
     margin: 0;
     font-size: 1.8rem;
     color: navy;
   }
 
-  .tris-header h2 {
+  .disburse-header h2 {
     margin: 0;
     font-size: 1.2rem;
     color: deeppink;
@@ -48,9 +48,9 @@
   }
 </style>
 
-<div class="tris-page">
+<div class="disburse-page">
 
-  <div class="tris-header">
+  <div class="disburse-header">
     <div>
       <h1>ทะเบียนคุมการรับ-จ่ายเงินฝากคลัง (รหัส 10962)</h1>
       <h2>
@@ -99,7 +99,7 @@ function formatNumber(n) {
   return Number(n || 0).toLocaleString("th-TH");
 }
 
-async function loadTrisData() {
+async function loadDisburseData() {
   const res = await fetch(API_URL);
   const data = await res.json();
   const tbody = document.querySelector("#mainTable tbody");
@@ -140,5 +140,5 @@ async function loadTrisData() {
   table.on('draw', () => table.fixedHeader.adjust());
 }
 
-loadTrisData();
+loadDisburseData();
 </script>
