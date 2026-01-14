@@ -3,19 +3,11 @@
    AUTO BASE PATH (รองรับทุกหน้า)
 ================================= */
 function getAssetBase() {
-    const p = window.location.pathname;
-
-    // ถ้าอยู่ใน sidebar/
-    if (p.includes("/sidebar/")) {
-        return "/sidebar/KPI68/map/";
-    }
-
-    // ถ้าอยู่นอก sidebar (root)
-    return "sidebar/KPI68/map/";
+    const script = document.currentScript || [...document.scripts].pop();
+    return script.src.substring(0, script.src.lastIndexOf("/") + 1);
 }
 
 const ASSET_BASE = getAssetBase();
-
 
 const CSV_URLS = {
     due: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRAz577iK5UQ03hI6swaEZJaT8kpvYaUA7SRAXOAGkwwznaLe6KL6z5BP8CQ4tZLy0TQht2YWcjwzix/pub?gid=1213897949&single=true&output=csv",
@@ -58,6 +50,9 @@ fetch(ASSET_BASE + "thailandHigh.svg")
         svgEl.appendChild(g);
 
         svgDoc = g; // ⚠️ เปลี่ยนจาก svg → g
+
+        loadCSV(DEFAULT_TYPE);
+
     });
 
 
@@ -119,7 +114,7 @@ function colorScale(rank, green) {
 /* อัปเดตทั้งหมด */
 function updateView() {
 
-    
+
     if (!rawData.length || !svgDoc) return;
 
     const type = typeSelect.value;
@@ -300,8 +295,6 @@ function updateView() {
 /* init */
 const DEFAULT_TYPE =
     document.getElementById("typeSelect")?.value || "due";
-
-loadCSV(DEFAULT_TYPE);
 
 /* events */
 typeSelect.onchange = () => loadCSV(typeSelect.value);
