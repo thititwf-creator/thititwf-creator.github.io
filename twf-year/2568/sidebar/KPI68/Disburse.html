@@ -1,124 +1,191 @@
 <!DOCTYPE html>
 <html lang="th">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap" rel="stylesheet">
 
-<style>
-body {
-  font-family: 'Sarabun', sans-serif;
-  margin: 0;
-  background: transparent;
-}
+    <style>
+        body {
+            font-family: 'Sarabun', sans-serif;
+            margin: 0;
+            background: transparent;
+        }
 
-.section {
-  background: #fff;
-  padding: 16px;
-  border-radius: 16px;
-  box-shadow: 0 3px 8px rgba(0,0,0,.1);
-}
+        .section {
+            background: #fff;
+            padding: 16px;
+            border-radius: 16px;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, .1);
+        }
 
-.map-layout {
-  display: flex;
-  gap: 16px;
-}
+        /* =========================
+   MAP (จำเป็นต้องมี)
+========================= */
 
-.map-area {
-  flex: 1;
-  height: 520px;
-  border: 1px solid #ddd;
-  border-radius: 12px;
-  overflow: hidden;
-  position: relative;
-}
+        .map-layout {
+            display: flex;
+            gap: 16px;
+        }
 
-#map { width:100%; height:100%; }
+        @media (max-width: 768px) {
+            .map-layout {
+                flex-direction: column;
+            }
+        }
 
-.map-control {
-  flex: 1;
-}
+        .map-area {
+            flex: 1;
+            height: 520px;
+            border: 1px solid #ddd;
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+            /* ⭐ สำคัญ */
+            background: #fafafa;
+        }
 
-.map-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 10px;
-}
+        #map {
+            width: 100%;
+            height: 100%;
+        }
 
-.map-table th,
-.map-table td {
-  border: 1px solid #ddd;
-  padding: 6px;
-  font-size: .85rem;
-  text-align: right;
-}
+        #map svg {
+            width: 100%;
+            height: 100%;
+        }
 
-.map-table th:first-child,
-.map-table td:first-child {
-  text-align: left;
-}
+        /* ===== Control ===== */
+        .map-control {
+            flex: 1;
+        }
 
-.zoom-controls {
-  position: absolute;
-  top: 12px;
-  left: 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  z-index: 999;
-}
+        .map-control select {
+            padding: 6px 10px;
+            margin-bottom: 6px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            font-family: 'Sarabun';
+        }
 
-.zoom-controls button {
-  width: 36px;
-  height: 36px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-  background: #fff;
-  cursor: pointer;
-}
-</style>
+        /* ===== Table ===== */
+        .map-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        .map-table th,
+        .map-table td {
+            border: 1px solid #ddd;
+            padding: 6px;
+            font-size: .85rem;
+            text-align: right;
+        }
+
+        .map-table th:first-child,
+        .map-table td:first-child {
+            text-align: left;
+        }
+
+        #mapTable .section-header {
+            background: #f0f0f0;
+            font-weight: bold;
+        }
+
+        /* ===== Tooltip ===== */
+        .map-tooltip {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.75);
+            color: #fff;
+            padding: 8px 10px;
+            font-size: 13px;
+            border-radius: 6px;
+            pointer-events: none;
+            display: none;
+            z-index: 999;
+        }
+
+        /* ===== จังหวัดไม่ติดอันดับ ===== */
+        .map-default {
+            fill: #e98ae7 !important;
+            transition: fill 0.2s ease;
+        }
+
+        .map-default:hover {
+            fill: #85f06a !important;
+        }
+
+        /* ===== Zoom ===== */
+        .zoom-controls {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            z-index: 9999;
+        }
+
+        .zoom-controls button {
+            width: 36px;
+            height: 36px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            background: white;
+            cursor: pointer;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .zoom-controls button:hover {
+            background: #f0f0f0;
+        }
+    </style>
 </head>
 
 <body>
 
-<div class="section">
-  <h2 style="color:#e91e63">ภาพรวมรายจังหวัด (ปีงบ 2568)</h2>
+    <div class="section">
+        <h2 style="color:#e91e63">ภาพรวมรายจังหวัด (ปีงบ 2568)</h2>
 
-  <div class="map-layout">
-    <div class="map-area">
-      <div class="zoom-controls">
-        <button id="zoomIn">＋</button>
-        <button id="zoomOut">－</button>
-      </div>
-      <div id="map"></div>
-      <div class="map-tooltip" id="mapTooltip"></div>
+        <div class="map-layout">
+            <div class="map-area">
+                <div class="zoom-controls">
+                    <button id="zoomIn">＋</button>
+                    <button id="zoomOut">－</button>
+                </div>
+                <div id="map"></div>
+                <div class="map-tooltip" id="mapTooltip"></div>
+            </div>
+
+            <div class="map-control">
+                ประเภทของข้อมูล
+                <select id="typeSelect">
+                    <!-- <option value="due">การรับชำระคืน</option> -->
+                    <!-- <option value="overdue">หนี้เกินกำหนดชำระ</option> -->
+                    <option value="disburse">ผลการใช้จ่ายเงินทุนหมุนเวียน</option>
+                </select>
+
+                <table class="map-table" id="mapTable">
+                    <thead>
+                        <tr>
+                            <th>จังหวัด</th>
+                            <th>ค่าเป้าหมาย</th>
+                            <th>ค่าผลลัพธ์</th>
+                            <th>ร้อยละ</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
     </div>
 
-    <div class="map-control">
-      ประเภทของข้อมูล
-      <select id="typeSelect">
-        <!-- <option value="due">การรับชำระคืน</option> -->
-        <!-- <option value="overdue">หนี้เกินกำหนดชำระ</option> -->
-        <option value="disburse">ผลการใช้จ่ายเงินทุนหมุนเวียน</option>
-      </select>
-
-      <table class="map-table" id="mapTable">
-        <thead>
-          <tr>
-            <th>จังหวัด</th>
-            <th>ค่าเป้าหมาย</th>
-            <th>ค่าผลลัพธ์</th>
-            <th>ร้อยละ</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-    </div>
-  </div>
-</div>
-
-<script src="sidebar/KPI68/map/mapping_pv.js"></script>
-<script src="sidebar/KPI68/map/mapfor68.js"></script>
+    <script src="sidebar/KPI68/map/mapping_pv.js"></script>
+    <script src="sidebar/KPI68/map/mapfor68.js"></script>
 
 </body>
+
 </html>
