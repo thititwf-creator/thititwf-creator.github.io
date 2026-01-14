@@ -276,7 +276,11 @@ typeSelect.onchange = () => loadCSV(typeSelect.value);
 // monthSelect.onchange = updateView;
 
 /* init */
-loadCSV("due");
+const DEFAULT_TYPE =
+    document.getElementById("typeSelect")?.value || "due";
+
+loadCSV(DEFAULT_TYPE);
+
 
 /* ============================================================
    ⭐ ระบบ Zoom & Pan (Drag) สำหรับ SVG Map
