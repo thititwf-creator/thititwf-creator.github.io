@@ -330,53 +330,54 @@
 <body>
     <!-- <div class="content"> -->
 
-        <!-- ✅ หน้าแรก: แผนที่ -->
-        <div id="homeSection" class="section">
-            <h2>ผลการใช้จ่ายเงินทุนหมุนเวียน ปีงบ 2568</h2>
+    <!-- ✅ หน้าแรก: แผนที่ -->
+    <div id="homeSection" class="section">
+        <h2>ผลการใช้จ่ายเงินทุนหมุนเวียน ปีงบ 2568</h2>
 
-            <div class="map-layout">
-                <!-- Map -->
-                <div class="map-area">
-                    <div class="zoom-controls">
-                        <button id="zoomIn">＋</button>
-                        <button id="zoomOut">－</button>
-                    </div>
-
-                    <div id="map"></div>
-                    <div class="map-tooltip" id="mapTooltip"></div>
+        <div class="map-layout">
+            <!-- Map -->
+            <div class="map-area">
+                <div class="zoom-controls">
+                    <button id="zoomIn">＋</button>
+                    <button id="zoomOut">－</button>
                 </div>
 
-                <!-- Control -->
-                <div class="map-control">
-                    ประเภทของข้อมูล
-                    <select id="typeSelect">
-                        <!-- <option value="due">การรับชำระคืน</option> -->
-                        <!-- <option value="overdue">หนี้เกินกำหนดชำระ</option> -->
-                        <option value="disburse">ผลการใช้จ่ายเงินทุนหมุนเวียน</option>
-                    </select>
+                <div id="map"></div>
+                <div class="map-tooltip" id="mapTooltip"></div>
+            </div>
 
-                    <table class="map-table" id="mapTable">
-                        <thead>
-                            <tr>
-                                <th>จังหวัด</th>
-                                <th>ค่าเป้าหมาย</th>
-                                <th>ค่าผลลัพธ์</th>
-                                <th>ร้อยละ</th>
-                            </tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
-                </div>
+            <!-- Control -->
+            <div class="map-control">
+                ประเภทของข้อมูล
+                <select id="typeSelect">
+                    <!-- <option value="due">การรับชำระคืน</option> -->
+                    <!-- <option value="overdue">หนี้เกินกำหนดชำระ</option> -->
+                    <option value="disburse">ผลการใช้จ่ายเงินทุนหมุนเวียน</option>
+                </select>
+
+                <table class="map-table" id="mapTable">
+                    <thead>
+                        <tr>
+                            <th>จังหวัด</th>
+                            <th>ค่าเป้าหมาย</th>
+                            <th>ค่าผลลัพธ์</th>
+                            <th>ร้อยละ</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
             </div>
         </div>
+    </div>
 
-        <!-- ✅ จุดโหลด iframe -->
-        <div id="loadArea" class="section" style="display:none;"></div>
+    <!-- ✅ จุดโหลด iframe -->
+    <div id="loadArea" class="section" style="display:none;"></div>
 
     <!-- </div> -->
 
-    <script src="map/mapping_pv.js"></script>
-    <script src="map/mapfor68.js"></script>
+    <script src="sidebar/KPI68/map/mapping_pv.js"></script>
+    <script src="sidebar/KPI68/map/mapfor68.js"></script>
+
 </body>
 
 </html>
