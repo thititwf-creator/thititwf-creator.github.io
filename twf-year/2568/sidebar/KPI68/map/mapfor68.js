@@ -55,7 +55,6 @@ fetch(ASSET_BASE + "thailandHigh.svg")
 
     });
 
-
 /* โหลด CSV */
 async function loadCSV(type) {
     const res = await fetch(CSV_URLS[type]);
@@ -297,8 +296,6 @@ loadCSV(DEFAULT_TYPE);
 typeSelect.onchange = () => loadCSV(typeSelect.value);
 // yearSelect.onchange = updateView;
 // monthSelect.onchange = updateView;
-
-
 
 /* ============================================================
    ⭐ ระบบ Zoom & Pan (Drag) สำหรับ SVG Map
