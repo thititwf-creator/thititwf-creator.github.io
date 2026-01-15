@@ -3,219 +3,114 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CDD Women Fund – ข้อมูลหนี้ครบกำหนดชำระ</title>
+    <title>ผลการใช้จ่ายงบประมาณ ปี 2569</title>
 
-    <!-- Font -->
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap" rel="stylesheet">
 
     <style>
-        :root {
-            --pink: #e91e63;
-            --light-pink: #f8bbd0;
-            --deep-pink: #f06292;
-            --orange: #ff9800;
-            --bg-gradient: linear-gradient(to bottom right, #fce4ec, #f3e5f5);
-            --card-bg: #ffffff;
-            --text-dark: #000;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
         body {
             font-family: 'Sarabun', sans-serif;
-            background: var(--bg-gradient);
-            color: var(--text-dark);
-            min-height: 100vh;
-            padding: 20px;
+            margin: 0;
+            background: #f5f5f5;
         }
 
-        .main-container {
+        .section {
+            background: #fff;
+            padding: 16px;
+            border-radius: 12px;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        h2 {
+            color: #e91e63;
+            margin-bottom: 12px;
+        }
+
+        /* ===== Map Layout ===== */
+        .map-layout {
+            display: flex;
+            gap: 16px;
+        }
+
+        @media (max-width: 768px) {
+            .map-layout {
+                flex-direction: column;
+            }
+        }
+
+        .map-area {
+            flex: 1;
+            height: 520px;
+            border: 1px solid #ddd;
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+            background: #fafafa;
+        }
+
+        #map {
             width: 100%;
-            max-width: 1200px;
-            margin: auto;
-            background-color: rgba(255, 255, 255, 0.95);
-            padding: 30px;
-            border-radius: 12px;
+            height: 100%;
         }
 
-        /* ===== Header ===== */
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            flex-wrap: wrap;
-            margin-bottom: 20px;
+        #map svg {
+            width: 100%;
+            height: 100%;
         }
 
-        .header h1 {
-            font-size: 2.3rem;
+        .map-control {
+            flex: 1;
         }
 
-        .header h2 {
-            font-size: 1.4rem;
-            color: black;
+        .map-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
         }
 
-        .logo-container img {
-            margin-left: 10px;
+        .map-table th,
+        .map-table td {
+            border: 1px solid #ddd;
+            padding: 6px;
+            font-size: .85rem;
+            text-align: right;
         }
 
-        /* ===== Filter ปี / เดือน ===== */
-        .filter-container {
-            display: flex;
-            gap: 15px;
-            margin: 20px 0;
-            flex-wrap: wrap;
+        .map-table th:first-child,
+        .map-table td:first-child {
+            text-align: left;
         }
 
-        select,
-        input {
-            font-family: 'Sarabun', sans-serif;
-            font-size: 0.9rem;
-            padding: 6px 10px;
-            height: 35px;
-            border: 1px solid #aaa;
-            border-radius: 4px;
-        }
-
-        /* ===== Grand Total ===== */
-        #grandTotalContainer {
-            margin-bottom: 20px;
-        }
-
-        #grandTotalContainer .card {
-            background-color: var(--pink);
-            color: white;
-            border-left: 8px solid var(--deep-pink);
-        }
-
-        hr {
-            border: none;
-            height: 2px;
-            background-color: var(--light-pink);
-            margin-bottom: 20px;
-        }
-
-        /* ===== Toolbar ===== */
-        .toolbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-
-        .left-tools button {
-            background-color: #f8bbd0;
-            border: none;
-            border-radius: 8px;
-            padding: 6px 12px;
-            color: #880e4f;
-            font-weight: bold;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .left-tools button:hover {
-            background-color: #f48fb1;
-        }
-
-        .left-tools img {
-            height: 18px;
-        }
-
-        /* ===== Controls ===== */
-        .controls-container {
-            background-color: var(--light-pink);
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 20px;
-        }
-
-        .top-controls,
-        .bottom-controls {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            align-items: center;
-        }
-
-        .top-controls {
-            margin-bottom: 10px;
-        }
-
-        .sort-button {
-            padding: 6px 15px;
-            border: none;
-            border-radius: 4px;
-            background-color: white;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        .sort-button.active {
-            background-color: var(--deep-pink);
-            color: black;
-        }
-
-        /* ===== Cards ===== */
-        .cards-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            gap: 20px;
-        }
-
-        .card {
-            background-color: var(--card-bg);
-            border-radius: 12px;
-            padding: 20px;
-            border-left: 6px solid var(--deep-pink);
-        }
-
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 10px;
-        }
-
-        .card-title {
-            font-size: 1.3rem;
-            font-weight: bold;
-        }
-
-        .card-percentage {
-            padding: 5px 10px;
+        .map-tooltip {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.75);
+            color: #fff;
+            padding: 8px 10px;
+            font-size: 13px;
             border-radius: 6px;
-            background-color: var(--deep-pink);
-            font-weight: bold;
+            pointer-events: none;
+            display: none;
+            z-index: 999;
         }
 
-        .card-body .data-row {
+        .zoom-controls {
+            position: absolute;
+            top: 12px;
+            left: 12px;
             display: flex;
-            justify-content: space-between;
-            font-size: 0.85rem;
-            padding: 6px 0;
-            border-bottom: 1px solid #eee;
+            flex-direction: column;
+            gap: 6px;
+            z-index: 9999;
         }
 
-        .card-body .data-row:last-child {
-            border-bottom: none;
-        }
-
-        .card.status-green { border-left-color: #4caf50; }
-        .card.status-yellow { border-left-color: var(--orange); }
-        .card.status-red { border-left-color: #d32f2f; }
-
-        .loading-text {
-            grid-column: 1 / -1;
-            text-align: center;
-            padding: 40px;
+        .zoom-controls button {
+            width: 36px;
+            height: 36px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            background: white;
+            cursor: pointer;
+            font-size: 20px;
             font-weight: bold;
         }
     </style>
@@ -223,75 +118,55 @@
 
 <body>
 
-    <div class="main-container">
+    <!-- ⭐ typeSelect จำเป็น แต่ซ่อนไว้ -->
+    <select id="typeSelect" style="display:none">
+        <option value="due" selected>due</option>
+    </select>
 
-        <!-- Header -->
-        <div class="header">
-            <div>
-                <h1>
-                    <span style="color:navy;">CDD</span>
-                    <span style="color:deeppink;">Women</span>
-                    <span style="color:red;">Fund</span>
-                </h1>
-                <h2>ข้อมูลหนี้ครบกำหนดชำระ</h2>
+    <div class="section">
+        <h2>การรับชำระคืน (ปีงบประมาณ 2569)</h2>
+
+        <div class="map-layout">
+
+            <div class="map-area">
+                <div class="zoom-controls">
+                    <button id="zoomIn">＋</button>
+                    <button id="zoomOut">－</button>
+                </div>
+
+                <div id="map"></div>
+                <div class="map-tooltip" id="mapTooltip"></div>
             </div>
-            <div class="logo-container">
-                <img src="https://i.postimg.cc/507bjy9Z/cdd.png" width="50">
-                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQZtkPBp_xmIFgEEmX2cyScE1QzabzZbtNdbQ&s" width="60">
+
+            <div class="map-control">
+                <table class="map-table" id="mapTable">
+                    <thead>
+                        <tr>
+                            <th>จังหวัด</th>
+                            <th>ค่าเป้าหมาย</th>
+                            <th>ค่าผลลัพธ์</th>
+                            <th>ร้อยละ</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
             </div>
+
         </div>
-
-        <!-- Filter -->
-        <div class="filter-container">
-            <select id="year-select">
-                <option value="">-- เลือกปีงบประมาณ --</option>
-            </select>
-            <select id="month-select" disabled>
-                <option value="">-- เลือกเดือน --</option>
-            </select>
-        </div>
-
-        <div id="grandTotalContainer"></div>
-
-        <hr>
-
-        <!-- Toolbar -->
-        <!-- <div class="toolbar">
-            <div class="left-tools">
-                <button onclick="window.location.href='https://tnah097.github.io/cdwomenpod-dashboard/Menu.html'">
-                    <img src="https://cdn-icons-png.flaticon.com/512/25/25694.png"> กลับสู่เมนูหลัก
-                </button>
-            </div>
-        </div> -->
-
-        <!-- Controls -->
-        <div class="controls-container">
-            <div class="top-controls">
-                <input type="text" id="searchInput" placeholder="ค้นหาจังหวัด...">
-                <button id="sort-province" class="sort-button active">เรียงตามจังหวัด</button>
-                <button id="sort-percentage" class="sort-button">เรียงตามร้อยละ</button>
-            </div>
-            <div class="bottom-controls">
-                <label>ร้อยละ:</label>
-                <select id="percentage-condition">
-                    <option value="all">ทั้งหมด</option>
-                    <option value="gt">มากกว่า</option>
-                    <option value="lt">น้อยกว่า</option>
-                    <option value="eq">เท่ากับ</option>
-                </select>
-                <input type="number" id="percentage-value" placeholder="%" disabled>
-            </div>
-        </div>
-
-        <!-- Cards -->
-        <div class="cards-container" id="cardsContainer">
-            <p class="loading-text">กรุณาเลือกปีงบประมาณและเดือน</p>
-        </div>
-
     </div>
+    <script>
+        window.MAP_DEFAULT_TYPE = "due";
+    </script>
 
     <!-- JS -->
-    <script src="due-dept-total.js"></script>
+    <script src="./map/mapping_pv.js"></script>
+    <script src="./map/mapfor69.js"></script>
+
+    <!-- <script>
+        // 🔒 override init: จาก due → disburse
+        // loadCSV("due");
+    </script> -->
 
 </body>
+
 </html>
