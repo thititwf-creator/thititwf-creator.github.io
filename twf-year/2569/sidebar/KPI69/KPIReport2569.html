@@ -3,161 +3,151 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>รายงานผลการดำเนินงานกองทุนพัฒนาบทบาทสตรี (KPI ปี 2569)</title>
+<title>รายงานผลกองทุนพัฒนาบทบาทสตรี</title>
+
 <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap" rel="stylesheet">
 
 <style>
-body {
-  font-family: 'Sarabun', sans-serif;
-  margin: 0;
-  padding: 20px;
-  background: linear-gradient(to bottom right, #ffe6f0, #ffd1e6);
-  display: flex;
-  justify-content: center;
-  min-height: 100vh;
+body{
+  font-family:'Sarabun',sans-serif;
+  margin:0;
+  padding:20px;
+  background:linear-gradient(to bottom right,#ffe6f0,#ffd1e6);
+  display:flex;
+  justify-content:center;
+  min-height:100vh;
 }
-.container {
-  width: 100%;
-  max-width: 1400px;
-  background: rgba(255,255,255,0.95);
-  border-radius: 25px;
-  padding: 30px;
-  box-shadow: 0 8px 25px rgba(233, 30, 99, 0.25);
-  position: relative;
+.container{
+  width:100%;
+  max-width:1400px;
+  background:rgba(255,255,255,.95);
+  border-radius:25px;
+  padding:30px;
+  box-shadow:0 8px 25px rgba(233,30,99,.25);
+  position:relative;
 }
-.logos-top {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  display: flex;
-  gap: 10px;
+.logos-top{
+  position:absolute;
+  top:20px;
+  right:20px;
+  display:flex;
+  gap:10px;
 }
-.logos-top img { height: 55px; }
+.logos-top img{height:55px}
 
-.header-block {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  flex-wrap: wrap;
-  margin-bottom: 10px;
+.header-block{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-end;
+  flex-wrap:wrap;
+  margin-bottom:10px;
 }
-#reportInfo {
-  flex: 1;
-  text-align: center;
-  color: #880e4f;
-  font-weight: bold;
-  margin-top: 40px;
-  line-height: 1.6em;
+#reportInfo{
+  flex:1;
+  text-align:center;
+  color:#880e4f;
+  font-weight:bold;
+  margin-top:40px;
+  line-height:1.6em;
 }
-#reportDate {
-  flex-basis: 100%;
-  text-align: right;
-  color: #880e4f;
-  font-weight: bold;
-  font-size: 0.95rem;
-  margin-top: 5px;
+#reportDate{
+  flex-basis:100%;
+  text-align:right;
+  color:#880e4f;
+  font-weight:bold;
+  font-size:.95rem;
+  margin-top:5px;
 }
 
 /* toolbar */
-.toolbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 10px;
+.toolbar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:10px;
 }
-.left-tools {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+.left-tools button{
+  background:#f8bbd0;
+  border:none;
+  border-radius:8px;
+  padding:6px 12px;
+  color:#880e4f;
+  font-weight:bold;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  gap:6px;
 }
-.left-tools button {
-  background-color: #f8bbd0;
-  border: none;
-  border-radius: 8px;
-  padding: 6px 12px;
-  color: #880e4f;
-  font-weight: bold;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  transition: 0.2s;
-}
-.left-tools button:hover { background-color: #f48fb1; }
-.left-tools img { height: 18px; }
+.left-tools img{height:18px}
 
-.filter-bar {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+.filter-bar{
+  display:flex;
+  align-items:center;
+  gap:8px;
 }
-.filter-bar select, .filter-bar input {
-  padding: 6px 10px;
-  border-radius: 8px;
-  border: 1px solid #f48fb1;
-  font-family: 'Sarabun';
-  font-size: 0.9rem;
+.filter-bar select,
+.filter-bar input{
+  padding:6px 10px;
+  border-radius:8px;
+  border:1px solid #f48fb1;
+  font-family:'Sarabun';
+  font-size:.9rem;
 }
-#downloadBtn {
-  background-color: #f8bbd0;
-  border: none;
-  border-radius: 8px;
-  padding: 6px 12px;
-  color: #880e4f;
-  font-weight: bold;
-  cursor: pointer;
-  transition: 0.3s;
+#downloadBtn{
+  background:#f8bbd0;
+  border:none;
+  border-radius:8px;
+  padding:6px 12px;
+  color:#880e4f;
+  font-weight:bold;
+  cursor:pointer;
 }
-#downloadBtn:hover { background-color: #f48fb1; }
 
 /* table */
-.table-wrapper {
-  overflow: auto;
-  max-height: 80vh;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(233,30,99,0.1);
-  background: white;
+.table-wrapper{
+  overflow:auto;
+  max-height:80vh;
+  border-radius:12px;
+  box-shadow:0 4px 12px rgba(233,30,99,.1);
+  background:white;
 }
-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.9rem;
+table{
+  width:100%;
+  border-collapse:collapse;
+  font-size:.9rem;
 }
-th, td {
-  border: 1px solid #c97a9b;
-  padding: 6px 8px;
-  text-align: center;
-  vertical-align: middle;
-  white-space: nowrap;
+th,td{
+  border:1px solid #c97a9b;
+  padding:6px 8px;
+  text-align:center;
+  white-space:nowrap;
 }
-thead th {
-  background-color: #f8bbd0;
-  color: #880e4f;
-  font-weight: 700;
-  border: 1.5px solid #b36a84;
-  z-index: 5;
+thead th{
+  background:#f8bbd0;
+  color:#880e4f;
+  font-weight:700;
 }
-thead tr:nth-child(1) th { position: sticky; top: 0; }
-thead tr:nth-child(2) th { position: sticky; top: 32px; }
-thead tr:last-child th { border-bottom: 2.5px solid #880e4f; }
-tr:nth-child(even) td { background-color: rgba(255,182,193,0.12); }
-tr:nth-child(odd) td { background-color: rgba(255,192,203,0.05); }
-.empty-row td {
-  text-align: center;
-  padding: 15px;
-  font-style: italic;
-  color: #c62828;
+thead tr:nth-child(1) th{position:sticky;top:0}
+thead tr:nth-child(2) th{position:sticky;top:32px}
+thead tr:last-child th{border-bottom:2.5px solid #880e4f}
+
+tr:nth-child(even) td{background:rgba(255,182,193,.12)}
+tr:nth-child(odd) td{background:rgba(255,192,203,.05)}
+
+.empty-row td{
+  padding:15px;
+  font-style:italic;
+  color:#c62828;
 }
-.search-wrap { display:flex; gap:10px; align-items:center; }
-.icon-small { width:20px; height:20px; display:inline-block; }
 </style>
 </head>
 
 <body>
 <div class="container">
+
   <div class="logos-top">
-    <img src="https://i.postimg.cc/507bjy9Z/cdd.png" alt="CDD Logo" />
-    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQZtkPBp_xmIFgEEmX2cyScE1QzabzZbtNdbQ&s" alt="Women Fund Logo" />
+    <img src="https://i.postimg.cc/507bjy9Z/cdd.png">
+    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQZtkPBp_xmIFgEEmX2cyScE1QzabzZbtNdbQ&s">
   </div>
 
   <div class="header-block">
@@ -167,10 +157,9 @@ tr:nth-child(odd) td { background-color: rgba(255,192,203,0.05); }
 
   <div class="toolbar">
     <div class="left-tools">
-      <!-- ปุ่มกลับสู่เมนูหลัก (คอมเมนต์ไว้ก่อน)
+      <!-- ปุ่มกลับเมนู (ยังไม่ใช้)
       <button onclick="window.top.location.href='Menu.html'">
-        <img src="https://cdn-icons-png.flaticon.com/512/25/25694.png" alt="home">
-        กลับสู่เมนูหลัก
+        <img src="https://cdn-icons-png.flaticon.com/512/25/25694.png"> กลับสู่เมนูหลัก
       </button>
       -->
     </div>
@@ -181,9 +170,7 @@ tr:nth-child(odd) td { background-color: rgba(255,192,203,0.05); }
         <option>กำลังโหลด...</option>
       </select>
 
-      <div class="search-wrap">
-        🔍 <input type="text" id="filterInput" placeholder="ค้นหาข้อมูล... เช่น ชื่อจังหวัด หรือคะแนน">
-      </div>
+      🔍 <input type="text" id="filterInput" placeholder="ค้นหาข้อมูล...">
 
       <button id="downloadBtn" onclick="downloadExcel()">📥 ดาวน์โหลด Excel</button>
     </div>
@@ -197,24 +184,119 @@ tr:nth-child(odd) td { background-color: rgba(255,192,203,0.05); }
       </tbody>
     </table>
   </div>
+
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
 <script>
-/* ====== CONFIG ====== */
 const API_URL = 'https://script.google.com/macros/s/AKfycbwlH8Smpn_snzR7K8RTURfMxNpg7l-ucuRGwDeMRKl-zvRElclqX6ywt_8ZqkIbXxGO/exec';
 
-let currentSheet = '';
-const START_HEADER_ROW = 3;
-const END_HEADER_ROW = 4;
-const START_BODY_ROW = 5;
+let currentSheet='';
+const START_HEADER_ROW=3;
+const END_HEADER_ROW=4;
+const START_BODY_ROW=5;
 
-/* ====== INIT ====== */
-window.onload = () => loadSheetList();
+window.onload=()=>loadSheetList();
 
-/* ====== FUNCTIONS (เหมือนเดิมทุกบรรทัด) ====== */
-/* --- โค้ด JS ทั้งหมดเหมือนที่คุณส่งมา 100% --- */
+async function loadSheetList(){
+  const sel=document.getElementById('sheetSelect');
+  try{
+    const res=await fetch(`${API_URL}?action=listSheets`);
+    const json=await res.json();
+    sel.innerHTML='';
+    json.sheets.forEach((s,i)=>{
+      const o=document.createElement('option');
+      o.value=s;o.textContent=s;
+      sel.appendChild(o);
+      if(i===0)currentSheet=s;
+    });
+    requestAnimationFrame(()=>loadSheet(currentSheet));
+  }catch(e){
+    sel.innerHTML='<option>โหลดรายการไม่สำเร็จ</option>';
+  }
+}
+
+function onSheetChange(){
+  currentSheet=document.getElementById('sheetSelect').value;
+  loadSheet(currentSheet);
+}
+
+async function loadSheet(sheet){
+  const info=document.getElementById('reportInfo');
+  const date=document.getElementById('reportDate');
+  const thead=document.getElementById('tableHead');
+  const tbody=document.getElementById('tableBody');
+
+  info.textContent='กำลังโหลดข้อมูลรายงาน...';
+  tbody.innerHTML='<tr class="empty-row"><td colspan="30">กำลังโหลด...</td></tr>';
+
+  const res=await fetch(`${API_URL}?sheetName=${encodeURIComponent(sheet)}`);
+  const json=await res.json();
+  const {data,merged}=json;
+
+  info.innerHTML=data.slice(0,2).map(r=>r.join(' ')).join('<br>');
+  date.textContent=data[2]?.join(' ')||'';
+
+  const headerRows=data.slice(START_HEADER_ROW,END_HEADER_ROW+1);
+  const headerMerged=merged
+    .filter(m=>m.row>=START_HEADER_ROW&&m.row<=END_HEADER_ROW)
+    .map(m=>({row:m.row-START_HEADER_ROW,col:m.col,width:m.width,height:m.height}));
+
+  thead.innerHTML=applyMergedCells(headerRows,headerMerged,true);
+  renderBody(data.slice(START_BODY_ROW));
+}
+
+function applyMergedCells(rows,merged,isHeader){
+  let html='',hidden=[];
+  const tag=isHeader?'th':'td';
+  rows.forEach((r,i)=>{
+    hidden[i]=[];
+    html+='<tr>';
+    r.forEach((c,j)=>{
+      if(hidden[i][j])return;
+      const m=merged.find(x=>x.row===i&&x.col===j);
+      let attr='';
+      if(m){
+        attr=` rowspan="${m.height}" colspan="${m.width}"`;
+        for(let a=0;a<m.height;a++)
+          for(let b=0;b<m.width;b++)
+            if(a||b)hidden[i+a][j+b]=true;
+      }
+      html+=`<${tag}${attr}>${c??''}</${tag}>`;
+    });
+    html+='</tr>';
+  });
+  return html;
+}
+
+function renderBody(rows){
+  const tbody=document.getElementById('tableBody');
+  let html='';
+  rows.forEach(r=>{
+    html+='<tr>';
+    r.forEach(c=>{
+      html+=`<td>${typeof c==='number'?c.toLocaleString('th-TH'):c??''}</td>`;
+    });
+    html+='</tr>';
+  });
+  tbody.innerHTML=html;
+}
+
+document.getElementById('filterInput').addEventListener('keyup',function(){
+  const k=this.value.toLowerCase();
+  document.querySelectorAll('#tableBody tr').forEach(r=>{
+    r.style.display=r.innerText.toLowerCase().includes(k)?'':'none';
+  });
+});
+
+function downloadExcel(){
+  const wb=XLSX.utils.book_new();
+  const ws=XLSX.utils.table_to_sheet(document.getElementById('dataTable'));
+  XLSX.utils.book_append_sheet(wb,ws,currentSheet||'Report');
+  XLSX.writeFile(wb,`KPI_${currentSheet}.xlsx`);
+}
 </script>
+
 </body>
 </html>
