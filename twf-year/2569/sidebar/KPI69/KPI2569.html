@@ -1,7 +1,3 @@
-<script>
-  const IS_IFRAME = window.self !== window.top;
-</script>
-
 <!DOCTYPE html>
 
 <html lang="th">
@@ -377,7 +373,9 @@
       background: transparent;
     }
   </style>
-
+  <script>
+    const IS_IFRAME = window.self !== window.top;
+  </script>
 </head>
 
 <body>
@@ -513,7 +511,7 @@
       );
     }
 
-    window.addEventListener("load", () => setTimeout(resizeIframe, 800));
+    window.addEventListener("load", () => setTimeout(resizeIframe, 500));
     window.addEventListener("resize", resizeIframe);
   </script>
 
@@ -838,10 +836,11 @@
     fetchData(); fetchStudyCenterData();
 
     function goLogin(province) {
-      sessionStorage.clear();
-      window.top.location.href =
-        `Login.html?province=${encodeURIComponent(province)}`;
-    }
+  sessionStorage.clear();
+  window.top.location.href =
+    `https://tnah097.github.io/cdwomenpod-dashboard/Login.html?province=${encodeURIComponent(province)}`;
+}
+
 
 
   </script>
