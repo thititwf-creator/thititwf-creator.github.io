@@ -1,8 +1,14 @@
 <!DOCTYPE html>
 <html lang="th">
+
 <head>
   <meta charset="UTF-8" />
-  <title>CDDwomenfund Dashboard</title>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>KPI 2569 – CDD Women Fund</title>
+
+  <!-- libs -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
@@ -13,485 +19,245 @@
     body {
       font-family: 'Sarabun', sans-serif;
       margin: 0;
-      background: url('https://www.dga.or.th/wp-content/uploads/2025/06/20250612_074641550_iOS-1120x746.jpg') center/cover no-repeat;
+      background: linear-gradient(to bottom right, #ffe6f0, #f3e5f5, #e1bee7);
       background-attachment: fixed;
       color: #000;
     }
-    .dashboard-container { padding: 40px; background-color: rgba(255, 255, 255, 0.9); }
-    .scale-control { font-size: 1rem; }
+
+    /* ===== iframe mode ===== */
+    body.iframe-mode {
+      background: transparent;
+    }
+    body.iframe-mode .header,
+    body.iframe-mode .toolbar {
+      display: none;
+    }
+    body.iframe-mode .dashboard-container {
+      padding: 10px 0;
+      background: transparent;
+      min-height: auto;
+    }
+
+    .dashboard-container {
+      padding: 40px;
+      background-color: rgba(255, 255, 255, 0.95);
+      min-height: 100vh;
+    }
 
     .header {
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
+      flex-wrap: wrap;
     }
-    .header-text h1 { margin: 0; font-size: 2.5rem; }
-    .header-text h2 { margin: 0; font-size: 1.5rem; }
 
-    .logo-container img {
-      height: 60px;
-      margin-left: 10px;
-    }
+    .header-text h1 { margin: 0; font-size: 2.4rem; }
+    .header-text h2 { margin: 0; font-size: 1.4rem; }
 
     .cards {
       display: flex;
       gap: 20px;
-      margin-top: 30px;
+      margin-top: 20px;
       flex-wrap: wrap;
     }
 
     .card {
       flex: 1;
-      min-width: 250px;
-      padding: 20px;
+      min-width: 260px;
+      padding: 18px;
       border-radius: 12px;
       color: white;
       font-weight: bold;
     }
 
     .card .value {
-      font-size: 1.75rem;
+      font-size: 1.6rem;
+      margin-top: 6px;
       color: black;
-      margin-top: 10px;
       font-weight: normal;
-      white-space: nowrap;
     }
 
-    .card.pink { background-color: #e91e63; flex: 0 0 auto; width: auto; }
-    .card.light-pink { background-color: #f8bbd0; }
-    .card.orange { background-color: #ff9800; }
-    .card.pastel-pink { background-color: #fce4ec; }
-    .card.deep-pastel-pink { background-color: #f06292; }
+    .pink { background:#e91e63; }
+    .light-pink { background:#FB6F92; }
+    .orange { background:#ff9800; }
+    .pastel-pink { background:#FF3333; }
+    .deep-pastel-pink { background:#f06292; }
 
     .main-visuals {
       display: flex;
-      margin-top: 30px;
       gap: 20px;
+      margin-top: 30px;
       flex-wrap: wrap;
-      align-items: flex-start;
     }
 
-    .left, .center, .right {
-      flex: 1;
-      min-width: 300px;
-    }
+    .left, .center { flex: 1; min-width: 320px; }
+    .center img { width: 360px; display: block; margin: auto; }
 
-    .center { text-align: center; }
     canvas { max-width: 100%; }
-    #donutChart { height: 500px !important; }
-
-    .section-title {
-      text-align: center;
-      font-weight: bold;
-      margin: 10px 0;
-      font-size: 1.2rem;
-    }
-
-    .center img {
-      width: 250px;
-      display: block;
-      margin: 0 auto 10px;
-    }
 
     .province-table-wrapper {
       margin-top: 30px;
-      margin-left: 3cm;
-      text-align: left !important;
+      overflow: auto;
     }
 
-    .summary-table {
-      width: 95%;
+    table {
+      width: 100%;
       border-collapse: collapse;
       font-size: 0.85rem;
-      color: black;
     }
 
-    .summary-table th {
-      background-color: #f06292;
+    th {
+      background: #f06292;
       color: black;
       padding: 8px;
       border: 1px solid #f8bbd0;
-      font-weight: bold;
       text-align: center;
     }
 
-    .summary-table td {
-      padding: 6px;
+    td {
+      padding: 6px 8px;
       border: 1px solid #f8bbd0;
-      color: black;
+      text-align: right;
+      white-space: nowrap;
     }
 
-    .summary-table tr:nth-child(even) { background-color: #fce4ec; }
-    .summary-table tr:nth-child(odd) { background-color: white; }
+    td.align-left { text-align: left; }
+
+    tr:nth-child(even) { background:#fce4ec; }
 
     .province-link {
       color: blue;
       text-decoration: underline;
       cursor: pointer;
     }
-    .province-link:hover { color: darkblue; }
 
-    /* Table interaction */
-    #studyCenterTable tbody tr { cursor: pointer; }
-    #studyCenterTable tbody tr:hover { background-color: #e0e0e0 !important; }
-    #studyCenterTable tbody tr.selected-row {
-      background-color: #d1e7fd !important;
+    #log {
+      margin-top: 10px;
       font-weight: bold;
-    }
-
-    .clickable-header { cursor: pointer; }
-    .clickable-header:hover { color: #555; }
-
-    .center-name-link {
-      color: blue;
-      text-decoration: underline;
-    }
-
-    .align-left { text-align: left !important; }
-    .align-center { text-align: center !important; }
-    .align-right { text-align: right !important; }
-
-    @media (max-width: 1400px) {
-      .dashboard-container { padding: 30px; }
-      .header-text h1 { font-size: 2.2rem; }
-      .header-text h2 { font-size: 1.3rem; }
-      .logo-container img { height: 50px; margin-left: 5px; }
-      .cards { gap: 15px; }
-      .card .value { font-size: 1.5rem; }
-      .main-visuals { flex-direction: column; }
-      #donutChart { height: 400px !important; }
-      .center img { width: 200px; }
-      .province-table-wrapper { margin-left: 0; }
-    }
-
-    @media (max-width: 1024px) and (orientation: landscape) {
-      .dashboard-container { padding: 25px; }
-      .cards { flex-direction: column; gap: 10px; }
-      .main-visuals { flex-direction: column; gap: 15px; }
-      #donutChart { height: 350px !important; }
-      .center img { width: 180px; }
-    }
-
-    @media (max-width: 768px) {
-      .dashboard-container { padding: 20px; }
-      .header { flex-direction: column; align-items: flex-start; }
-      .header-text h1 { font-size: 1.8rem; }
-      .header-text h2 { font-size: 1.1rem; }
-      .cards { flex-direction: column; }
-      .card { padding: 15px; }
-      .card .value { font-size: 1.3rem; }
-      #donutChart { height: 300px !important; }
-      .center img { width: 150px; }
-      .province-table-wrapper { overflow-x: auto; margin-left: 0; }
-    }
-
-    @media (max-width: 480px) and (orientation: portrait) {
-      .header-text h1 { font-size: 1.5rem; }
-      .header-text h2 { font-size: 1rem; }
-      .cards { flex-direction: column; }
-      .card { padding: 10px; }
-      .card .value { font-size: 1.1rem; }
-      #donutChart { height: 250px !important; }
-      .center img { width: 120px; }
-    }
-
-    @media (max-width: 480px) and (orientation: landscape) {
-      .header-text h1 { font-size: 1.3rem; }
-      .header-text h2 { font-size: 0.9rem; }
-      .cards { flex-direction: column; }
-      .card { padding: 8px; }
-      .card .value { font-size: 1rem; }
-      #donutChart { height: 200px !important; }
-      .center img { width: 100px; }
-      .province-table-wrapper { overflow-x: scroll; }
+      color: navy;
+      text-align: center;
     }
   </style>
 </head>
 
 <body>
-  <div class="dashboard-container scale-control">
-    <div class="header">
-      <div class="header-text">
-        <h1>
-          <span style="color: navy;">CDD</span>
-          <span style="color: deeppink;">Women</span>
-          <span style="color: red;">fund</span>
-        </h1>
 
-        <h2>
-          <span style="color: black;">ฐานข้อมูล </span>
-          <span style="color: deeppink;">ระดับประเทศ </span>
-          <span style="color: red;" id="province-title">รายจังหวัด</span>
-        </h2>
+<div class="dashboard-container">
 
-        <div style="color: navy; font-weight: bold; font-size: 1.5rem; margin-top: 1rem;">
-          ลูกหนี้กองทุนพัฒนาบทบาทสตรีระดับประเทศ
-        </div>
-      </div>
+  <!-- ===== Header (ซ่อนอัตโนมัติเมื่ออยู่ใน iframe) ===== -->
+  <div class="header">
+    <div class="header-text">
+      <h1>CDD Women Fund</h1>
+      <h2>ข้อมูลหนี้เกินกำหนดชำระ ปีงบ 2569</h2>
+    </div>
+  </div>
 
-      <div class="logo-container">
-        <img src="https://i.postimg.cc/507bjy9Z/cdd.png" alt="CDD Logo" />
-        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQZtkPBp_xmIFgEEmX2cyScE1QzabzZbtNdbQ&s" alt="">
-      </div>
+  <div id="log">🔄 กำลังโหลดข้อมูล...</div>
+
+  <!-- ===== Cards ===== -->
+  <div class="cards">
+    <div class="card pink">
+      จำนวนโครงการ
+      <div class="value" id="num-projects">-</div>
     </div>
 
-    <div style="color: navy; font-weight: bold; text-align: right; font-size: 1.5rem; margin-top: 1rem;">
-      ข้อมูล ณ วันที่ 30 กันยายน 2568
-    </div>
-    <div class="cards">
-      <div class="card pink">จำนวนโครงการ<div class="value" id="num-projects">-</div></div>
-      <div class="card light-pink">
-        ลูกหนี้คงเหลือ ณ 1 ต.ค. 2567<div class="value" id="debt-oct">-</div>
-        ลูกหนี้คงเหลือ ณ ปัจจุบัน (ก)<div class="value" id="debt-now">-</div>
-      </div>
-      <div class="card orange">
-        หนี้ที่เกินกำหนดชำระ (B)<div class="value" id="overdue">-</div>
-        ร้อยละ<div class="value" id="percent-overdue">-</div>
-      </div>
+    <div class="card light-pink">
+      ลูกหนี้คงเหลือ
+      <div class="value" id="debt-now">-</div>
     </div>
 
-    <div class="main-visuals">
-      <div class="left">
-        <div class="section-title">10 อันดับ ร้อยละหนี้เกินกำหนด</div>
-        <br />
-        <canvas id="donutChart"></canvas>
-      </div>
-      <div class="center">
-        <img src="https://i.postimg.cc/pTR4HCg3/women5-copy.png"
-             alt="ภาพผู้หญิง"
-             style="width: 400px; height: auto;" />
-      </div>
-
-      <div class="right">
-        <div class="cards" style="flex-direction: column; gap: 20px;">
-          <div class="card deep-pastel-pink">
-            เงินที่อนุมัติ<div class="value" id="approved-money">-</div>
-            หนี้ยังไม่ถึงกำหนดชำระ<div class="value" id="not-due">-</div>
-          </div>
-
-          <div class="card deep-pastel-pink">
-            ลูกหนี้ที่ได้ดำเนินการตามกฎหมาย (ง)<div class="value" id="legal">-</div></div>
-
-          <div class="card deep-pastel-pink">
-            <div style="font-weight: bold; color: white;">ศูนย์ศึกษาและพัฒนาชุมชน</div>
-            <br />
-            <table class="summary-table" id="studyCenterTable" style="color: black; width: 100%;">
-              <thead>
-                <tr>
-                  <th class="clickable-header" title="คลิกเพื่อแสดงทุกจังหวัด">
-                    ศูนย์ศึกษาและพัฒนาชุมชน
-                  </th>
-                  <th>จำนวนจังหวัด</th>
-                  <th>จังหวัด</th>
-                </tr>
-              </thead>
-              <tbody></tbody>
-            </table>
-          </div>
-        </div>
-      </div>
+    <div class="card orange">
+      หนี้เกินกำหนด
+      <div class="value" id="overdue">-</div>
     </div>
 
-    <div class="province-table-wrapper">
-      <table class="summary-table" id="provinceTable" style="margin-left: 0;">
-        <thead>
-          <tr>
-            <th>จังหวัด</th>
-            <th>จำนวนโครงการ</th>
-            <th>เงินที่อนุมัติ</th>
-            <th>หนี้คงเหลือต้นปีบัญชี</th>
-            <th>ลูกหนี้คงเหลือ ณ ปัจจุบัน</th>
-            <th>หนี้ที่ดำเนินการตามกฎหมาย</th>
-            <th>หนี้เกินกำหนดชำระ</th>
-            <th>ร้อยละหนี้เกินกำหนดชำระ</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
+    <div class="card deep-pastel-pink">
+      ร้อยละหนี้เกินกำหนด
+      <div class="value" id="overdue-percent">-</div>
     </div>
+  </div>
 
-      </div> <!-- ปิด .dashboard-container -->
+  <!-- ===== Charts + Table ===== -->
+  <div class="main-visuals">
+    <div class="left">
+      <canvas id="donutChart"></canvas>
+    </div>
+    <div class="center">
+      <img src="https://i.postimg.cc/hPqX5RFW/twdf.png">
+    </div>
+  </div>
 
-  <script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbxzRpfgQfqilM1P8csI8nqCJB3q3aqvUxvjhTEcKGltZt_3ko2Bim-9prUSSgRk2dIu/exec";
-    const pastelColors = [
-      '#FF202B', '#87FEBC', '#FFB6B7', '#FFDD63', '#F68B71',
-      '#DAB9E6', '#A0E8E8', '#ADFF2F', '#FFFF00', '#FFA500'
-    ];
+  <div class="province-table-wrapper">
+    <table id="provinceTable">
+      <thead></thead>
+      <tbody></tbody>
+    </table>
+  </div>
 
-    function formatNumber(num) {
-      return Number(num || 0).toLocaleString("th-TH");
-    }
+</div>
 
-    function formatNumberWithDecimals(val) {
-      const num = parseFloat(String(val).replace(/,/g, ''));
-      if (isNaN(num)) {
-        return "-";
-      }
-      return num.toLocaleString("th-TH", {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-      });
-    }
+<script>
+const IS_IFRAME = window.self !== window.top;
+if (IS_IFRAME) document.body.classList.add("iframe-mode");
 
-    let donutChartInstance = null;
-    let provinceDataTable = null;
+/* ===== Login: เปิดเต็มจอเสมอ ===== */
+function goLogin(province) {
+  sessionStorage.clear();
+  window.top.location.href =
+    `https://tnah097.github.io/cdwomenpod-dashboard/Login.html?province=${encodeURIComponent(province)}`;
+}
 
-    async function fetchData() {
-      try {
-        const res = await fetch(API_URL);
-        const data = await res.json();
+/* ===== Resize iframe ===== */
+function resizeIframe() {
+  if (!IS_IFRAME) return;
+  window.parent.postMessage(
+    { type: "resize-iframe", height: document.body.scrollHeight },
+    "*"
+  );
+}
+window.addEventListener("resize", resizeIframe);
 
-        const overview = data.overview || {};
-        const provinces = data.provinces || [];
-        const pieChartData = data.pieChartData || [];
+/* ===== Mock API ===== */
+const API_URL = "https://script.google.com/macros/s/AKfycby-WMXu4yHrGqdETd37jqoYVpQK3lktS2lY-UMaze1Dz29jp1vUBNqeQz5DQmfBYddM/exec";
 
-        document.getElementById('num-projects').textContent = formatNumber(overview.totalProjects);
-        document.getElementById('debt-oct').textContent = formatNumberWithDecimals(overview.debtStart);
-        document.getElementById('debt-now').textContent = formatNumberWithDecimals(overview.debtNow);
-        document.getElementById('overdue').textContent = formatNumber(overview.overdue);
-        const percent = parseFloat(overview.overduePercent);
-        document.getElementById('percent-overdue').textContent = (isNaN(percent) ? 0 : percent).toFixed(2) + "%";
-        document.getElementById('approved-money').textContent = formatNumber(overview.approvedAmount);
-        document.getElementById('not-due').textContent = formatNumberWithDecimals(overview.notDue);
-        document.getElementById('legal').textContent = formatNumberWithDecimals(overview.legalAction);
+async function fetchData() {
+  const res = await fetch(API_URL);
+  const data = await res.json();
 
-        if (donutChartInstance) {
-          donutChartInstance.destroy();
-        }
+  document.getElementById("num-projects").textContent = data.overview?.B2 || "-";
+  document.getElementById("debt-now").textContent = data.overview?.E2 || "-";
+  document.getElementById("overdue").textContent = data.overview?.R2 || "-";
+  document.getElementById("overdue-percent").textContent = data.overview?.S2 + "%" || "-";
 
-        const donutCtx = document.getElementById('donutChart').getContext('2d');
-        donutChartInstance = new Chart(donutCtx, {
-          type: 'doughnut',
-          data: {
-            labels: pieChartData.map(p => p.province),
-            datasets: [{
-              data: pieChartData.map(p => parseFloat(p.percent)),
-              backgroundColor: pastelColors.slice(0, pieChartData.length)
-            }]
-          },
-          options: {
-            responsive: true,
-            plugins: {
-              legend: {
-                position: 'bottom',
-                labels: { usePointStyle: true, font: { size: 14 } }
-              },
-              tooltip: {
-                callbacks: {
-                  label: function(context) {
-                    return `${context.label || ''}: ${context.raw.toFixed(1)}%`;
-                  }
-                }
-              }
-            }
-          }
-        });
+  const provinces = data.provinces || [];
+  const thead = document.querySelector("#provinceTable thead");
+  const tbody = document.querySelector("#provinceTable tbody");
 
-        const tbody = document.querySelector("#provinceTable tbody");
-        tbody.innerHTML = "";
-        provinces.forEach(p => {
-          const provinceEncoded = encodeURIComponent(p.province);
-          const url = `https://tnah097.github.io/cdwomenpod-dashboard/province.html?province=${provinceEncoded}`;
-          const tr = document.createElement("tr");
+  thead.innerHTML = "<tr><th>จังหวัด</th><th>หนี้เกินกำหนด</th></tr>";
+  tbody.innerHTML = "";
 
-          const alignments = p.alignments || {};
-          tr.innerHTML = `
-            <td class="align-${alignments.province || 'left'}">
-              <a href="${url}" class="province-link" target="_blank" rel="noopener noreferrer">${p.province}</a>
-            </td>
-            <td class="align-${alignments.totalProjects || 'right'}">${formatNumber(p.totalProjects)}</td>
-            <td class="align-${alignments.approvedAmount || 'right'}">${formatNumber(p.approvedAmount)}</td>
-            <td class="align-${alignments.debtStart || 'right'}">${formatNumber(p.debtStart)}</td>
-            <td class="align-${alignments.debtNow || 'right'}">${formatNumber(p.debtNow)}</td>
-            <td class="align-${alignments.legalAction || 'right'}">${formatNumber(p.legalAction)}</td>
-            <td class="align-${alignments.overdue || 'right'}">${formatNumber(p.overdue)}</td>
-            <td class="align-${alignments.overduePercent || 'right'}">${parseFloat(p.overduePercent).toFixed(2)}%</td>
-          `;
-          tbody.appendChild(tr);
-        });
+  provinces.forEach(p => {
+    tbody.innerHTML += `
+      <tr>
+        <td class="align-left">
+          <span class="province-link" onclick="goLogin('${p.province}')">${p.province}</span>
+        </td>
+        <td>${p.overdue || "-"}</td>
+      </tr>
+    `;
+  });
 
-        if ($.fn.DataTable.isDataTable('#provinceTable')) {
-          $('#provinceTable').DataTable().clear().destroy();
-        }
+  $('#provinceTable').DataTable({
+    pageLength: 10,
+    scrollX: true
+  });
 
-        provinceDataTable = $('#provinceTable').DataTable({
-          paging: false,
-          scrollY: '400px',
-          scrollCollapse: true,
-          language: {
-            search: "ค้นหา:", info: "แสดง _TOTAL_ รายการ", infoEmpty: "ไม่มีข้อมูล", zeroRecords: "ไม่พบข้อมูล",
-          }
-        });
+  document.getElementById("log").textContent = "✅ โหลดข้อมูลสำเร็จ";
+  setTimeout(resizeIframe, 300);
+}
 
-      } catch (error) {
-        console.error("เกิดข้อผิดพลาดในการโหลดข้อมูล:", error);
-      }
-    }
-
-    async function fetchStudyCenterData() {
-      try {
-        const res = await fetch(`${API_URL}?action=studyCenter`);
-        const data = await res.json();
-        const centers = data.studyCenter || [];
-        const tbody = document.querySelector("#studyCenterTable tbody");
-        tbody.innerHTML = "";
-
-        centers.forEach(row => {
-          const tr = document.createElement("tr");
-          tr.setAttribute('data-provinces', row.province.split(',').map(p => p.trim()).join('|'));
-
-          const alignments = row.alignments || {};
-          tr.innerHTML = `
-            <td class="align-${alignments.name || 'left'}">
-              <span class="center-name-link">${row.name}</span>
-            </td>
-            <td class="align-${alignments.index || 'center'}">${row.index}</td>
-            <td class="align-${alignments.province || 'left'}">${row.province}</td>
-          `;
-          tbody.appendChild(tr);
-        });
-
-        if ($.fn.DataTable.isDataTable('#studyCenterTable')) {
-          $('#studyCenterTable').DataTable().clear().destroy();
-        }
-        $('#studyCenterTable').DataTable({
-          paging: false,
-          scrollY: '300px',
-          scrollCollapse: true,
-          searching: true,
-          language: {
-            search: "ค้นหา:", info: "แสดง _TOTAL_ รายการ", infoEmpty: "ไม่มีข้อมูล", zeroRecords: "ไม่พบข้อมูล",
-          }
-        });
-
-        const studyCenterTableBody = $('#studyCenterTable tbody');
-
-        studyCenterTableBody.on('click', 'tr', function() {
-            if (!provinceDataTable) return;
-
-            studyCenterTableBody.find('tr').removeClass('selected-row');
-            $(this).addClass('selected-row');
-
-            const provincesToFilter = $(this).data('provinces');
-            provinceDataTable.column(0).search(`^(${provincesToFilter})$`, true, false).draw();
-        });
-
-        $('.clickable-header').on('click', function() {
-            if (!provinceDataTable) return;
-
-            studyCenterTableBody.find('tr').removeClass('selected-row');
-            provinceDataTable.column(0).search('').draw();
-        });
-
-      } catch (error) {
-        console.error("เกิดข้อผิดพลาดในการโหลดข้อมูลศูนย์ศึกษา:", error);
-      }
-    }
-
-    fetchData();
-    fetchStudyCenterData();
-  </script>
+fetchData();
+</script>
 
 </body>
 </html>
