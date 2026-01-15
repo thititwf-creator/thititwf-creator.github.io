@@ -693,18 +693,18 @@
 
         thead.innerHTML = `<tr>${headerHtml}</tr>`;
         provinces.forEach(p => {
-          const url = `https://tnah097.github.io/cdwomenpod-dashboard/Login.html?province=${encodeURIComponent(p.province)}`;
+          // const url = `https://tnah097.github.io/cdwomenpod-dashboard/Login.html?province=${encodeURIComponent(p.province)}`;
           const rowHTML = finalColumns.map(k => {
             const raw = p[k];
             if (k === "province") {
               const display = (raw === null || raw === undefined || raw === "") ? "-" : raw;
               return `
     <td class="align-left">
-      <a href="javascript:void(0)"
+      <button  href="javascript:void(0)"
          class="province-link"
          onclick="goLogin('${p.province}')">
          ${display}
-      </a>
+      </button >
     </td>
   `;
             }
@@ -836,10 +836,10 @@
     fetchData(); fetchStudyCenterData();
 
     function goLogin(province) {
-  sessionStorage.clear();
-  window.top.location.href =
-    `https://tnah097.github.io/cdwomenpod-dashboard/Login.html?province=${encodeURIComponent(province)}`;
-}
+      sessionStorage.clear();
+      window.top.location.href =
+        `https://tnah097.github.io/cdwomenpod-dashboard/Login.html?province=${encodeURIComponent(province)}`;
+    }
 
 
 
