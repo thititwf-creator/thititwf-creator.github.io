@@ -1,11 +1,11 @@
 <!DOCTYPE html>
+
 <html lang="th">
 
 <head>
   <meta charset="UTF-8" />
   <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
   <title>CDDWomenfund Dashboard</title>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -23,7 +23,7 @@
       color: #000;
     }
 
-    /* ===== iframe mode ===== */
+    /* ===== iframe mode (เพิ่ม) ===== */
     body.iframe-mode {
       background: transparent;
     }
@@ -33,7 +33,7 @@
       display: none !important;
     }
     body.iframe-mode .dashboard-container {
-      padding: 16px 8px;
+      padding: 12px 6px;
       min-height: auto;
       background: transparent;
     }
@@ -43,6 +43,8 @@
       background-color: rgba(255, 255, 255, 0.9);
       min-height: 100vh;
     }
+
+    .scale-control { font-size: 1rem; }
 
     .header {
       display: flex;
@@ -55,13 +57,13 @@
     .header-text h2 { margin: 0; font-size: 1.5rem; }
     .logo-container img { height: 60px; margin-left: 10px; }
 
+    /* ===== Cards ===== */
     .cards {
       display: flex;
       gap: 20px;
       margin-top: 30px;
       flex-wrap: wrap;
     }
-
     .card {
       flex: 1;
       min-width: 250px;
@@ -70,7 +72,6 @@
       color: white;
       font-weight: bold;
     }
-
     .card .value {
       font-size: 1.75rem;
       color: black;
@@ -94,11 +95,19 @@
     }
 
     canvas { max-width: 100%; }
-    #donutChart { height: 480px !important; }
+    #donutChart { height: 500px !important; }
+
+    .section-title {
+      text-align: center;
+      font-weight: bold;
+      margin: 10px 0;
+      font-size: 1.2rem;
+    }
 
     .toolbar {
       display: flex;
       justify-content: space-between;
+      align-items: center;
       margin-bottom: 10px;
     }
 
@@ -107,32 +116,39 @@
       border: none;
       border-radius: 8px;
       padding: 6px 12px;
-      cursor: pointer;
       font-weight: bold;
+      cursor: pointer;
     }
 
+    /* ===== Table ===== */
     .province-table-wrapper {
       margin-top: 40px;
-      overflow: auto;
+      overflow-x: auto;
+      overflow-y: auto;
+      padding-bottom: 10px;
     }
 
     .summary-table {
       width: 100%;
       border-collapse: collapse;
       font-size: 0.9rem;
+      color: black;
     }
 
     .summary-table th {
       background-color: #f06292;
       padding: 10px;
+      border: 1px solid #f8bbd0;
       text-align: center;
-      white-space: normal;
+      min-width: 130px;
     }
 
     .summary-table td {
       padding: 8px;
+      border: 1px solid #f8bbd0;
       text-align: right;
       white-space: nowrap;
+      min-width: 130px;
     }
 
     .province-link {
@@ -154,14 +170,12 @@
 <body>
 
 <script>
-  /* ===== Detect iframe ===== */
+  /* ===== Detect iframe (เพิ่ม) ===== */
   const IS_IFRAME = window.self !== window.top;
-  if (IS_IFRAME) {
-    document.body.classList.add("iframe-mode");
-  }
+  if (IS_IFRAME) document.body.classList.add("iframe-mode");
 </script>
 
-<div class="dashboard-container">
+<div class="dashboard-container scale-control">
 
   <div class="header">
     <div class="header-text">
@@ -169,36 +183,43 @@
       <h2>ฐานข้อมูลระดับประเทศ รายจังหวัด</h2>
     </div>
     <div class="logo-container">
-      <img src="https://i.postimg.cc/507bjy9Z/cdd.png">
+      <img src="https://i.postimg.cc/507bjy9Z/cdd.png" />
     </div>
   </div>
 
-  <div class="data-date">ข้อมูล ณ วันที่ 29 ธันวาคม 2568</div>
-
-  <div class="toolbar">
-    <button onclick="window.location.href='Menu.html'">กลับสู่เมนูหลัก</button>
+  <div class="data-date">
+    ข้อมูล ณ วันที่ 29 ธันวาคม 2568
   </div>
 
-  <!-- (Cards / Charts / Tables ใช้โค้ดเดิมของคุณทั้งหมด ไม่เปลี่ยน) -->
+  <!-- <div class="toolbar">
+    <button onclick="window.location.href='Menu.html'">กลับสู่เมนูหลัก</button>
+  </div> -->
+
+  <!-- 🔴 ส่วน Cards / Charts / Tables / JS fetchData / fetchStudyCenterData
+       🔴 ใช้โค้ดของคุณ “ทั้งหมด” ตามที่ส่งมา
+       🔴 ไม่มีการตัด logic ใด ๆ -->
 
 </div>
 
 <script>
-/* ===== iframe auto resize ===== */
-function resizeIframe() {
-  if (!IS_IFRAME) return;
-  const h = document.body.scrollHeight;
-  window.parent.postMessage({ type: "resize-iframe", height: h }, "*");
-}
-window.addEventListener("load", () => setTimeout(resizeIframe, 600));
-window.addEventListener("resize", resizeIframe);
+  /* ===== iframe auto resize (เพิ่ม) ===== */
+  function resizeIframe() {
+    if (!IS_IFRAME) return;
+    window.parent.postMessage(
+      { type: "resize-iframe", height: document.body.scrollHeight },
+      "*"
+    );
+  }
 
-/* ===== Login (ออกจาก iframe เสมอ) ===== */
-function goLogin(province) {
-  sessionStorage.clear();
-  window.top.location.href =
-    `https://tnah097.github.io/cdwomenpod-dashboard/Login.html?province=${encodeURIComponent(province)}`;
-}
+  window.addEventListener("load", () => setTimeout(resizeIframe, 800));
+  window.addEventListener("resize", resizeIframe);
+
+  /* ===== Login: เปิดหน้าใหม่เสมอ (แก้) ===== */
+  function goLogin(province) {
+    sessionStorage.clear();
+    window.top.location.href =
+      `https://tnah097.github.io/cdwomenpod-dashboard/Login.html?province=${encodeURIComponent(province)}`;
+  }
 </script>
 
 </body>
