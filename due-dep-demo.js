@@ -2,103 +2,108 @@
 // CONFIG
 // =======================
 const API_URL = 'https://script.google.com/macros/s/AKfycbyQwOGNo1MSLAcQhrm8zCcTwl4gA5ssJJCwcnNYgWSUngenSAT0gZEOVILJ33mpupno/exec';
-
 // =======================
 // ELEMENTS
 // =======================
-const titleEl   = document.getElementById('title');
+const titleEl = document.getElementById('title');
 const summaryEl = document.getElementById('summary');
 const searchBox = document.getElementById('searchBox');
-const table     = document.getElementById('resultTable');
-const tbody     = table.querySelector('tbody');
+const table = document.getElementById('resultTable');
+const tbody = table.querySelector('tbody');
 
 // =======================
 // STATE
 // =======================
 let allData = [];
 let viewData = [];
+let provinceName = '';
 
 // =======================
 // UTIL
 // =======================
 const fmtNum = n =>
-  new Intl.NumberFormat('th-TH',{minimumFractionDigits:2}).format(n||0);
+    new Intl.NumberFormat('th-TH', { minimumFractionDigits: 2 }).format(n || 0);
 
 const fmtDate = d =>
-  d ? new Date(d).toLocaleDateString('th-TH') : '';
+    d ? new Date(d).toLocaleDateString('th-TH') : '';
 
-function getParam(name){
-  return new URLSearchParams(window.location.search).get(name);
+function getParam(name) {
+    return new URLSearchParams(window.location.search).get(name);
+}
+
+// =======================
+// CLEAN URL
+// =======================
+function removeQueryString() {
+    const cleanURL = window.location.origin + window.location.pathname;
+    window.history.replaceState({}, document.title, cleanURL);
 }
 
 // =======================
 // LOAD DATA
 // =======================
-async function loadData(){
-  const province = getParam('province');
+async function loadData() {
+    provinceName = getParam('province');
 
-  if(!province){
-    titleEl.textContent = 'กรุณาระบุจังหวัดใน URL';
-    summaryEl.textContent = 'ตัวอย่าง: ?province=กระบี่';
-    return;
-  }
+    if (!provinceName) {
+        titleEl.textContent = 'ไม่พบข้อมูลจังหวัด';
+        summaryEl.textContent = 'กรุณาเข้าใช้งานผ่านลิงก์ของจังหวัด';
+        return;
+    }
 
-  titleEl.textContent = `จังหวัด ${province}`;
-  summaryEl.textContent = 'กำลังโหลดข้อมูล...';
+    titleEl.textContent = `จังหวัด ${provinceName}`;
+    summaryEl.textContent = 'กำลังโหลดข้อมูล...';
 
-  try{
-    const res = await fetch(`${API_URL}?province=${province}`);
-    const json = await res.json();
+    try {
+        const res = await fetch(`${API_URL}?province=${provinceName}`);
+        const json = await res.json();
 
-    allData = json.data || [];
-    viewData = allData;
+        allData = json.data || [];
+        viewData = allData;
 
-    summaryEl.textContent = `พบข้อมูลทั้งหมด ${allData.length} รายการ`;
+        summaryEl.textContent = `พบข้อมูลทั้งหมด ${allData.length} รายการ`;
+        renderTable(viewData);
 
-    renderTable(viewData);
+        // 🔥 ลบ ?province=... ออกจาก URL
+        removeQueryString();
 
-  }catch(err){
-    summaryEl.textContent = 'เกิดข้อผิดพลาดในการโหลดข้อมูล';
-    console.error(err);
-  }
+    } catch (err) {
+        summaryEl.textContent = 'เกิดข้อผิดพลาดในการโหลดข้อมูล';
+        console.error(err);
+    }
 }
 
 // =======================
 // SEARCH
 // =======================
-searchBox.addEventListener('input', ()=>{
-  const q = searchBox.value.trim().toLowerCase();
+searchBox.addEventListener('input', () => {
+    const q = searchBox.value.trim().toLowerCase();
 
-  if(!q){
-    viewData = allData;
-  }else{
-    viewData = allData.filter(row =>
-      Object.values(row)
-        .join(' ')
-        .toLowerCase()
-        .includes(q)
-    );
-  }
+    viewData = !q
+        ? allData
+        : allData.filter(row =>
+            Object.values(row).join(' ').toLowerCase().includes(q)
+        );
 
-  summaryEl.textContent = `แสดงผล ${viewData.length} / ${allData.length} รายการ`;
-  renderTable(viewData);
+    summaryEl.textContent = `แสดงผล ${viewData.length} / ${allData.length} รายการ`;
+    renderTable(viewData);
 });
 
 // =======================
 // RENDER
 // =======================
-function renderTable(data){
-  tbody.innerHTML = '';
+function renderTable(data) {
+    tbody.innerHTML = '';
 
-  if(data.length === 0){
-    table.style.display = 'none';
-    return;
-  }
+    if (data.length === 0) {
+        table.style.display = 'none';
+        return;
+    }
 
-  data.forEach((r,i)=>{
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td>${i+1}</td>
+    data.forEach((r, i) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+      <td>${i + 1}</td>
       <td>${r['อำเภอ']}</td>
       <td>${r['ตำบล']}</td>
       <td>${r['เลขที่สัญญา']}</td>
@@ -109,10 +114,10 @@ function renderTable(data){
       <td class="text-right">${fmtNum(r['เงินต้นรับคืน'])}</td>
       <td>${r['สถานะการมีข้อมูลใน ค-ง']}</td>
     `;
-    tbody.appendChild(tr);
-  });
+        tbody.appendChild(tr);
+    });
 
-  table.style.display = 'table';
+    table.style.display = 'table';
 }
 
 // =======================
