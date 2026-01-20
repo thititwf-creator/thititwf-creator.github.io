@@ -2,7 +2,7 @@
 <html lang="th">
 <head>
 <meta charset="UTF-8">
-<title>ระบบค้นหาข้อมูลสัญญา</title>
+<title>ค้นหาข้อมูลสัญญา</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
@@ -12,7 +12,7 @@ body{
   margin:0;
   padding:20px;
 }
-h1{text-align:center;color:#333}
+h1{text-align:center}
 .filter-box{
   background:#fff;
   max-width:900px;
@@ -30,7 +30,6 @@ select,button{
   padding:10px;
   border-radius:8px;
   border:1px solid #ccc;
-  font-size:1rem;
 }
 button{
   background:#4f46e5;
@@ -39,7 +38,10 @@ button{
   font-weight:600;
   cursor:pointer;
 }
-button:hover{background:#4338ca}
+button:disabled{
+  background:#aaa;
+  cursor:not-allowed;
+}
 .summary{
   max-width:900px;
   margin:15px auto;
@@ -72,9 +74,13 @@ tbody tr:hover{background:#f1f5ff}
 
 <div class="filter-box">
   <div>
-    <label>จังหวัด</label>
+    <label>จังหวัด <span style="color:red">*</span></label>
     <select id="province">
-      <option value="">-- เลือกจังหวัด --</option>
+      <option value="">-- กรุณาเลือกจังหวัด --</option>
+      <option value="กระบี่">กระบี่</option>
+      <option value="กรุงเทพมหานคร">กรุงเทพมหานคร</option>
+      <option value="ขอนแก่น">ขอนแก่น</option>
+      <!-- 🔴 ใส่รายชื่อจังหวัดไว้ล่วงหน้า (ไม่เรียก API) -->
     </select>
   </div>
 
@@ -93,7 +99,7 @@ tbody tr:hover{background:#f1f5ff}
   </div>
 
   <div style="align-self:end">
-    <button id="searchBtn">ค้นหา</button>
+    <button id="searchBtn" disabled>ค้นหา</button>
   </div>
 </div>
 

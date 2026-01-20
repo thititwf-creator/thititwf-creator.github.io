@@ -1,5 +1,5 @@
 // 🔴 ใส่ URL Web App ของคุณตรงนี้
-const API_BASE =
+const API_URL =
   'https://script.google.com/macros/s/AKfycbyBHgSQRzhlbBX1qcwNQtZP8v5hcYHMBGg5HQy7tR1rQwRYNWUO9GzWPms9J1aqa6Fu/exec';
 const provinceSel = document.getElementById('province');
 const districtSel = document.getElementById('district');
@@ -9,120 +9,98 @@ const table = document.getElementById('resultTable');
 const tbody = table.querySelector('tbody');
 const summary = document.getElementById('summary');
 
-// =======================
-// UTIL
-// =======================
-function uniq(arr){ return [...new Set(arr)] }
+// util
+const uniq = arr => [...new Set(arr)];
+const fmtNum = n => new Intl.NumberFormat('th-TH',{minimumFractionDigits:2}).format(n||0);
+const fmtDate = d => d ? new Date(d).toLocaleDateString('th-TH') : '';
 
-function fmtNum(n){
-  return new Intl.NumberFormat('th-TH',{minimumFractionDigits:2})
-    .format(n || 0)
-}
-
-function fmtDate(d){
-  if(!d) return ''
-  return new Intl.DateTimeFormat('th-TH',{
-    day:'numeric',month:'long',year:'numeric'
-  }).format(new Date(d))
-}
+// cache ข้อมูลจังหวัด (ลด API)
+let provinceData = [];
 
 // =======================
-// LOAD INITIAL (จังหวัด)
-// =======================
-async function loadProvinces(){
-  summary.textContent = 'กำลังโหลดจังหวัด...'
-  const res = await fetch(API_URL)
-  const json = await res.json()
-
-  const provinces = uniq(json.data.map(r => r['จังหวัด'])).sort()
-  provinces.forEach(p=>{
-    const o = document.createElement('option')
-    o.value = p
-    o.textContent = p
-    provinceSel.appendChild(o)
-  })
-
-  summary.textContent = ''
-}
-
-// =======================
-// CHANGE PROVINCE
+// เลือกจังหวัด → fetch ครั้งแรก
 // =======================
 provinceSel.addEventListener('change', async () => {
-  districtSel.innerHTML = '<option value="">-- เลือกอำเภอ --</option>'
-  subdistrictSel.innerHTML = '<option value="">-- เลือกตำบล --</option>'
-  districtSel.disabled = true
-  subdistrictSel.disabled = true
+  districtSel.innerHTML = '<option value="">-- เลือกอำเภอ --</option>';
+  subdistrictSel.innerHTML = '<option value="">-- เลือกตำบล --</option>';
+  districtSel.disabled = true;
+  subdistrictSel.disabled = true;
+  searchBtn.disabled = true;
+  table.style.display = 'none';
 
-  if(!provinceSel.value) return
+  if (!provinceSel.value) return;
 
-  const res = await fetch(`${API_URL}?province=${provinceSel.value}`)
-  const json = await res.json()
+  summary.textContent = 'กำลังโหลดข้อมูลจังหวัด...';
 
-  const districts = uniq(json.data.map(r => r['อำเภอ'])).sort()
-  districts.forEach(d=>{
-    const o = document.createElement('option')
-    o.value = d
-    o.textContent = d
-    districtSel.appendChild(o)
-  })
+  const res = await fetch(`${API_URL}?province=${provinceSel.value}`);
+  const json = await res.json();
 
-  districtSel.disabled = false
-})
+  provinceData = json.data || [];
 
-// =======================
-// CHANGE DISTRICT
-// =======================
-districtSel.addEventListener('change', async () => {
-  subdistrictSel.innerHTML = '<option value="">-- เลือกตำบล --</option>'
-  subdistrictSel.disabled = true
+  if (provinceData.length === 0) {
+    summary.textContent = 'ไม่พบข้อมูลจังหวัดนี้';
+    return;
+  }
 
-  if(!districtSel.value) return
+  const districts = uniq(provinceData.map(r => r['อำเภอ'])).sort();
+  districts.forEach(d => {
+    const o = document.createElement('option');
+    o.value = d;
+    o.textContent = d;
+    districtSel.appendChild(o);
+  });
 
-  const url = `${API_URL}?province=${provinceSel.value}&district=${districtSel.value}`
-  const res = await fetch(url)
-  const json = await res.json()
-
-  const subs = uniq(json.data.map(r => r['ตำบล'])).sort()
-  subs.forEach(s=>{
-    const o = document.createElement('option')
-    o.value = s
-    o.textContent = s
-    subdistrictSel.appendChild(o)
-  })
-
-  subdistrictSel.disabled = false
-})
+  districtSel.disabled = false;
+  searchBtn.disabled = false;
+  summary.textContent = `พบข้อมูล ${provinceData.length} รายการ`;
+});
 
 // =======================
-// SEARCH
+// เลือกอำเภอ → ใช้ cache
+// =======================
+districtSel.addEventListener('change', () => {
+  subdistrictSel.innerHTML = '<option value="">-- เลือกตำบล --</option>';
+  subdistrictSel.disabled = true;
+
+  if (!districtSel.value) return;
+
+  const subs = uniq(
+    provinceData
+      .filter(r => r['อำเภอ'] === districtSel.value)
+      .map(r => r['ตำบล'])
+  ).sort();
+
+  subs.forEach(s => {
+    const o = document.createElement('option');
+    o.value = s;
+    o.textContent = s;
+    subdistrictSel.appendChild(o);
+  });
+
+  subdistrictSel.disabled = false;
+});
+
+// =======================
+// SEARCH (ไม่โหลดใหม่ถ้าไม่จำเป็น)
 // =======================
 searchBtn.addEventListener('click', async () => {
-  if(!provinceSel.value){
-    alert('กรุณาเลือกจังหวัด')
-    return
+  let rows = provinceData;
+
+  if (districtSel.value) {
+    rows = rows.filter(r => r['อำเภอ'] === districtSel.value);
+  }
+  if (subdistrictSel.value) {
+    rows = rows.filter(r => r['ตำบล'] === subdistrictSel.value);
   }
 
-  const qs = new URLSearchParams({
-    province: provinceSel.value,
-    district: districtSel.value,
-    subdistrict: subdistrictSel.value
-  })
-
-  summary.textContent = 'กำลังค้นหาข้อมูล...'
-  table.style.display = 'none'
-  tbody.innerHTML = ''
-
-  const res = await fetch(`${API_URL}?${qs.toString()}`)
-  const json = await res.json()
-
-  if(json.count === 0){
-    summary.textContent = 'ไม่พบข้อมูล'
-    return
+  if (rows.length === 0) {
+    summary.textContent = 'ไม่พบข้อมูล';
+    return;
   }
 
-  json.data.forEach((r,i)=>{
-    const tr = document.createElement('tr')
+  tbody.innerHTML = '';
+  rows.forEach((r,i)=>{
+    const tr = document.createElement('tr');
     tr.innerHTML = `
       <td class="text-center">${i+1}</td>
       <td>${r['จังหวัด']}</td>
@@ -134,15 +112,10 @@ searchBtn.addEventListener('click', async () => {
       <td class="text-right">${fmtNum(r['เงินต้นที่คาดว่าจะได้'])}</td>
       <td class="text-right">${fmtNum(r['เงินต้นรับคืน'])}</td>
       <td>${r['สถานะการมีข้อมูลใน ค-ง']}</td>
-    `
-    tbody.appendChild(tr)
-  })
+    `;
+    tbody.appendChild(tr);
+  });
 
-  summary.textContent = `พบข้อมูล ${json.count} รายการ`
-  table.style.display = 'table'
-})
-
-// =======================
-// INIT
-// =======================
-loadProvinces()
+  summary.textContent = `แสดงผล ${rows.length} รายการ`;
+  table.style.display = 'table';
+});
