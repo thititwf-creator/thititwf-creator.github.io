@@ -1,6 +1,6 @@
 // 🔴 ใส่ URL Web App ของคุณตรงนี้
 const API_URL =
-    'https://script.google.com/macros/s/AKfycbyBHgSQRzhlbBX1qcwNQtZP8v5hcYHMBGg5HQy7tR1rQwRYNWUO9GzWPms9J1aqa6Fu/exec';
+    'https://script.google.com/macros/s/AKfycbyQwOGNo1MSLAcQhrm8zCcTwl4gA5ssJJCwcnNYgWSUngenSAT0gZEOVILJ33mpupno/exec';
 
 // =======================
 // ELEMENTS
