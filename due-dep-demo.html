@@ -2,118 +2,96 @@
 <html lang="th">
 <head>
 <meta charset="UTF-8">
-<title>ค้นหาข้อมูลสัญญา</title>
+<title>ระบบค้นหาข้อมูลสัญญา</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-  body {
-    font-family: "Kanit", sans-serif;
-    background: #f5f7fb;
-    margin: 0;
-    padding: 20px;
-  }
-
-  h1 {
-    text-align: center;
-    color: #333;
-  }
-
-  .filter-box {
-    background: #fff;
-    padding: 20px;
-    border-radius: 12px;
-    max-width: 900px;
-    margin: 0 auto 20px;
-    box-shadow: 0 4px 12px rgba(0,0,0,.08);
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px,1fr));
-    gap: 15px;
-  }
-
-  label {
-    font-weight: 500;
-    margin-bottom: 5px;
-    display: block;
-  }
-
-  input, select, button {
-    width: 100%;
-    padding: 10px 12px;
-    border-radius: 8px;
-    border: 1px solid #ccc;
-    font-size: 1rem;
-  }
-
-  button {
-    background: #4f46e5;
-    color: #fff;
-    border: none;
-    cursor: pointer;
-    font-weight: 600;
-  }
-
-  button:hover {
-    background: #4338ca;
-  }
-
-  .summary {
-    max-width: 900px;
-    margin: 0 auto 15px;
-    font-weight: 500;
-  }
-
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    background: #fff;
-    box-shadow: 0 4px 12px rgba(0,0,0,.08);
-    border-radius: 12px;
-    overflow: hidden;
-  }
-
-  thead {
-    background: #4f46e5;
-    color: #fff;
-  }
-
-  th, td {
-    padding: 10px 12px;
-    border-bottom: 1px solid #eee;
-    font-size: 0.9rem;
-    white-space: nowrap;
-  }
-
-  tbody tr:hover {
-    background: #f1f5ff;
-  }
-
-  .text-right {
-    text-align: right;
-  }
-
-  .text-center {
-    text-align: center;
-  }
+body{
+  font-family:"Kanit",sans-serif;
+  background:#f4f6fb;
+  margin:0;
+  padding:20px;
+}
+h1{text-align:center;color:#333}
+.filter-box{
+  background:#fff;
+  max-width:900px;
+  margin:auto;
+  padding:20px;
+  border-radius:12px;
+  box-shadow:0 6px 16px rgba(0,0,0,.08);
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+  gap:15px;
+}
+label{font-weight:500;margin-bottom:6px;display:block}
+select,button{
+  width:100%;
+  padding:10px;
+  border-radius:8px;
+  border:1px solid #ccc;
+  font-size:1rem;
+}
+button{
+  background:#4f46e5;
+  color:#fff;
+  border:none;
+  font-weight:600;
+  cursor:pointer;
+}
+button:hover{background:#4338ca}
+.summary{
+  max-width:900px;
+  margin:15px auto;
+  font-weight:500;
+}
+table{
+  width:100%;
+  border-collapse:collapse;
+  background:#fff;
+  border-radius:12px;
+  overflow:hidden;
+  box-shadow:0 6px 16px rgba(0,0,0,.08);
+}
+thead{background:#4f46e5;color:#fff}
+th,td{
+  padding:10px;
+  border-bottom:1px solid #eee;
+  font-size:.9rem;
+  white-space:nowrap;
+}
+tbody tr:hover{background:#f1f5ff}
+.text-center{text-align:center}
+.text-right{text-align:right}
 </style>
 </head>
 
 <body>
 
-<h1>ระบบค้นหาข้อมูลสัญญา</h1>
+<h1>ค้นหาข้อมูลสัญญา</h1>
 
 <div class="filter-box">
   <div>
     <label>จังหวัด</label>
-    <input id="province" placeholder="เช่น กระบี่">
+    <select id="province">
+      <option value="">-- เลือกจังหวัด --</option>
+    </select>
   </div>
+
   <div>
-    <label>อำเภอ (ไม่บังคับ)</label>
-    <input id="district" placeholder="เช่น เมืองกระบี่">
+    <label>อำเภอ</label>
+    <select id="district" disabled>
+      <option value="">-- เลือกอำเภอ --</option>
+    </select>
   </div>
+
   <div>
-    <label>ตำบล (ไม่บังคับ)</label>
-    <input id="subdistrict" placeholder="เช่น ปากน้ำ">
+    <label>ตำบล</label>
+    <select id="subdistrict" disabled>
+      <option value="">-- เลือกตำบล --</option>
+    </select>
   </div>
+
   <div style="align-self:end">
     <button id="searchBtn">ค้นหา</button>
   </div>
@@ -121,11 +99,11 @@
 
 <div class="summary" id="summary"></div>
 
-<div style="overflow:auto; max-width:1200px; margin:auto">
+<div style="overflow:auto;max-width:1200px;margin:auto">
 <table id="resultTable" style="display:none">
   <thead>
     <tr>
-      <th>ลำดับ</th>
+      <th>#</th>
       <th>จังหวัด</th>
       <th>อำเภอ</th>
       <th>ตำบล</th>
