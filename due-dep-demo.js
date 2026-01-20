@@ -1,6 +1,10 @@
 // 🔴 ใส่ URL Web App ของคุณตรงนี้
 const API_URL =
-  'https://script.google.com/macros/s/AKfycbyBHgSQRzhlbBX1qcwNQtZP8v5hcYHMBGg5HQy7tR1rQwRYNWUO9GzWPms9J1aqa6Fu/exec';
+    'https://script.google.com/macros/s/AKfycbyBHgSQRzhlbBX1qcwNQtZP8v5hcYHMBGg5HQy7tR1rQwRYNWUO9GzWPms9J1aqa6Fu/exec';
+
+// =======================
+// ELEMENTS
+// =======================
 const provinceSel = document.getElementById('province');
 const districtSel = document.getElementById('district');
 const subdistrictSel = document.getElementById('subdistrict');
@@ -9,100 +13,132 @@ const table = document.getElementById('resultTable');
 const tbody = table.querySelector('tbody');
 const summary = document.getElementById('summary');
 
-// util
+// =======================
+// UTIL
+// =======================
 const uniq = arr => [...new Set(arr)];
-const fmtNum = n => new Intl.NumberFormat('th-TH',{minimumFractionDigits:2}).format(n||0);
-const fmtDate = d => d ? new Date(d).toLocaleDateString('th-TH') : '';
+const fmtNum = n =>
+    new Intl.NumberFormat('th-TH', { minimumFractionDigits: 2 }).format(n || 0);
+const fmtDate = d =>
+    d ? new Date(d).toLocaleDateString('th-TH') : '';
 
-// cache ข้อมูลจังหวัด (ลด API)
+function getParam(name) {
+    return new URLSearchParams(window.location.search).get(name);
+}
+
+function updateUrl() {
+    const qs = new URLSearchParams();
+    if (provinceSel.value) qs.set('province', provinceSel.value);
+    if (districtSel.value) qs.set('district', districtSel.value);
+    if (subdistrictSel.value) qs.set('subdistrict', subdistrictSel.value);
+    history.replaceState(null, '', '?' + qs.toString());
+}
+
+// =======================
+// CACHE
+// =======================
+const cache = {}; // { province: [rows] }
 let provinceData = [];
 
 // =======================
-// เลือกจังหวัด → fetch ครั้งแรก
+// CORE
 // =======================
-provinceSel.addEventListener('change', async () => {
-  districtSel.innerHTML = '<option value="">-- เลือกอำเภอ --</option>';
-  subdistrictSel.innerHTML = '<option value="">-- เลือกตำบล --</option>';
-  districtSel.disabled = true;
-  subdistrictSel.disabled = true;
-  searchBtn.disabled = true;
-  table.style.display = 'none';
+async function loadProvinceData(province) {
+    // reset UI
+    districtSel.innerHTML = '<option value="">-- เลือกอำเภอ --</option>';
+    subdistrictSel.innerHTML = '<option value="">-- เลือกตำบล --</option>';
+    districtSel.disabled = true;
+    subdistrictSel.disabled = true;
+    searchBtn.disabled = true;
+    table.style.display = 'none';
 
-  if (!provinceSel.value) return;
+    summary.textContent = `กำลังโหลดข้อมูลจังหวัด ${province}...`;
 
-  summary.textContent = 'กำลังโหลดข้อมูลจังหวัด...';
+    if (cache[province]) {
+        provinceData = cache[province];
+    } else {
+        const res = await fetch(`${API_URL}?province=${province}`);
+        const json = await res.json();
+        provinceData = json.data || [];
+        cache[province] = provinceData;
+    }
 
-  const res = await fetch(`${API_URL}?province=${provinceSel.value}`);
-  const json = await res.json();
+    if (provinceData.length === 0) {
+        summary.textContent = 'ไม่พบข้อมูล';
+        return;
+    }
 
-  provinceData = json.data || [];
+    // populate district
+    uniq(provinceData.map(r => r['อำเภอ']))
+        .sort()
+        .forEach(d => {
+            const o = document.createElement('option');
+            o.value = d;
+            o.textContent = d;
+            districtSel.appendChild(o);
+        });
 
-  if (provinceData.length === 0) {
-    summary.textContent = 'ไม่พบข้อมูลจังหวัดนี้';
-    return;
-  }
+    districtSel.disabled = false;
+    searchBtn.disabled = false;
+    summary.textContent = `พบข้อมูล ${provinceData.length} รายการ`;
+}
 
-  const districts = uniq(provinceData.map(r => r['อำเภอ'])).sort();
-  districts.forEach(d => {
-    const o = document.createElement('option');
-    o.value = d;
-    o.textContent = d;
-    districtSel.appendChild(o);
-  });
-
-  districtSel.disabled = false;
-  searchBtn.disabled = false;
-  summary.textContent = `พบข้อมูล ${provinceData.length} รายการ`;
+// =======================
+// EVENTS
+// =======================
+provinceSel.addEventListener('change', () => {
+    if (!provinceSel.value) return;
+    updateUrl();
+    loadProvinceData(provinceSel.value);
 });
 
-// =======================
-// เลือกอำเภอ → ใช้ cache
-// =======================
 districtSel.addEventListener('change', () => {
-  subdistrictSel.innerHTML = '<option value="">-- เลือกตำบล --</option>';
-  subdistrictSel.disabled = true;
+    subdistrictSel.innerHTML = '<option value="">-- เลือกตำบล --</option>';
+    subdistrictSel.disabled = true;
 
-  if (!districtSel.value) return;
+    if (!districtSel.value) {
+        updateUrl();
+        return;
+    }
 
-  const subs = uniq(
-    provinceData
-      .filter(r => r['อำเภอ'] === districtSel.value)
-      .map(r => r['ตำบล'])
-  ).sort();
+    uniq(
+        provinceData
+            .filter(r => r['อำเภอ'] === districtSel.value)
+            .map(r => r['ตำบล'])
+    )
+        .sort()
+        .forEach(s => {
+            const o = document.createElement('option');
+            o.value = s;
+            o.textContent = s;
+            subdistrictSel.appendChild(o);
+        });
 
-  subs.forEach(s => {
-    const o = document.createElement('option');
-    o.value = s;
-    o.textContent = s;
-    subdistrictSel.appendChild(o);
-  });
-
-  subdistrictSel.disabled = false;
+    subdistrictSel.disabled = false;
+    updateUrl();
 });
 
-// =======================
-// SEARCH (ไม่โหลดใหม่ถ้าไม่จำเป็น)
-// =======================
-searchBtn.addEventListener('click', async () => {
-  let rows = provinceData;
+subdistrictSel.addEventListener('change', updateUrl);
 
-  if (districtSel.value) {
-    rows = rows.filter(r => r['อำเภอ'] === districtSel.value);
-  }
-  if (subdistrictSel.value) {
-    rows = rows.filter(r => r['ตำบล'] === subdistrictSel.value);
-  }
+searchBtn.addEventListener('click', () => {
+    let rows = provinceData;
 
-  if (rows.length === 0) {
-    summary.textContent = 'ไม่พบข้อมูล';
-    return;
-  }
+    if (districtSel.value)
+        rows = rows.filter(r => r['อำเภอ'] === districtSel.value);
 
-  tbody.innerHTML = '';
-  rows.forEach((r,i)=>{
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td class="text-center">${i+1}</td>
+    if (subdistrictSel.value)
+        rows = rows.filter(r => r['ตำบล'] === subdistrictSel.value);
+
+    if (rows.length === 0) {
+        summary.textContent = 'ไม่พบข้อมูล';
+        return;
+    }
+
+    tbody.innerHTML = '';
+    rows.forEach((r, i) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+      <td class="text-center">${i + 1}</td>
       <td>${r['จังหวัด']}</td>
       <td>${r['อำเภอ']}</td>
       <td>${r['ตำบล']}</td>
@@ -113,9 +149,30 @@ searchBtn.addEventListener('click', async () => {
       <td class="text-right">${fmtNum(r['เงินต้นรับคืน'])}</td>
       <td>${r['สถานะการมีข้อมูลใน ค-ง']}</td>
     `;
-    tbody.appendChild(tr);
-  });
+        tbody.appendChild(tr);
+    });
 
-  summary.textContent = `แสดงผล ${rows.length} รายการ`;
-  table.style.display = 'table';
+    summary.textContent = `แสดงผล ${rows.length} รายการ`;
+    table.style.display = 'table';
 });
+
+// =======================
+// AUTO LOAD FROM URL
+// =======================
+const p = getParam('province');
+const d = getParam('district');
+const s = getParam('subdistrict');
+
+if (p) {
+    provinceSel.value = p;
+    loadProvinceData(p).then(() => {
+        if (d) {
+            districtSel.value = d;
+            districtSel.dispatchEvent(new Event('change'));
+        }
+        if (s) {
+            subdistrictSel.value = s;
+        }
+        searchBtn.click();
+    });
+}
