@@ -24,13 +24,20 @@
         });
 
         function go() {
-            const p = prov.value;
+            const province = prov.value;
 
-            fetch(`${API}?getTokenOf=${p}`)
+            fetch(`${API}?getTokenOf=${encodeURIComponent(province)}`)
                 .then(r => r.json())
                 .then(res => {
+
+                    if (!res.token) {
+                        alert("ไม่พบ token ของจังหวัดนี้");
+                        return;
+                    }
+
+                    // ✅ token มีค่าแน่นอน
                     location.href =
-                        `province.html?province=${p}&token=${res.token}`;
+                        `province.html?province=${encodeURIComponent(province)}&token=${encodeURIComponent(res.token)}`;
                 });
         }
     </script>
