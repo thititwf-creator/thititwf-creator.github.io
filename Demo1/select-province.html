@@ -1,29 +1,32 @@
 <!DOCTYPE html>
 <html lang="th">
+
 <head>
-<meta charset="UTF-8">
-<title>เลือกจังหวัด</title>
+    <meta charset="UTF-8">
+    <title>เลือกจังหวัด</title>
 </head>
+
 <body>
 
-<h3>เลือกจังหวัด</h3>
+    <h3>เลือกจังหวัด</h3>
 
-<select id="prov"></select>
-<button onclick="go()">ตกลง</button>
+    <select id="prov"></select>
+    <button onclick="go()">ตกลง</button>
 
-<script>
-const provinces = JSON.parse(localStorage.getItem("provinces"));
-const token = localStorage.getItem("adminToken");
+    <script>
+        src = "js/config.js"
+        const provinces = JSON.parse(localStorage.getItem("provinces"));
+        const token = localStorage.getItem("adminToken");
 
-provinces.forEach(p => {
-  prov.innerHTML += `<option value="${p}">${p}</option>`;
-});
+        provinces.forEach(p => {
+            prov.innerHTML += `<option value="${p}">${p}</option>`;
+        });
 
-function go() {
-  location.href =
-    `province.html?province=${prov.value}&token=${token}`;
-}
-</script>
-<script src="js/config.js"></script>
+        function go() {
+            location.href =
+                `province.html?province=${prov.value}&token=${token}`;
+        }
+    </script>
 </body>
+
 </html>

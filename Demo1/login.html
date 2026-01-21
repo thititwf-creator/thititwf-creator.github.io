@@ -1,52 +1,63 @@
 <!DOCTYPE html>
 <html lang="th">
+
 <head>
-<meta charset="UTF-8">
-<title>เข้าสู่ระบบ</title>
-<style>
-body { font-family: Sarabun, sans-serif; padding: 30px; }
-input, button { padding: 8px; margin: 6px 0; width: 100%; }
-</style>
+    <meta charset="UTF-8">
+    <title>เข้าสู่ระบบ</title>
+    <style>
+        body {
+            font-family: Sarabun, sans-serif;
+            padding: 30px;
+        }
+
+        input,
+        button {
+            padding: 8px;
+            margin: 6px 0;
+            width: 100%;
+        }
+    </style>
 </head>
+
 <body>
 
-<h3>เข้าสู่ระบบ</h3>
+    <h3>เข้าสู่ระบบ</h3>
 
-<input id="user" placeholder="username">
-<input id="pass" type="password" placeholder="password">
-<button onclick="login()">เข้าสู่ระบบ</button>
+    <input id="user" placeholder="username">
+    <input id="pass" type="password" placeholder="password">
+    <button onclick="login()">เข้าสู่ระบบ</button>
 
-<script>
-// const API = "https://script.google.com/macros/s/AKfycbwIvs7Gtdb2ZR1ucprgzBkYzAvM4cCrBjAfnyUOxiPGKDRzlLCd-lBAq5gj7iGmw9uC/exec";
+    <script>
+        // const API = "https://script.google.com/macros/s/AKfycbwIvs7Gtdb2ZR1ucprgzBkYzAvM4cCrBjAfnyUOxiPGKDRzlLCd-lBAq5gj7iGmw9uC/exec";
+        src = "js/config.js"
+        function login() {
+            fetch(API, {
+                method: "POST",
+                body: JSON.stringify({
+                    username: user.value,
+                    password: pass.value
+                })
+            })
+                .then(r => r.json())
+                .then(res => {
+                    if (res.error) {
+                        alert("Login ไม่สำเร็จ");
+                        return;
+                    }
 
-function login() {
-  fetch(API, {
-    method: "POST",
-    body: JSON.stringify({
-      username: user.value,
-      password: pass.value
-    })
-  })
-  .then(r => r.json())
-  .then(res => {
-    if (res.error) {
-      alert("Login ไม่สำเร็จ");
-      return;
-    }
+                    if (res.role === "province") {
+                        location.href =
+                            `province.html?province=${res.province}&token=${res.token}`;
+                    }
 
-    if (res.role === "province") {
-      location.href =
-        `province.html?province=${res.province}&token=${res.token}`;
-    }
-
-    if (res.role === "admin") {
-      localStorage.setItem("adminToken", res.token);
-      localStorage.setItem("provinces", JSON.stringify(res.provinces));
-      location.href = "select-province.html";
-    }
-  });
-}
-</script>
-<script src="js/config.js"></script>
+                    if (res.role === "admin") {
+                        localStorage.setItem("adminToken", res.token);
+                        localStorage.setItem("provinces", JSON.stringify(res.provinces));
+                        location.href = "select-province.html";
+                    }
+                });
+        }
+    </script>
 </body>
+
 </html>

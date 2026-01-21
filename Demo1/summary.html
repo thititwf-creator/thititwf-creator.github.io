@@ -1,56 +1,78 @@
 <!DOCTYPE html>
 <html lang="th">
+
 <head>
-<meta charset="UTF-8">
-<title>ภาพรวมจังหวัด</title>
-<style>
-body { font-family: Sarabun, sans-serif; padding: 20px; }
-table { border-collapse: collapse; width: 100%; }
-th, td { border: 1px solid #ccc; padding: 6px; }
-th { background: #f0f0f0; }
-a { color: #1a237e; text-decoration: none; font-weight: bold; }
-</style>
+    <meta charset="UTF-8">
+    <title>ภาพรวมจังหวัด</title>
+    <style>
+        body {
+            font-family: Sarabun, sans-serif;
+            padding: 20px;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        th,
+        td {
+            border: 1px solid #ccc;
+            padding: 6px;
+        }
+
+        th {
+            background: #f0f0f0;
+        }
+
+        a {
+            color: #1a237e;
+            text-decoration: none;
+            font-weight: bold;
+        }
+    </style>
 </head>
+
 <body>
 
-<h2>ภาพรวมข้อมูลรายจังหวัด</h2>
+    <h2>ภาพรวมข้อมูลรายจังหวัด</h2>
 
-<table id="tbl">
-  <thead></thead>
-  <tbody></tbody>
-</table>
+    <table id="tbl">
+        <thead></thead>
+        <tbody></tbody>
+    </table>
 
-<script>
-// const API = "https://script.google.com/macros/s/AKfycbwIvs7Gtdb2ZR1ucprgzBkYzAvM4cCrBjAfnyUOxiPGKDRzlLCd-lBAq5gj7iGmw9uC/exec";
+    <script>
+        // const API = "https://script.google.com/macros/s/AKfycbwIvs7Gtdb2ZR1ucprgzBkYzAvM4cCrBjAfnyUOxiPGKDRzlLCd-lBAq5gj7iGmw9uC/exec";
+        src = "js/config.js"
+        fetch(API)
+            .then(r => r.json())
+            .then(res => {
+                const headers = [
+                    "จังหวัด", "เขตตรวจ", "เงินต้นที่คาดว่าจะได้", "ดอกเบี้ย", "เบี้ยปรับ",
+                    "ดอกเบี้ยผิดนัด", "เงินต้นรับคืน", "ดอกเบี้ยรับคืน",
+                    "เบี้ยปรับรับคืน", "ดอกเบี้ยผิดนัดรับคืน", "รับเงินเกิน"
+                ];
 
-fetch(API)
-  .then(r => r.json())
-  .then(res => {
-    const headers = [
-      "จังหวัด","เขตตรวจ","เงินต้นที่คาดว่าจะได้","ดอกเบี้ย","เบี้ยปรับ",
-      "ดอกเบี้ยผิดนัด","เงินต้นรับคืน","ดอกเบี้ยรับคืน",
-      "เบี้ยปรับรับคืน","ดอกเบี้ยผิดนัดรับคืน","รับเงินเกิน"
-    ];
+                const thead = document.querySelector("#tbl thead");
+                thead.innerHTML = `<tr>${headers.map(h => `<th>${h}</th>`).join("")}</tr>`;
 
-    const thead = document.querySelector("#tbl thead");
-    thead.innerHTML = `<tr>${headers.map(h=>`<th>${h}</th>`).join("")}</tr>`;
-
-    const tbody = document.querySelector("#tbl tbody");
-    res.data.forEach(r => {
-      const tr = document.createElement("tr");
-      headers.forEach(h => {
-        if (h === "จังหวัด") {
-          tr.innerHTML += `<td>
+                const tbody = document.querySelector("#tbl tbody");
+                res.data.forEach(r => {
+                    const tr = document.createElement("tr");
+                    headers.forEach(h => {
+                        if (h === "จังหวัด") {
+                            tr.innerHTML += `<td>
             <a href="login.html?province=${r[h]}">${r[h]}</a>
           </td>`;
-        } else {
-          tr.innerHTML += `<td>${r[h] ?? ""}</td>`;
-        }
-      });
-      tbody.appendChild(tr);
-    });
-  });
-</script>
-<script src="js/config.js"></script>
+                        } else {
+                            tr.innerHTML += `<td>${r[h] ?? ""}</td>`;
+                        }
+                    });
+                    tbody.appendChild(tr);
+                });
+            });
+    </script>
 </body>
+
 </html>
