@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ภาพรวมข้อมูลรายจังหวัด</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --pink: #e91e63;
+      --deep-pink: #d81b60;
+      --navy: #1a237e;
+      --bg: #f5f5f5;
+      --card: #ffffff;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Sarabun', sans-serif;
+      background: var(--bg);
+      color: #000;
+    }
+
+    /* ===== Nav ===== */
+    .navbar {
+      background: var(--navy);
+      padding: 12px;
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .navbar button {
+      background: #fff;
+      color: var(--navy);
+      border: 2px solid #fff;
+      border-radius: 8px;
+      padding: 6px 14px;
+      font-family: 'Sarabun';
+      font-size: .9rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: .2s;
+    }
+
+    .navbar button:hover {
+      background: var(--pink);
+      border-color: var(--pink);
+      color: #fff;
+    }
+
+    .navbar button.home {
+      background: var(--pink);
+      border-color: var(--pink);
+      color: #fff;
+    }
+
+    /* ===== Main ===== */
+    .main {
+      max-width: 1200px;
+      margin: auto;
+      padding: 20px;
+    }
+
+    h2 {
+      color: var(--deep-pink);
+      margin-bottom: 14px;
+    }
+
+    /* ===== Table ===== */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #fff;
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, .06);
+    }
+
+    th,
+    td {
+      padding: 8px 10px;
+      border-bottom: 1px solid #eee;
+      font-size: .9rem;
+    }
+
+    th {
+      background: #fce4ec;
+      color: #880e4f;
+      text-align: center;
+      font-weight: 700;
+    }
+
+    td {
+      text-align: right;
+    }
+
+    td:first-child {
+      text-align: left;
+      font-weight: 600;
+    }
+
+    tr:hover {
+      background: #fafafa;
+    }
+
+    a {
+      color: var(--navy);
+      text-decoration: none;
+      font-weight: 700;
+    }
+
+    a:hover {
+      color: var(--pink);
+      text-decoration: underline;
+    }
+
+    @media (max-width: 768px) {
+      th,
+      td {
+        font-size: .8rem;
+        padding: 6px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ===== Navigation ===== -->
+  <div class="navbar">
+    <button class="home" onclick="location.href='https://thititwf-creator.github.io/test1.html'">หน้าแรก</button>
+    <button onclick="location.href='https://thititwf-creator.github.io/twf-year/2568/twf-year-2568.html'">งานปี 2568</button>
+    <button onclick="location.href='https://thititwf-creator.github.io/twf-year/2569/twf-year-2569.html'">งานปี 2569</button>
+  </div>
+
+  <!-- ===== Main ===== -->
+  <div class="main">
+    <h2>ภาพรวมข้อมูลรายจังหวัด</h2>
+
+    <table id="tbl">
+      <thead></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <script src="js/config.js"></script>
+  <script>
+    fetch(API)
+      .then(r => r.json())
+      .then(res => {
+
+        const headers = [
+          "จังหวัด", "เขตตรวจ", "เงินต้นที่คาดว่าจะได้", "ดอกเบี้ย", "เบี้ยปรับ",
+          "ดอกเบี้ยผิดนัด", "เงินต้นรับคืน", "ดอกเบี้ยรับคืน",
+          "เบี้ยปรับรับคืน", "ดอกเบี้ยผิดนัดรับคืน", "รับเงินเกิน"
+        ];
+
+        const thead = document.querySelector("#tbl thead");
+        thead.innerHTML = `<tr>${headers.map(h => `<th>${h}</th>`).join("")}</tr>`;
+
+        const tbody = document.querySelector("#tbl tbody");
+        res.data.forEach(r => {
+          const tr = document.createElement("tr");
+          headers.forEach(h => {
+            if (h === "จังหวัด") {
+              tr.innerHTML += `
+                <td>
+                  <a href="login.html?province=${encodeURIComponent(r[h])}">
+                    ${r[h]}
+                  </a>
+                </td>`;
+            } else {
+              tr.innerHTML += `<td>${r[h] ?? ""}</td>`;
+            }
+          });
+          tbody.appendChild(tr);
+        });
+      });
+  </script>
+
+</body>
+
+</html>
