@@ -19,7 +19,7 @@ th { background: #eee; }
 </table>
 
 <script>
-const API = "https://script.google.com/macros/s/AKfycbwIvs7Gtdb2ZR1ucprgzBkYzAvM4cCrBjAfnyUOxiPGKDRzlLCd-lBAq5gj7iGmw9uC/exec";
+// const API = "https://script.google.com/macros/s/AKfycbwIvs7Gtdb2ZR1ucprgzBkYzAvM4cCrBjAfnyUOxiPGKDRzlLCd-lBAq5gj7iGmw9uC/exec";
 const p = new URLSearchParams(location.search);
 const province = p.get("province");
 const token = p.get("token");
@@ -45,6 +45,6 @@ fetch(`${API}?province=${province}&token=${token}`)
     });
   });
 </script>
-
+<script src="js/config.js"></script>
 </body>
 </html>
