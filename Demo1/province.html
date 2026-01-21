@@ -9,13 +9,10 @@
             border-collapse: collapse;
             width: 100%;
         }
-
-        th,
-        td {
+        th, td {
             border: 1px solid #ccc;
             padding: 6px;
         }
-
         th {
             background: #eee;
         }
@@ -24,41 +21,59 @@
 
 <body>
 
-    <h3 id="title"></h3>
+<h3 id="title"></h3>
 
-    <table id="tbl">
-        <thead></thead>
-        <tbody></tbody>
-    </table>
+<table id="tbl">
+    <thead></thead>
+    <tbody></tbody>
+</table>
 
-    <script>
-        // src = "js/config.js"
-        const API = "https://script.google.com/macros/s/AKfycbzGHNMtBSIhJfjk6WupY6IqP9V4QSGM4eTfOMKIOkqloOL0Pvn4ZF41FhWZVvpPHExs/exec";
-        const p = new URLSearchParams(location.search);
-        const province = p.get("province");
-        const token = p.get("token");
+<script>
+    const API = "https://script.google.com/macros/s/AKfycbzGHNMtBSIhJfjk6WupY6IqP9V4QSGM4eTfOMKIOkqloOL0Pvn4ZF41FhWZVvpPHExs/exec";
 
-        title.innerText = `ข้อมูลจังหวัด ${province}`;
+    const params = new URLSearchParams(location.search);
+    const province = params.get("province");
+    const token = params.get("token");
 
-        fetch(`${API}?province=${province}&token=${token}`)
-            .then(r => r.json())
-            .then(res => {
-                if (res.error) {
-                    alert("ไม่มีสิทธิ์เข้าถึง");
-                    return;
-                }
+    if (!province || !token) {
+        alert("ลิงก์ไม่ถูกต้อง");
+        location.href = "login.html";
+    }
 
-                const headers = Object.keys(res.data[0]);
-                tbl.querySelector("thead").innerHTML =
-                    `<tr>${headers.map(h => `<th>${h}</th>`).join("")}</tr>`;
+    title.innerText = `ข้อมูลจังหวัด ${province}`;
 
-                res.data.forEach(r => {
-                    const tr = document.createElement("tr");
-                    headers.forEach(h => tr.innerHTML += `<td>${r[h] ?? ""}</td>`);
-                    tbl.querySelector("tbody").appendChild(tr);
-                });
+    fetch(`${API}?province=${encodeURIComponent(province)}&token=${encodeURIComponent(token)}`)
+        .then(r => r.json())
+        .then(res => {
+            if (res.error) {
+                alert("ไม่มีสิทธิ์เข้าถึง");
+                location.href = "login.html";
+                return;
+            }
+
+            // ===== สร้างตาราง =====
+            const headers = Object.keys(res.data[0]);
+            tbl.querySelector("thead").innerHTML =
+                `<tr>${headers.map(h => `<th>${h}</th>`).join("")}</tr>`;
+
+            res.data.forEach(row => {
+                const tr = document.createElement("tr");
+                headers.forEach(h => tr.innerHTML += `<td>${row[h] ?? ""}</td>`);
+                tbl.querySelector("tbody").appendChild(tr);
             });
-    </script>
-</body>
 
+            // 🔐 ลบ token ออกจาก URL (สำคัญ)
+            history.replaceState(
+                null,
+                "",
+                `${location.pathname}?province=${encodeURIComponent(province)}`
+            );
+        })
+        .catch(err => {
+            console.error(err);
+            alert("โหลดข้อมูลไม่สำเร็จ");
+        });
+</script>
+
+</body>
 </html>
