@@ -21,51 +21,63 @@
 
 <body>
 
-<h3 id="title"></h3>
+<h3 id="title">กำลังโหลดข้อมูล…</h3>
 
 <table id="tbl">
     <thead></thead>
     <tbody></tbody>
 </table>
+
 <script src="js/config.js"></script>
 
 <script>
     const params = new URLSearchParams(location.search);
-    const province = params.get("province");
     const token = params.get("token");
 
-    if (!province || !token) {
+    if (!token) {
         alert("ลิงก์ไม่ถูกต้อง");
         location.href = "login.html";
     }
 
-    title.innerText = `ข้อมูลจังหวัด ${province}`;
-
-    fetch(`${API}?province=${encodeURIComponent(province)}&token=${encodeURIComponent(token)}`)
+    // ✅ เรียก API ด้วย token อย่างเดียว
+    fetch(`${API}?token=${encodeURIComponent(token)}`)
         .then(r => r.json())
         .then(res => {
+
             if (res.error) {
                 alert("ไม่มีสิทธิ์เข้าถึง");
                 location.href = "login.html";
                 return;
             }
 
+            // ✅ backend ส่งชื่อจังหวัดกลับมา
+            title.innerText = `ข้อมูลจังหวัด ${res.province}`;
+
+            const data = res.data || [];
+            if (data.length === 0) {
+                title.innerText += " (ไม่พบข้อมูล)";
+                return;
+            }
+
             // ===== สร้างตาราง =====
-            const headers = Object.keys(res.data[0]);
+            const headers = Object.keys(data[0]);
+
             tbl.querySelector("thead").innerHTML =
                 `<tr>${headers.map(h => `<th>${h}</th>`).join("")}</tr>`;
 
-            res.data.forEach(row => {
+            data.forEach(row => {
                 const tr = document.createElement("tr");
-                headers.forEach(h => tr.innerHTML += `<td>${row[h] ?? ""}</td>`);
+                headers.forEach(h => {
+                    tr.innerHTML += `<td>${row[h] ?? ""}</td>`;
+                });
                 tbl.querySelector("tbody").appendChild(tr);
             });
 
-            // 🔐 ลบ token ออกจาก URL (สำคัญ)
+            // 🔐 ลบ token ออกจาก URL
             history.replaceState(
                 null,
                 "",
-                `${location.pathname}?province=${encodeURIComponent(province)}`
+                location.pathname
             );
         })
         .catch(err => {
