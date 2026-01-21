@@ -8,39 +8,50 @@
 
 <body>
 
-    <h3>เลือกจังหวัด</h3>
+<h3>เลือกจังหวัด</h3>
 
-    <select id="prov"></select>
-    <button onclick="go()">ตกลง</button>
+<select id="prov"></select>
+<button onclick="go()">ตกลง</button>
 
-    <script>
-        // src = "js/config.js"
-        const API = "https://script.google.com/macros/s/AKfycbx1pAYMZ3ibMNLpG7Pz7pnnvkT5jc-1OeO-fofHvEq8tnMGu8bwFNBDBnB1HUJ_zKMD/exec";
-        const provinces = JSON.parse(localStorage.getItem("provinces"));
-        const token = localStorage.getItem("adminToken");
+<script>
+    // 🔹 ใส่ API จริง
+    const API = "https://script.google.com/macros/s/AKfycbzGHNMtBSIhJfjk6WupY6IqP9V4QSGM4eTfOMKIOkqloOL0Pvn4ZF41FhWZVvpPHExs/exec";
 
-        provinces.forEach(p => {
-            prov.innerHTML += `<option value="${p}">${p}</option>`;
-        });
+    const provinces = JSON.parse(localStorage.getItem("provinces"));
 
-        function go() {
-            const province = prov.value;
+    if (!provinces || provinces.length === 0) {
+        alert("ไม่พบรายชื่อจังหวัด กรุณา login ใหม่");
+        location.href = "login.html";
+    }
 
-            fetch(`${API}?getTokenOf=${encodeURIComponent(province)}`)
-                .then(r => r.json())
-                .then(res => {
+    provinces.forEach(p => {
+        prov.innerHTML += `<option value="${p}">${p}</option>`;
+    });
 
-                    if (!res.token) {
-                        alert("ไม่พบ token ของจังหวัดนี้");
-                        return;
-                    }
+    function go() {
+        const province = prov.value;
 
-                    // ✅ token มีค่าแน่นอน
-                    location.href =
-                        `province.html?province=${encodeURIComponent(province)}&token=${encodeURIComponent(res.token)}`;
-                });
-        }
-    </script>
+        fetch(`${API}?getTokenOf=${encodeURIComponent(province)}`)
+            .then(r => r.json())
+            .then(res => {
+
+                console.log("TOKEN RESPONSE:", res); // 🔍 debug
+
+                if (!res.token) {
+                    alert("ไม่พบ token ของจังหวัดนี้");
+                    return;
+                }
+
+                // ✅ token ต้องมีค่าแน่นอน
+                location.href =
+                  `province.html?province=${encodeURIComponent(province)}&token=${encodeURIComponent(res.token)}`;
+            })
+            .catch(err => {
+                console.error(err);
+                alert("เรียก API ไม่สำเร็จ");
+            });
+    }
+</script>
+
 </body>
-
 </html>
