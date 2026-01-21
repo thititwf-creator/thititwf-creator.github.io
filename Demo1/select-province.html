@@ -23,8 +23,14 @@
         });
 
         function go() {
-            location.href =
-                `province.html?province=${prov.value}&token=${token}`;
+            const p = prov.value;
+
+            fetch(`${API}?getTokenOf=${p}`)
+                .then(r => r.json())
+                .then(res => {
+                    location.href =
+                        `province.html?province=${p}&token=${res.token}`;
+                });
         }
     </script>
 </body>
