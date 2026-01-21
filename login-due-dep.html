@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<title>Login</title>
+</head>
+<body>
+
+<h2>เข้าสู่ระบบ</h2>
+
+<input id="u" placeholder="username"><br><br>
+<input id="p" type="password" placeholder="password"><br><br>
+<button onclick="login()">Login</button>
+
+<div id="adminBox" style="display:none">
+  <hr>
+  <select id="provinceSelect"></select>
+  <button onclick="openProvince()">เปิดจังหวัด</button>
+</div>
+
+<script>
+const API = "https://script.google.com/macros/s/AKfycbyQwOGNo1MSLAcQhrm8zCcTwl4gA5ssJJCwcnNYgWSUngenSAT0gZEOVILJ33mpupno/exec";
+
+async function login() {
+  const res = await fetch(API, {
+    method: "POST",
+    body: JSON.stringify({
+      username: u.value,
+      password: p.value
+    })
+  });
+
+  const j = await res.json();
+
+  if (j.error) {
+    alert("Login failed");
+    return;
+  }
+
+  // 👤 จังหวัด
+  if (j.role === "province") {
+    location.href =
+      `due-dep-demo.html?province=${j.province}&token=${j.token}`;
+  }
+
+  // 👑 admin
+  if (j.role === "admin") {
+    adminBox.style.display = "block";
+    j.provinces.forEach(p => {
+      const o = document.createElement("option");
+      o.textContent = p;
+      provinceSelect.appendChild(o);
+    });
+  }
+}
+
+function openProvince() {
+  const p = provinceSelect.value;
+  location.href = `due-dep-demo.html?province=${p}&token=ADMIN`;
+}
+</script>
+
+</body>
+</html>

@@ -1,7 +1,9 @@
 // =======================
 // CONFIG
 // =======================
-const API_URL = 'https://script.google.com/macros/s/AKfycbyQwOGNo1MSLAcQhrm8zCcTwl4gA5ssJJCwcnNYgWSUngenSAT0gZEOVILJ33mpupno/exec';
+const API_URL =
+  'https://script.google.com/macros/s/AKfycbyQwOGNo1MSLAcQhrm8zCcTwl4gA5ssJJCwcnNYgWSUngenSAT0gZEOVILJ33mpupno/exec';
+
 // =======================
 // ELEMENTS
 // =======================
@@ -17,107 +19,135 @@ const tbody = table.querySelector('tbody');
 let allData = [];
 let viewData = [];
 let provinceName = '';
+let token = '';
 
 // =======================
 // UTIL
 // =======================
 const fmtNum = n =>
-    new Intl.NumberFormat('th-TH', { minimumFractionDigits: 2 }).format(n || 0);
+  new Intl.NumberFormat('th-TH', { minimumFractionDigits: 2 })
+    .format(Number(n) || 0);
 
 const fmtDate = d =>
-    d ? new Date(d).toLocaleDateString('th-TH') : '';
+  d ? new Date(d).toLocaleDateString('th-TH') : '';
 
 function getParam(name) {
-    return new URLSearchParams(window.location.search).get(name);
+  return new URLSearchParams(window.location.search).get(name);
 }
 
 // =======================
-// CLEAN URL
+// CLEAN URL (ซ่อน token)
 // =======================
 function removeQueryString() {
-    const cleanURL = window.location.origin + window.location.pathname;
-    window.history.replaceState({}, document.title, cleanURL);
+  const cleanURL =
+    window.location.origin + window.location.pathname;
+  window.history.replaceState({}, document.title, cleanURL);
 }
 
 // =======================
 // LOAD DATA
 // =======================
 async function loadData() {
-    provinceName = getParam('province');
+  provinceName = getParam('province');
+  token = getParam('token');
 
-    if (!provinceName) {
-        titleEl.textContent = 'ไม่พบข้อมูลจังหวัด';
-        summaryEl.textContent = 'กรุณาเข้าใช้งานผ่านลิงก์ของจังหวัด';
-        return;
+  // ❌ กันเข้าโดยตรง
+  if (!provinceName) {
+    titleEl.textContent = 'ไม่พบข้อมูลจังหวัด';
+    summaryEl.textContent =
+      'กรุณาเข้าใช้งานผ่านระบบ Login';
+    return;
+  }
+
+  titleEl.textContent = `จังหวัด ${provinceName}`;
+  summaryEl.textContent = 'กำลังโหลดข้อมูล...';
+
+  try {
+    const url =
+      `${API_URL}?province=${encodeURIComponent(provinceName)}` +
+      (token ? `&token=${encodeURIComponent(token)}` : '');
+
+    const res = await fetch(url);
+    const json = await res.json();
+
+    if (json.error) {
+      summaryEl.textContent = 'ไม่มีสิทธิ์เข้าถึงข้อมูล';
+      console.error(json.error);
+      return;
     }
 
-    titleEl.textContent = `จังหวัด ${provinceName}`;
-    summaryEl.textContent = 'กำลังโหลดข้อมูล...';
+    allData = json.data || [];
+    viewData = allData;
 
-    try {
-        const res = await fetch(`${API_URL}?province=${provinceName}`);
-        const json = await res.json();
+    summaryEl.textContent =
+      `พบข้อมูลทั้งหมด ${allData.length} รายการ`;
 
-        allData = json.data || [];
-        viewData = allData;
+    renderTable(viewData);
 
-        summaryEl.textContent = `พบข้อมูลทั้งหมด ${allData.length} รายการ`;
-        renderTable(viewData);
+    // 🔥 ลบ province / token ออกจาก URL
+    removeQueryString();
 
-        // 🔥 ลบ ?province=... ออกจาก URL
-        removeQueryString();
-
-    } catch (err) {
-        summaryEl.textContent = 'เกิดข้อผิดพลาดในการโหลดข้อมูล';
-        console.error(err);
-    }
+  } catch (err) {
+    summaryEl.textContent =
+      'เกิดข้อผิดพลาดในการโหลดข้อมูล';
+    console.error(err);
+  }
 }
 
 // =======================
 // SEARCH
 // =======================
 searchBox.addEventListener('input', () => {
-    const q = searchBox.value.trim().toLowerCase();
+  const q = searchBox.value.trim().toLowerCase();
 
-    viewData = !q
-        ? allData
-        : allData.filter(row =>
-            Object.values(row).join(' ').toLowerCase().includes(q)
-        );
+  viewData = !q
+    ? allData
+    : allData.filter(row =>
+        Object.values(row)
+          .join(' ')
+          .toLowerCase()
+          .includes(q)
+      );
 
-    summaryEl.textContent = `แสดงผล ${viewData.length} / ${allData.length} รายการ`;
-    renderTable(viewData);
+  summaryEl.textContent =
+    `แสดงผล ${viewData.length} / ${allData.length} รายการ`;
+
+  renderTable(viewData);
 });
 
 // =======================
-// RENDER
+// RENDER TABLE
 // =======================
 function renderTable(data) {
-    tbody.innerHTML = '';
+  tbody.innerHTML = '';
 
-    if (data.length === 0) {
-        table.style.display = 'none';
-        return;
-    }
+  if (!data.length) {
+    table.style.display = 'none';
+    return;
+  }
 
-    data.forEach((r, i) => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
+  data.forEach((r, i) => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
       <td>${i + 1}</td>
-      <td>${r['อำเภอ']}</td>
-      <td>${r['ตำบล']}</td>
-      <td>${r['เลขที่สัญญา']}</td>
-      <td>${r['ชื่อโครงการ']}</td>
-      <td>${r['ชื่อผู้เสนอ']}</td>
+      <td>${r['อำเภอ'] || ''}</td>
+      <td>${r['ตำบล'] || ''}</td>
+      <td>${r['เลขที่สัญญา'] || ''}</td>
+      <td>${r['ชื่อโครงการ'] || ''}</td>
+      <td>${r['ชื่อผู้เสนอ'] || ''}</td>
       <td>${fmtDate(r['กำหนดชำระ'])}</td>
-      <td class="text-right">${fmtNum(r['เงินต้นที่คาดว่าจะได้'])}</td>
-      <td class="text-right">${fmtNum(r['เงินต้นรับคืน'])}</td>
-      <td>${r['สถานะการมีข้อมูลใน ค-ง']}</td>
+      <td class="text-right">
+        ${fmtNum(r['เงินต้นที่คาดว่าจะได้'])}
+      </td>
+      <td class="text-right">
+        ${fmtNum(r['เงินต้นรับคืน'])}
+      </td>
+      <td>${r['สถานะการมีข้อมูลใน ค-ง'] || ''}</td>
     `;
-        tbody.appendChild(tr);
-    });
+    tbody.appendChild(tr);
+  });
 
-    table.style.display = 'table';
+  table.style.display = 'table';
 }
 
 // =======================
