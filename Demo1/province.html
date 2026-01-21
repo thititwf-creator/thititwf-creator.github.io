@@ -2,89 +2,200 @@
 <html lang="th">
 
 <head>
-    <meta charset="UTF-8">
-    <title>ข้อมูลจังหวัด</title>
-    <style>
-        table {
-            border-collapse: collapse;
-            width: 100%;
-        }
-        th, td {
-            border: 1px solid #ccc;
-            padding: 6px;
-        }
-        th {
-            background: #eee;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ข้อมูลจังหวัด</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --pink: #e91e63;
+      --deep-pink: #d81b60;
+      --navy: #1a237e;
+      --bg: #f5f5f5;
+      --card: #ffffff;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Sarabun', sans-serif;
+      background: var(--bg);
+      margin: 0;
+      color: #000;
+    }
+
+    /* ===== Nav ===== */
+    .navbar {
+      background: var(--navy);
+      padding: 12px;
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .navbar button {
+      background: #fff;
+      color: var(--navy);
+      border: 2px solid #fff;
+      border-radius: 8px;
+      padding: 6px 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: .2s;
+    }
+
+    .navbar button:hover {
+      background: var(--pink);
+      border-color: var(--pink);
+      color: #fff;
+    }
+
+    .navbar button.home {
+      background: var(--pink);
+      border-color: var(--pink);
+      color: #fff;
+    }
+
+    /* ===== Main ===== */
+    .main {
+      max-width: 1200px;
+      margin: auto;
+      padding: 20px;
+    }
+
+    h2 {
+      color: var(--deep-pink);
+      margin-bottom: 16px;
+    }
+
+    /* ===== Table ===== */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #fff;
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, .06);
+    }
+
+    th,
+    td {
+      padding: 8px 10px;
+      border-bottom: 1px solid #eee;
+      font-size: .9rem;
+    }
+
+    th {
+      background: #fce4ec;
+      color: #880e4f;
+      text-align: center;
+      font-weight: 700;
+    }
+
+    td {
+      text-align: right;
+    }
+
+    td:first-child {
+      text-align: left;
+      font-weight: 600;
+    }
+
+    tr:hover {
+      background: #fafafa;
+    }
+
+    @media (max-width: 768px) {
+      th,
+      td {
+        font-size: .8rem;
+        padding: 6px;
+      }
+    }
+  </style>
 </head>
 
 <body>
 
-<h3 id="title">กำลังโหลดข้อมูล…</h3>
+  <!-- ===== Navigation ===== -->
+  <div class="navbar">
+    <button class="home" onclick="location.href='index.html'">หน้าแรก</button>
+    <button onclick="location.href='twf-year-2568.html'">งานปี 2568</button>
+    <button onclick="location.href='twf-year-2569.html'">งานปี 2569</button>
+  </div>
 
-<table id="tbl">
-    <thead></thead>
-    <tbody></tbody>
-</table>
+  <!-- ===== Main ===== -->
+  <div class="main">
+    <h2 id="title">กำลังโหลดข้อมูล…</h2>
 
-<script src="js/config.js"></script>
+    <table id="tbl">
+      <thead></thead>
+      <tbody></tbody>
+    </table>
+  </div>
 
-<script>
+  <script src="js/config.js"></script>
+  <script>
     const params = new URLSearchParams(location.search);
+    const province = params.get("province");
     const token = params.get("token");
 
-    if (!token) {
-        alert("ลิงก์ไม่ถูกต้อง");
-        location.href = "login.html";
+    if (!province || !token) {
+      alert("ลิงก์ไม่ถูกต้อง");
+      location.href = "login.html";
     }
 
-    // ✅ เรียก API ด้วย token อย่างเดียว
-    fetch(`${API}?token=${encodeURIComponent(token)}`)
-        .then(r => r.json())
-        .then(res => {
+    title.innerText = `ข้อมูลจังหวัด ${province}`;
 
-            if (res.error) {
-                alert("ไม่มีสิทธิ์เข้าถึง");
-                location.href = "login.html";
-                return;
-            }
+    fetch(`${API}?province=${encodeURIComponent(province)}&token=${encodeURIComponent(token)}`)
+      .then(r => r.json())
+      .then(res => {
 
-            // ✅ backend ส่งชื่อจังหวัดกลับมา
-            title.innerText = `ข้อมูลจังหวัด ${res.province}`;
+        if (res.error) {
+          alert("ไม่มีสิทธิ์เข้าถึง");
+          location.href = "login.html";
+          return;
+        }
 
-            const data = res.data || [];
-            if (data.length === 0) {
-                title.innerText += " (ไม่พบข้อมูล)";
-                return;
-            }
+        if (!res.data || res.data.length === 0) {
+          title.innerText += " (ไม่พบข้อมูล)";
+          return;
+        }
 
-            // ===== สร้างตาราง =====
-            const headers = Object.keys(data[0]);
+        const headers = Object.keys(res.data[0]);
 
-            tbl.querySelector("thead").innerHTML =
-                `<tr>${headers.map(h => `<th>${h}</th>`).join("")}</tr>`;
+        document.querySelector("#tbl thead").innerHTML =
+          `<tr>${headers.map(h => `<th>${h}</th>`).join("")}</tr>`;
 
-            data.forEach(row => {
-                const tr = document.createElement("tr");
-                headers.forEach(h => {
-                    tr.innerHTML += `<td>${row[h] ?? ""}</td>`;
-                });
-                tbl.querySelector("tbody").appendChild(tr);
-            });
+        const tbody = document.querySelector("#tbl tbody");
+        tbody.innerHTML = "";
 
-            // 🔐 ลบ token ออกจาก URL
-            history.replaceState(
-                null,
-                "",
-                location.pathname
-            );
-        })
-        .catch(err => {
-            console.error(err);
-            alert("โหลดข้อมูลไม่สำเร็จ");
+        res.data.forEach(row => {
+          const tr = document.createElement("tr");
+          headers.forEach(h => {
+            tr.innerHTML += `<td>${row[h] ?? ""}</td>`;
+          });
+          tbody.appendChild(tr);
         });
-</script>
+
+        // 🔐 ลบ token ออกจาก URL
+        history.replaceState(
+          null,
+          "",
+          `${location.pathname}?province=${encodeURIComponent(province)}`
+        );
+      })
+      .catch(err => {
+        console.error(err);
+        alert("โหลดข้อมูลไม่สำเร็จ");
+      });
+  </script>
 
 </body>
+
 </html>
