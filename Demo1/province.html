@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<title>ข้อมูลจังหวัด</title>
+<style>
+table { border-collapse: collapse; width: 100%; }
+th, td { border: 1px solid #ccc; padding: 6px; }
+th { background: #eee; }
+</style>
+</head>
+<body>
+
+<h3 id="title"></h3>
+
+<table id="tbl">
+  <thead></thead>
+  <tbody></tbody>
+</table>
+
+<script>
+const API = "https://script.google.com/macros/s/AKfycbwIvs7Gtdb2ZR1ucprgzBkYzAvM4cCrBjAfnyUOxiPGKDRzlLCd-lBAq5gj7iGmw9uC/exec";
+const p = new URLSearchParams(location.search);
+const province = p.get("province");
+const token = p.get("token");
+
+title.innerText = `ข้อมูลจังหวัด ${province}`;
+
+fetch(`${API}?province=${province}&token=${token}`)
+  .then(r => r.json())
+  .then(res => {
+    if (res.error) {
+      alert("ไม่มีสิทธิ์เข้าถึง");
+      return;
+    }
+
+    const headers = Object.keys(res.data[0]);
+    tbl.querySelector("thead").innerHTML =
+      `<tr>${headers.map(h=>`<th>${h}</th>`).join("")}</tr>`;
+
+    res.data.forEach(r => {
+      const tr = document.createElement("tr");
+      headers.forEach(h => tr.innerHTML += `<td>${r[h] ?? ""}</td>`);
+      tbl.querySelector("tbody").appendChild(tr);
+    });
+  });
+</script>
+
+</body>
+</html>
