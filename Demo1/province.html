@@ -67,19 +67,21 @@
 
     .toolbar {
       display: flex;
-      justify-content: flex-end;
-      margin-bottom: 10px;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
     }
 
-    .toolbar button {
-      background: var(--pink);
-      color: #fff;
-      border: none;
-      padding: 8px 14px;
+    .toolbar input {
+      flex: 1;
+      max-width: 320px;
+      padding: 8px 12px;
       border-radius: 8px;
-      cursor: pointer;
-      font-weight: 700;
+      border: 1.5px solid #ccc;
+      font-size: .9rem;
     }
+
 
     /* ===== Table ===== */
     .table-wrapper {
@@ -145,8 +147,11 @@
 
     <!-- 🔍 Export -->
     <div class="toolbar">
+      <input type="text" id="globalSearch" placeholder="🔍 ค้นหาจากข้อมูลทั้งหมด..." oninput="filterTable()" />
+
       <button onclick="exportExcel()">📤 ส่งออก Excel</button>
     </div>
+
 
     <div class="table-wrapper">
       <table id="tbl">
@@ -180,12 +185,9 @@
       const tbody = document.querySelector("#tbl tbody");
 
       // header
-      thead.innerHTML = `
-        <tr>${headers.map(h => `<th>${h}</th>`).join("")}</tr>
-        <tr>${headers.map((_, i) =>
-        `<th><input data-col="${i}" placeholder="ค้นหา" oninput="filterTable()"></th>`
-      ).join("")}</tr>
-      `;
+      thead.innerHTML =
+        `<tr>${headers.map(h => `<th>${h}</th>`).join("")}</tr>`;
+
 
       // body
       tbody.innerHTML = "";
@@ -196,17 +198,25 @@
       });
     }
 
+    /* ===== Global Search ===== */
     function filterTable() {
-      const inputs = document.querySelectorAll("thead input");
+      const keyword = document
+        .getElementById("globalSearch")
+        .value
+        .toLowerCase()
+        .trim();
+
       const filtered = tableData.filter(row =>
-        inputs.every((inp, i) =>
-          String(row[headers[i]] ?? "")
+        headers.some(h =>
+          String(row[h] ?? "")
             .toLowerCase()
-            .includes(inp.value.toLowerCase())
+            .includes(keyword)
         )
       );
+
       renderTable(filtered);
     }
+
 
     /* ===== Export Excel (.xlsx) ===== */
     function exportExcel() {
