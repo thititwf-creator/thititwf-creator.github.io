@@ -17,7 +17,9 @@
       --border: #d1c4e9;
     }
 
-    * { box-sizing: border-box; }
+    * {
+      box-sizing: border-box;
+    }
 
     body {
       font-family: 'Sarabun', sans-serif;
@@ -84,7 +86,7 @@
       overflow-x: auto;
       background: #fff;
       border-radius: 14px;
-      box-shadow: 0 4px 10px rgba(0,0,0,.06);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, .06);
     }
 
     table {
@@ -94,7 +96,8 @@
       border: 2px solid var(--border);
     }
 
-    th, td {
+    th,
+    td {
       border: 1.5px solid var(--border);
       padding: 8px;
       text-align: center;
@@ -117,8 +120,13 @@
       border-radius: 4px;
     }
 
-    tbody tr:nth-child(even) { background: #fafafa; }
-    tbody tr:hover { background: #f3e5f5; }
+    tbody tr:nth-child(even) {
+      background: #fafafa;
+    }
+
+    tbody tr:hover {
+      background: #f3e5f5;
+    }
   </style>
 </head>
 
@@ -175,8 +183,8 @@
       thead.innerHTML = `
         <tr>${headers.map(h => `<th>${h}</th>`).join("")}</tr>
         <tr>${headers.map((_, i) =>
-          `<th><input data-col="${i}" placeholder="ค้นหา" oninput="filterTable()"></th>`
-        ).join("")}</tr>
+        `<th><input data-col="${i}" placeholder="ค้นหา" oninput="filterTable()"></th>`
+      ).join("")}</tr>
       `;
 
       // body
@@ -200,26 +208,29 @@
       renderTable(filtered);
     }
 
-    /* ===== Export Excel (CSV) ===== */
+    /* ===== Export Excel (.xlsx) ===== */
     function exportExcel() {
-      let csv = headers.join(",") + "\n";
-      document.querySelectorAll("#tbl tbody tr").forEach(tr => {
-        const row = [...tr.children].map(td =>
-          `"${td.innerText.replace(/"/g,'""')}"`
-        ).join(",");
-        csv += row + "\n";
-      });
 
-      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-      const url = URL.createObjectURL(blob);
+      // ดึงข้อมูลจากตารางที่แสดงอยู่จริง (หลังกรอง)
+      const table = document.getElementById("tbl");
 
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `ข้อมูลจังหวัด_${province}.csv`;
-      a.click();
-      URL.revokeObjectURL(url);
+      // แปลง table → worksheet
+      const wb = XLSX.utils.book_new();
+      const ws = XLSX.utils.table_to_sheet(table, { raw: true });
+
+      // ตั้งชื่อชีต
+      XLSX.utils.book_append_sheet(wb, ws, "ข้อมูลจังหวัด");
+
+      // สร้างไฟล์ Excel จริง
+      XLSX.writeFile(
+        wb,
+        `ข้อมูลจังหวัด_${province}.xlsx`
+      );
     }
+
   </script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 
 </body>
+
 </html>
