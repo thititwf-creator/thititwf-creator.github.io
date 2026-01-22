@@ -14,7 +14,6 @@
       --deep-pink: #d81b60;
       --navy: #1a237e;
       --bg: #f5f5f5;
-      --card: #ffffff;
     }
 
     * {
@@ -47,6 +46,7 @@
       font-weight: 700;
       cursor: pointer;
       transition: .2s;
+      white-space: nowrap;
     }
 
     .navbar button:hover {
@@ -73,21 +73,27 @@
       margin-bottom: 16px;
     }
 
-    /* ===== Table ===== */
-    table {
+    /* ===== Table Wrapper ===== */
+    .table-wrapper {
       width: 100%;
-      border-collapse: collapse;
+      overflow-x: auto;
       background: #fff;
       border-radius: 14px;
-      overflow: hidden;
       box-shadow: 0 4px 10px rgba(0, 0, 0, .06);
+    }
+
+    table {
+      width: 100%;
+      min-width: 900px; /* 🔑 กันตารางยุบ */
+      border-collapse: collapse;
     }
 
     th,
     td {
-      padding: 8px 10px;
+      padding: 8px 12px;
       border-bottom: 1px solid #eee;
       font-size: .9rem;
+      white-space: nowrap; /* 🔑 ไม่ตัดคำ */
     }
 
     th {
@@ -104,17 +110,19 @@
     td:first-child {
       text-align: left;
       font-weight: 600;
+      min-width: 160px; /* 🔑 คอลัมน์ชื่อจังหวัด */
     }
 
     tr:hover {
       background: #fafafa;
     }
 
+    /* ===== Mobile ===== */
     @media (max-width: 768px) {
       th,
       td {
         font-size: .8rem;
-        padding: 6px;
+        padding: 6px 10px;
       }
     }
   </style>
@@ -133,10 +141,13 @@
   <div class="main">
     <h2 id="title">กำลังโหลดข้อมูล…</h2>
 
-    <table id="tbl">
-      <thead></thead>
-      <tbody></tbody>
-    </table>
+    <!-- 🔑 ครอบตาราง -->
+    <div class="table-wrapper">
+      <table id="tbl">
+        <thead></thead>
+        <tbody></tbody>
+      </table>
+    </div>
   </div>
 
   <script src="js/config.js"></script>
@@ -197,5 +208,4 @@
   </script>
 
 </body>
-
 </html>
