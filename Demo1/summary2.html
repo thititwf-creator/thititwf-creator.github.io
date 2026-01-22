@@ -61,7 +61,7 @@
       border-radius: 14px;
       padding: 16px;
       text-align: center;
-      box-shadow: 0 4px 10px rgba(0,0,0,.08);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, .08);
     }
 
     .card h3 {
@@ -91,7 +91,8 @@
     td {
       padding: 10px;
       border-bottom: 1px solid #eee;
-      text-align: center; /* ✅ กึ่งกลางทั้งหมด */
+      text-align: center;
+      /* ✅ กึ่งกลางทั้งหมด */
       font-size: .9rem;
     }
 
@@ -114,6 +115,22 @@
     a:hover {
       color: var(--pink);
       text-decoration: underline;
+    }
+
+    th {
+      cursor: pointer;
+      user-select: none;
+      position: relative;
+    }
+
+    th.sort-asc::after {
+      content: " ▲";
+      font-size: .7rem;
+    }
+
+    th.sort-desc::after {
+      content: " ▼";
+      font-size: .7rem;
     }
   </style>
 </head>
@@ -147,19 +164,23 @@
     <table id="tbl">
       <thead>
         <tr>
-          <th>จังหวัด</th>
-          <th>เขตตรวจ</th>
-          <th>เงินต้นที่คาดว่าจะได้</th>
-          <th>เงินต้นรับคืน</th>
-          <th>ร้อยละการชำระคืน</th>
+          <th data-key="จังหวัด">จังหวัด</th>
+          <th data-key="เขตตรวจ">เขตตรวจ</th>
+          <th data-key="เงินต้นที่คาดว่าจะได้">เงินต้นที่คาดว่าจะได้</th>
+          <th data-key="เงินต้นรับคืน">เงินต้นรับคืน</th>
+          <th data-key="percent">ร้อยละการชำระคืน</th>
         </tr>
       </thead>
+
       <tbody></tbody>
     </table>
   </div>
 
   <script src="js/config.js"></script>
   <script>
+    let tableData = [];
+    let sortState = {};
+
     fetch(API)
       .then(r => r.json())
       .then(res => {
@@ -167,30 +188,24 @@
         let sumExpected = 0;
         let sumReceived = 0;
 
-        const tbody = document.querySelector("#tbl tbody");
-
-        res.data.forEach(r => {
+        tableData = res.data.map(r => {
           const expected = Number(r["เงินต้นที่คาดว่าจะได้"] || 0);
           const received = Number(r["เงินต้นรับคืน"] || 0);
-          const percent = expected > 0 ? (received * 100 / expected).toFixed(2) : "0.00";
+          const percent = expected > 0 ? (received * 100 / expected) : 0;
 
           sumExpected += expected;
           sumReceived += received;
 
-          const tr = document.createElement("tr");
-          tr.innerHTML = `
-            <td>
-              <a href="login.html?province=${encodeURIComponent(r["จังหวัด"])}">
-                ${r["จังหวัด"]}
-              </a>
-            </td>
-            <td>${r["เขตตรวจ"]}</td>
-            <td>${expected.toLocaleString()}</td>
-            <td>${received.toLocaleString()}</td>
-            <td>${percent}%</td>
-          `;
-          tbody.appendChild(tr);
+          return {
+            จังหวัด: r["จังหวัด"],
+            เขตตรวจ: r["เขตตรวจ"],
+            "เงินต้นที่คาดว่าจะได้": expected,
+            "เงินต้นรับคืน": received,
+            percent
+          };
         });
+
+        renderTable(tableData);
 
         document.getElementById("sumExpected").innerText =
           sumExpected.toLocaleString() + " บาท";
@@ -203,7 +218,58 @@
             ? (sumReceived * 100 / sumExpected).toFixed(2) + "%"
             : "0%";
       });
+
+    function renderTable(data) {
+      const tbody = document.querySelector("#tbl tbody");
+      tbody.innerHTML = "";
+
+      data.forEach(r => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+        <td>
+          <a href="login.html?province=${encodeURIComponent(r["จังหวัด"])}">
+            ${r["จังหวัด"]}
+          </a>
+        </td>
+        <td>${r["เขตตรวจ"]}</td>
+        <td>${r["เงินต้นที่คาดว่าจะได้"].toLocaleString()}</td>
+        <td>${r["เงินต้นรับคืน"].toLocaleString()}</td>
+        <td>${r.percent.toFixed(2)}%</td>
+      `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    /* ===== Sorting ===== */
+    document.querySelectorAll("th").forEach(th => {
+      th.addEventListener("click", () => {
+        const key = th.dataset.key;
+        if (!key) return;
+
+        // reset arrow
+        document.querySelectorAll("th").forEach(h => h.classList.remove("sort-asc", "sort-desc"));
+
+        sortState[key] = sortState[key] === "asc" ? "desc" : "asc";
+        th.classList.add(sortState[key] === "asc" ? "sort-asc" : "sort-desc");
+
+        tableData.sort((a, b) => {
+          const v1 = a[key];
+          const v2 = b[key];
+
+          if (typeof v1 === "number") {
+            return sortState[key] === "asc" ? v1 - v2 : v2 - v1;
+          }
+
+          return sortState[key] === "asc"
+            ? String(v1).localeCompare(String(v2), "th")
+            : String(v2).localeCompare(String(v1), "th");
+        });
+
+        renderTable(tableData);
+      });
+    });
   </script>
+
 
 </body>
 
