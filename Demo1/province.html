@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ภาพรวมข้อมูลรายจังหวัด</title>
+  <title>ข้อมูลจังหวัด</title>
 
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap" rel="stylesheet">
 
@@ -19,15 +19,13 @@
 
     * {
       box-sizing: border-box;
-      margin: 0;
-      padding: 0;
     }
 
     body {
       font-family: 'Sarabun', sans-serif;
       background: var(--bg);
+      margin: 0;
       color: #000;
-      overflow-x: hidden; /* ✅ ป้องกัน navbar หลุด */
     }
 
     /* ===== Nav ===== */
@@ -46,8 +44,6 @@
       border: 2px solid #fff;
       border-radius: 8px;
       padding: 6px 14px;
-      font-family: 'Sarabun';
-      font-size: .9rem;
       font-weight: 700;
       cursor: pointer;
       transition: .2s;
@@ -74,27 +70,11 @@
 
     h2 {
       color: var(--deep-pink);
-      margin-bottom: 14px;
-    }
-
-    /* ===== Table Wrapper ===== */
-    .table-wrapper {
-      width: 100%;
-      overflow-x: auto; /* ✅ เลื่อนเฉพาะตาราง */
-    }
-
-    .table-wrapper::-webkit-scrollbar {
-      height: 8px;
-    }
-
-    .table-wrapper::-webkit-scrollbar-thumb {
-      background: var(--pink);
-      border-radius: 10px;
+      margin-bottom: 16px;
     }
 
     /* ===== Table ===== */
     table {
-      min-width: 900px;
       width: 100%;
       border-collapse: collapse;
       background: #fff;
@@ -115,12 +95,10 @@
       color: #880e4f;
       text-align: center;
       font-weight: 700;
-      white-space: nowrap;
     }
 
     td {
       text-align: right;
-      white-space: nowrap;
     }
 
     td:first-child {
@@ -130,17 +108,6 @@
 
     tr:hover {
       background: #fafafa;
-    }
-
-    a {
-      color: var(--navy);
-      text-decoration: none;
-      font-weight: 700;
-    }
-
-    a:hover {
-      color: var(--pink);
-      text-decoration: underline;
     }
 
     @media (max-width: 768px) {
@@ -157,58 +124,71 @@
 
   <!-- ===== Navigation ===== -->
   <div class="navbar">
-    <button class="home" onclick="location.href='https://thititwf-creator.github.io/test1.html'">หน้าแรก</button>
-    <button onclick="location.href='https://thititwf-creator.github.io/twf-year/2568/twf-year-2568.html'">งานปี 2568</button>
-    <button onclick="location.href='https://thititwf-creator.github.io/twf-year/2569/twf-year-2569.html'">งานปี 2569</button>
+    <button class="home" onclick="location.href='index.html'">หน้าแรก</button>
+    <button onclick="location.href='twf-year-2568.html'">งานปี 2568</button>
+    <button onclick="location.href='twf-year-2569.html'">งานปี 2569</button>
   </div>
 
   <!-- ===== Main ===== -->
   <div class="main">
-    <h2>ภาพรวมข้อมูลรายจังหวัด</h2>
+    <h2 id="title">กำลังโหลดข้อมูล…</h2>
 
-    <div class="table-wrapper">
-      <table id="tbl">
-        <thead></thead>
-        <tbody></tbody>
-      </table>
-    </div>
+    <table id="tbl">
+      <thead></thead>
+      <tbody></tbody>
+    </table>
   </div>
 
   <script src="js/config.js"></script>
   <script>
-    fetch(API)
+    const params = new URLSearchParams(location.search);
+    const province = params.get("province");
+    const token = params.get("token");
+
+    if (!province || !token) {
+      alert("ลิงก์ไม่ถูกต้อง");
+      location.href = "login.html";
+    }
+
+    title.innerText = `ข้อมูลจังหวัด ${province}`;
+
+    fetch(`${API}?province=${encodeURIComponent(province)}&token=${encodeURIComponent(token)}`)
       .then(r => r.json())
       .then(res => {
 
-        const headers = [
-          "จังหวัด", "เขตตรวจ", "เงินต้นที่คาดว่าจะได้", "ดอกเบี้ย", "เบี้ยปรับ",
-          "ดอกเบี้ยผิดนัด", "เงินต้นรับคืน", "ดอกเบี้ยรับคืน",
-          "เบี้ยปรับรับคืน", "ดอกเบี้ยผิดนัดรับคืน", "รับเงินเกิน"
-        ];
+        if (res.error) {
+          alert("ไม่มีสิทธิ์เข้าถึง");
+          location.href = "login.html";
+          return;
+        }
 
-        const thead = document.querySelector("#tbl thead");
-        thead.innerHTML =
+        if (!res.data || res.data.length === 0) {
+          title.innerText += " (ไม่พบข้อมูล)";
+          return;
+        }
+
+        const headers = Object.keys(res.data[0]);
+
+        document.querySelector("#tbl thead").innerHTML =
           `<tr>${headers.map(h => `<th>${h}</th>`).join("")}</tr>`;
 
         const tbody = document.querySelector("#tbl tbody");
-        res.data.forEach(r => {
+        tbody.innerHTML = "";
+
+        res.data.forEach(row => {
           const tr = document.createElement("tr");
-
           headers.forEach(h => {
-            if (h === "จังหวัด") {
-              tr.innerHTML += `
-                <td>
-                  <a href="login.html?province=${encodeURIComponent(r[h])}">
-                    ${r[h]}
-                  </a>
-                </td>`;
-            } else {
-              tr.innerHTML += `<td>${r[h] ?? ""}</td>`;
-            }
+            tr.innerHTML += `<td>${row[h] ?? ""}</td>`;
           });
-
           tbody.appendChild(tr);
         });
+
+        // 🔐 ลบ token ออกจาก URL
+        history.replaceState(
+          null,
+          "",
+          `${location.pathname}?province=${encodeURIComponent(province)}`
+        );
       })
       .catch(err => {
         console.error(err);
