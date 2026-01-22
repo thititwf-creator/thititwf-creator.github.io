@@ -82,6 +82,16 @@
       font-size: .9rem;
     }
 
+    .toolbar button {
+      background: var(--pink);
+      color: #fff;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 700;
+    }
+
 
     /* ===== Table ===== */
     .table-wrapper {
@@ -129,6 +139,41 @@
     tbody tr:hover {
       background: #f3e5f5;
     }
+
+    /* ===== Highlight ===== */
+    mark {
+      background: #fff59d;
+      color: #000;
+      padding: 0 2px;
+      border-radius: 3px;
+    }
+
+    /* ===== Sticky ===== */
+    .toolbar {
+      position: sticky;
+      top: 0;
+      z-index: 5;
+      background: var(--bg);
+      padding: 10px 0;
+    }
+
+    thead th {
+      position: sticky;
+      top: 56px;
+      /* ระยะจาก search bar */
+      z-index: 4;
+    }
+
+    /* ===== Sort cursor ===== */
+    th.sortable {
+      cursor: pointer;
+    }
+
+    th.sortable::after {
+      content: " ⇅";
+      font-size: .75rem;
+      color: #999;
+    }
   </style>
 </head>
 
@@ -147,10 +192,10 @@
 
     <!-- 🔍 Export -->
     <div class="toolbar">
-      <input type="text" id="globalSearch" placeholder="🔍 ค้นหาจากข้อมูลทั้งหมด..." oninput="filterTable()" />
-
+      <input type="text" id="globalSearch" placeholder="🔍 ค้นหาจากข้อมูลทั้งหมด..." oninput="debouncedSearch()" />
       <button onclick="exportExcel()">📤 ส่งออก Excel</button>
     </div>
+
 
 
     <div class="table-wrapper">
@@ -163,12 +208,17 @@
 
   <script src="js/config.js"></script>
   <script>
+
+
     const params = new URLSearchParams(location.search);
     const province = params.get("province");
     const token = params.get("token");
 
     let tableData = [];
     let headers = [];
+    let currentSort = { col: null, asc: true };
+    let searchTimer = null;
+
 
     title.innerText = `ข้อมูลจังหวัด ${province}`;
 
@@ -183,20 +233,38 @@
     function renderTable(data) {
       const thead = document.querySelector("#tbl thead");
       const tbody = document.querySelector("#tbl tbody");
+      const keyword = document.getElementById("globalSearch")?.value.toLowerCase() || "";
 
-      // header
-      thead.innerHTML =
-        `<tr>${headers.map(h => `<th>${h}</th>`).join("")}</tr>`;
+      /* ===== Header (sortable) ===== */
+      thead.innerHTML = `
+    <tr>
+      ${headers.map((h, i) =>
+        `<th class="sortable" onclick="sortTable(${i})">${h}</th>`
+      ).join("")}
+    </tr>
+  `;
 
-
-      // body
+      /* ===== Body ===== */
       tbody.innerHTML = "";
       data.forEach(row => {
         const tr = document.createElement("tr");
-        headers.forEach(h => tr.innerHTML += `<td>${row[h] ?? ""}</td>`);
+        headers.forEach(h => {
+          let cell = String(row[h] ?? "");
+          if (keyword) {
+            const regex = new RegExp(`(${keyword})`, "gi");
+            cell = cell.replace(regex, "<mark>$1</mark>");
+          }
+          tr.innerHTML += `<td>${cell}</td>`;
+        });
         tbody.appendChild(tr);
       });
     }
+
+    function debouncedSearch() {
+      clearTimeout(searchTimer);
+      searchTimer = setTimeout(filterTable, 250);
+    }
+
 
     /* ===== Global Search ===== */
     function filterTable() {
@@ -217,6 +285,28 @@
       renderTable(filtered);
     }
 
+    function sortTable(colIndex) {
+      const key = headers[colIndex];
+
+      currentSort.asc =
+        currentSort.col === key ? !currentSort.asc : true;
+      currentSort.col = key;
+
+      tableData.sort((a, b) => {
+        const v1 = a[key] ?? "";
+        const v2 = b[key] ?? "";
+
+        if (!isNaN(v1) && !isNaN(v2)) {
+          return currentSort.asc ? v1 - v2 : v2 - v1;
+        }
+
+        return currentSort.asc
+          ? String(v1).localeCompare(String(v2), "th")
+          : String(v2).localeCompare(String(v1), "th");
+      });
+
+      filterTable();
+    }
 
     /* ===== Export Excel (.xlsx) ===== */
     function exportExcel() {
