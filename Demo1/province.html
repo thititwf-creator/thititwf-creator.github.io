@@ -228,6 +228,13 @@
         tableData = res.data;
         headers = Object.keys(tableData[0]);
         renderTable(tableData);
+
+        // ✅ เพิ่มตรงนี้
+        history.replaceState(
+          null,
+          "",
+          location.pathname
+        );
       });
 
     function renderTable(data) {
