@@ -19,49 +19,21 @@
 
     * {
       box-sizing: border-box;
-      margin: 0;
-      padding: 0;
     }
 
     body {
       font-family: 'Sarabun', sans-serif;
       background: var(--bg);
-      color: #000;
+      margin: 0;
     }
 
     /* ===== Nav ===== */
     .navbar {
       background: var(--navy);
       padding: 12px;
-      display: flex;
-      justify-content: center;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-
-    .navbar button {
-      background: #fff;
-      color: var(--navy);
-      border: 2px solid #fff;
-      border-radius: 8px;
-      padding: 6px 14px;
-      font-family: 'Sarabun';
-      font-size: .9rem;
+      text-align: center;
+      color: #fff;
       font-weight: 700;
-      cursor: pointer;
-      transition: .2s;
-    }
-
-    .navbar button:hover {
-      background: var(--pink);
-      border-color: var(--pink);
-      color: #fff;
-    }
-
-    .navbar button.home {
-      background: var(--pink);
-      border-color: var(--pink);
-      color: #fff;
     }
 
     /* ===== Main ===== */
@@ -73,7 +45,36 @@
 
     h2 {
       color: var(--deep-pink);
-      margin-bottom: 14px;
+      margin-bottom: 16px;
+    }
+
+    /* ===== Cards ===== */
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: 14px;
+      padding: 16px;
+      text-align: center;
+      box-shadow: 0 4px 10px rgba(0,0,0,.08);
+    }
+
+    .card h3 {
+      margin: 0;
+      font-size: .95rem;
+      color: var(--navy);
+    }
+
+    .card .value {
+      margin-top: 8px;
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--deep-pink);
     }
 
     /* ===== Table ===== */
@@ -88,25 +89,16 @@
 
     th,
     td {
-      padding: 8px 10px;
+      padding: 10px;
       border-bottom: 1px solid #eee;
+      text-align: center; /* ✅ กึ่งกลางทั้งหมด */
       font-size: .9rem;
     }
 
     th {
       background: #fce4ec;
       color: #880e4f;
-      text-align: center;
       font-weight: 700;
-    }
-
-    td {
-      text-align: right;
-    }
-
-    td:first-child {
-      text-align: left;
-      font-weight: 600;
     }
 
     tr:hover {
@@ -115,41 +107,53 @@
 
     a {
       color: var(--navy);
-      text-decoration: none;
       font-weight: 700;
+      text-decoration: none;
     }
 
     a:hover {
       color: var(--pink);
       text-decoration: underline;
     }
-
-    @media (max-width: 768px) {
-      th,
-      td {
-        font-size: .8rem;
-        padding: 6px;
-      }
-    }
   </style>
 </head>
 
 <body>
 
-  <!-- ===== Navigation ===== -->
   <div class="navbar">
-    <button class="home">หนี้ครบกำหนดชำระ ณ วันที่ 14 มกราคม 2569</button>
-    <!-- <button class="home" onclick="location.href='https://thititwf-creator.github.io/test1.html'">หน้าแรก</button>
-    <button onclick="location.href='https://thititwf-creator.github.io/twf-year/2568/twf-year-2568.html'">งานปี 2568</button>
-    <button onclick="location.href='https://thititwf-creator.github.io/twf-year/2569/twf-year-2569.html'">งานปี 2569</button> -->
+    หนี้ครบกำหนดชำระ ณ วันที่ 14 มกราคม 2569
   </div>
 
-  <!-- ===== Main ===== -->
   <div class="main">
     <h2>ภาพรวมข้อมูลรายจังหวัด</h2>
 
+    <!-- ===== Cards Summary ===== -->
+    <div class="cards">
+      <div class="card">
+        <h3>เงินต้นที่คาดว่าจะได้รับ</h3>
+        <div class="value" id="sumExpected">-</div>
+      </div>
+      <div class="card">
+        <h3>เงินต้นรับคืน</h3>
+        <div class="value" id="sumReceived">-</div>
+      </div>
+      <div class="card">
+        <h3>ร้อยละการชำระคืน</h3>
+        <div class="value" id="sumPercent">-</div>
+      </div>
+    </div>
+
+    <!-- ===== Table ===== -->
     <table id="tbl">
-      <thead></thead>
+      <thead>
+        <tr>
+          <th>จังหวัด</th>
+          <th>เขตตรวจ</th>
+          <th>เงินต้นที่คาดว่าจะได้</th>
+          <th>เงินต้นรับคืน</th>
+          <th>ร้อยละการชำระคืน</th>
+        </tr>
+      </thead>
       <tbody></tbody>
     </table>
   </div>
@@ -160,32 +164,44 @@
       .then(r => r.json())
       .then(res => {
 
-        const headers = [
-          "จังหวัด", "เขตตรวจ", "เงินต้นที่คาดว่าจะได้", "ดอกเบี้ย", "เบี้ยปรับ",
-          "ดอกเบี้ยผิดนัด", "เงินต้นรับคืน", "ดอกเบี้ยรับคืน",
-          "เบี้ยปรับรับคืน", "ดอกเบี้ยผิดนัดรับคืน", "รับเงินเกิน"
-        ];
-
-        const thead = document.querySelector("#tbl thead");
-        thead.innerHTML = `<tr>${headers.map(h => `<th>${h}</th>`).join("")}</tr>`;
+        let sumExpected = 0;
+        let sumReceived = 0;
 
         const tbody = document.querySelector("#tbl tbody");
+
         res.data.forEach(r => {
+          const expected = Number(r["เงินต้นที่คาดว่าจะได้"] || 0);
+          const received = Number(r["เงินต้นรับคืน"] || 0);
+          const percent = expected > 0 ? (received * 100 / expected).toFixed(2) : "0.00";
+
+          sumExpected += expected;
+          sumReceived += received;
+
           const tr = document.createElement("tr");
-          headers.forEach(h => {
-            if (h === "จังหวัด") {
-              tr.innerHTML += `
-                <td>
-                  <a href="login.html?province=${encodeURIComponent(r[h])}">
-                    ${r[h]}
-                  </a>
-                </td>`;
-            } else {
-              tr.innerHTML += `<td>${r[h] ?? ""}</td>`;
-            }
-          });
+          tr.innerHTML = `
+            <td>
+              <a href="login.html?province=${encodeURIComponent(r["จังหวัด"])}">
+                ${r["จังหวัด"]}
+              </a>
+            </td>
+            <td>${r["เขตตรวจ"]}</td>
+            <td>${expected.toLocaleString()}</td>
+            <td>${received.toLocaleString()}</td>
+            <td>${percent}%</td>
+          `;
           tbody.appendChild(tr);
         });
+
+        document.getElementById("sumExpected").innerText =
+          sumExpected.toLocaleString() + " บาท";
+
+        document.getElementById("sumReceived").innerText =
+          sumReceived.toLocaleString() + " บาท";
+
+        document.getElementById("sumPercent").innerText =
+          sumExpected > 0
+            ? (sumReceived * 100 / sumExpected).toFixed(2) + "%"
+            : "0%";
       });
   </script>
 
