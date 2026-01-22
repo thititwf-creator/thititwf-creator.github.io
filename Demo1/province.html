@@ -14,6 +14,8 @@
       --deep-pink: #d81b60;
       --navy: #1a237e;
       --bg: #f5f5f5;
+      --border: #d1c4e9;
+      /* 🔑 สีเส้นคอลัมน์ */
     }
 
     * {
@@ -49,12 +51,6 @@
       white-space: nowrap;
     }
 
-    .navbar button:hover {
-      background: var(--pink);
-      border-color: var(--pink);
-      color: #fff;
-    }
-
     .navbar button.home {
       background: var(--pink);
       border-color: var(--pink);
@@ -84,45 +80,47 @@
 
     table {
       width: 100%;
-      min-width: 900px; /* 🔑 กันตารางยุบ */
+      min-width: 900px;
       border-collapse: collapse;
+      border: 2px solid var(--border);
+      /* 🔑 กรอบนอก */
     }
 
     th,
     td {
-      padding: 8px 12px;
-      border-bottom: 1px solid #eee;
+      padding: 10px 12px;
       font-size: .9rem;
-      white-space: nowrap; /* 🔑 ไม่ตัดคำ */
+      white-space: nowrap;
+
+      /* 🔑 เส้นคอลัมน์ */
+      border: 1.5px solid var(--border);
+
+      /* 🔑 align กลาง */
+      text-align: center;
+      vertical-align: middle;
     }
 
     th {
       background: #fce4ec;
       color: #880e4f;
-      text-align: center;
       font-weight: 700;
     }
 
-    td {
-      text-align: right;
-    }
-
-    td:first-child {
-      text-align: left;
-      font-weight: 600;
-      min-width: 160px; /* 🔑 คอลัมน์ชื่อจังหวัด */
-    }
-
-    tr:hover {
+    tbody tr:nth-child(even) {
       background: #fafafa;
+    }
+
+    tbody tr:hover {
+      background: #f3e5f5;
     }
 
     /* ===== Mobile ===== */
     @media (max-width: 768px) {
+
       th,
       td {
         font-size: .8rem;
-        padding: 6px 10px;
+        padding: 8px 10px;
       }
     }
   </style>
@@ -141,7 +139,6 @@
   <div class="main">
     <h2 id="title">กำลังโหลดข้อมูล…</h2>
 
-    <!-- 🔑 ครอบตาราง -->
     <div class="table-wrapper">
       <table id="tbl">
         <thead></thead>
@@ -195,17 +192,11 @@
         });
 
         // 🔐 ลบ token ออกจาก URL
-        history.replaceState(
-          null,
-          "",
-          `${location.pathname}?province=${encodeURIComponent(province)}`
-        );
+        history.replaceState(null, "", `${location.pathname}?province=${encodeURIComponent(province)}`);
       })
-      .catch(err => {
-        console.error(err);
-        alert("โหลดข้อมูลไม่สำเร็จ");
-      });
+      .catch(() => alert("โหลดข้อมูลไม่สำเร็จ"));
   </script>
 
 </body>
+
 </html>
