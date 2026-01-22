@@ -15,18 +15,14 @@
       --navy: #1a237e;
       --bg: #f5f5f5;
       --border: #d1c4e9;
-      /* 🔑 สีเส้นคอลัมน์ */
     }
 
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body {
       font-family: 'Sarabun', sans-serif;
       background: var(--bg);
       margin: 0;
-      color: #000;
     }
 
     /* ===== Nav ===== */
@@ -47,8 +43,6 @@
       padding: 6px 14px;
       font-weight: 700;
       cursor: pointer;
-      transition: .2s;
-      white-space: nowrap;
     }
 
     .navbar button.home {
@@ -66,16 +60,31 @@
 
     h2 {
       color: var(--deep-pink);
-      margin-bottom: 16px;
+      margin-bottom: 10px;
     }
 
-    /* ===== Table Wrapper ===== */
+    .toolbar {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 10px;
+    }
+
+    .toolbar button {
+      background: var(--pink);
+      color: #fff;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    /* ===== Table ===== */
     .table-wrapper {
-      width: 100%;
       overflow-x: auto;
       background: #fff;
       border-radius: 14px;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, .06);
+      box-shadow: 0 4px 10px rgba(0,0,0,.06);
     }
 
     table {
@@ -83,21 +92,14 @@
       min-width: 900px;
       border-collapse: collapse;
       border: 2px solid var(--border);
-      /* 🔑 กรอบนอก */
     }
 
-    th,
-    td {
-      padding: 10px 12px;
-      font-size: .9rem;
-      white-space: nowrap;
-
-      /* 🔑 เส้นคอลัมน์ */
+    th, td {
       border: 1.5px solid var(--border);
-
-      /* 🔑 align กลาง */
+      padding: 8px;
       text-align: center;
-      vertical-align: middle;
+      white-space: nowrap;
+      font-size: .9rem;
     }
 
     th {
@@ -106,23 +108,17 @@
       font-weight: 700;
     }
 
-    tbody tr:nth-child(even) {
-      background: #fafafa;
+    thead input {
+      width: 100%;
+      padding: 4px;
+      font-size: .75rem;
+      text-align: center;
+      border: 1px solid #ccc;
+      border-radius: 4px;
     }
 
-    tbody tr:hover {
-      background: #f3e5f5;
-    }
-
-    /* ===== Mobile ===== */
-    @media (max-width: 768px) {
-
-      th,
-      td {
-        font-size: .8rem;
-        padding: 8px 10px;
-      }
-    }
+    tbody tr:nth-child(even) { background: #fafafa; }
+    tbody tr:hover { background: #f3e5f5; }
   </style>
 </head>
 
@@ -139,6 +135,11 @@
   <div class="main">
     <h2 id="title">กำลังโหลดข้อมูล…</h2>
 
+    <!-- 🔍 Export -->
+    <div class="toolbar">
+      <button onclick="exportExcel()">📤 ส่งออก Excel</button>
+    </div>
+
     <div class="table-wrapper">
       <table id="tbl">
         <thead></thead>
@@ -153,50 +154,72 @@
     const province = params.get("province");
     const token = params.get("token");
 
-    if (!province || !token) {
-      alert("ลิงก์ไม่ถูกต้อง");
-      location.href = "login.html";
-    }
+    let tableData = [];
+    let headers = [];
 
     title.innerText = `ข้อมูลจังหวัด ${province}`;
 
     fetch(`${API}?province=${encodeURIComponent(province)}&token=${encodeURIComponent(token)}`)
       .then(r => r.json())
       .then(res => {
+        tableData = res.data;
+        headers = Object.keys(tableData[0]);
+        renderTable(tableData);
+      });
 
-        if (res.error) {
-          alert("ไม่มีสิทธิ์เข้าถึง");
-          location.href = "login.html";
-          return;
-        }
+    function renderTable(data) {
+      const thead = document.querySelector("#tbl thead");
+      const tbody = document.querySelector("#tbl tbody");
 
-        if (!res.data || res.data.length === 0) {
-          title.innerText += " (ไม่พบข้อมูล)";
-          return;
-        }
+      // header
+      thead.innerHTML = `
+        <tr>${headers.map(h => `<th>${h}</th>`).join("")}</tr>
+        <tr>${headers.map((_, i) =>
+          `<th><input data-col="${i}" placeholder="ค้นหา" oninput="filterTable()"></th>`
+        ).join("")}</tr>
+      `;
 
-        const headers = Object.keys(res.data[0]);
+      // body
+      tbody.innerHTML = "";
+      data.forEach(row => {
+        const tr = document.createElement("tr");
+        headers.forEach(h => tr.innerHTML += `<td>${row[h] ?? ""}</td>`);
+        tbody.appendChild(tr);
+      });
+    }
 
-        document.querySelector("#tbl thead").innerHTML =
-          `<tr>${headers.map(h => `<th>${h}</th>`).join("")}</tr>`;
+    function filterTable() {
+      const inputs = document.querySelectorAll("thead input");
+      const filtered = tableData.filter(row =>
+        inputs.every((inp, i) =>
+          String(row[headers[i]] ?? "")
+            .toLowerCase()
+            .includes(inp.value.toLowerCase())
+        )
+      );
+      renderTable(filtered);
+    }
 
-        const tbody = document.querySelector("#tbl tbody");
-        tbody.innerHTML = "";
+    /* ===== Export Excel (CSV) ===== */
+    function exportExcel() {
+      let csv = headers.join(",") + "\n";
+      document.querySelectorAll("#tbl tbody tr").forEach(tr => {
+        const row = [...tr.children].map(td =>
+          `"${td.innerText.replace(/"/g,'""')}"`
+        ).join(",");
+        csv += row + "\n";
+      });
 
-        res.data.forEach(row => {
-          const tr = document.createElement("tr");
-          headers.forEach(h => {
-            tr.innerHTML += `<td>${row[h] ?? ""}</td>`;
-          });
-          tbody.appendChild(tr);
-        });
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
 
-        // 🔐 ลบ token ออกจาก URL
-        history.replaceState(null, "", `${location.pathname}?province=${encodeURIComponent(province)}`);
-      })
-      .catch(() => alert("โหลดข้อมูลไม่สำเร็จ"));
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `ข้อมูลจังหวัด_${province}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
   </script>
 
 </body>
-
 </html>
