@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ภาพรวมข้อมูลรายจังหวัด</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --pink: #e91e63;
+      --deep-pink: #d81b60;
+      --navy: #1a237e;
+      --bg: #f5f5f5;
+      --card: #ffffff;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Sarabun', sans-serif;
+      background: var(--bg);
+      margin: 0;
+    }
+
+    .navbar {
+      background: var(--navy);
+      padding: 12px;
+      text-align: center;
+      color: #fff;
+      font-weight: 700;
+    }
+
+    .main {
+      max-width: 1400px;
+      margin: auto;
+      padding: 20px;
+    }
+
+    h2 {
+      color: var(--deep-pink);
+      margin-bottom: 16px;
+    }
+
+    /* ===== Cards ===== */
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: 14px;
+      padding: 16px;
+      text-align: center;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, .08);
+    }
+
+    .card h3 {
+      margin: 0;
+      font-size: .95rem;
+      color: var(--navy);
+    }
+
+    .card .value {
+      margin-top: 8px;
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--deep-pink);
+    }
+
+    /* ===== Table ===== */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #fff;
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, .06);
+    }
+
+    th,
+    td {
+      padding: 10px;
+      border-bottom: 1px solid #eee;
+      text-align: center;
+      font-size: .9rem;
+      white-space: nowrap;
+    }
+
+    th {
+      background: #fce4ec;
+      color: #880e4f;
+      font-weight: 700;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    tr:hover {
+      background: #fafafa;
+    }
+
+    a {
+      color: var(--navy);
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    a:hover {
+      color: var(--pink);
+      text-decoration: underline;
+    }
+
+    th.sort-asc::after {
+      content: " ▲";
+      font-size: .7rem;
+    }
+
+    th.sort-desc::after {
+      content: " ▼";
+      font-size: .7rem;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="navbar">
+    หนี้ครบกำหนดชำระ ณ วันที่ 14 มกราคม 2569
+  </div>
+
+  <div class="main">
+    <h2>ภาพรวมข้อมูลรายจังหวัด</h2>
+
+    <!-- ===== Cards ===== -->
+    <div class="cards">
+      <div class="card">
+        <h3>เงินต้นที่คาดว่าจะได้ (30 ก.ย. 69)</h3>
+        <div class="value" id="sumExpectedSep">-</div>
+      </div>
+      <div class="card">
+        <h3>เงินต้นรับคืน (30 ก.ย. 69)</h3>
+        <div class="value" id="sumReceivedSep">-</div>
+      </div>
+      <div class="card">
+        <h3>ร้อยละการชำระคืน (30 ก.ย. 69)</h3>
+        <div class="value" id="sumPercentSep">-</div>
+      </div>
+    </div>
+
+    <!-- ===== Table ===== -->
+    <table id="tbl">
+      <thead>
+        <tr>
+          <th data-key="จังหวัด">จังหวัด</th>
+          <th data-key="เขตตรวจ">เขตตรวจ</th>
+          <th data-key="expMar">เงินต้นที่คาดว่าจะได้<br>(31 มี.ค. 69)</th>
+          <th data-key="expSep">เงินต้นที่คาดว่าจะได้<br>(30 ก.ย. 69)</th>
+          <th data-key="recMar">เงินต้นรับคืน<br>(31 มี.ค. 69)</th>
+          <th data-key="recSep">เงินต้นรับคืน<br>(30 ก.ย. 69)</th>
+          <th data-key="perMar">ร้อยละการชำระคืน<br>(31 มี.ค. 69)</th>
+          <th data-key="perSep">ร้อยละการชำระคืน<br>(30 ก.ย. 69)</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <script src="js/config.js"></script>
+  <script>
+    let tableData = [];
+    let sortState = {};
+
+    fetch(API)
+      .then(r => r.json())
+      .then(res => {
+
+        let sumExpSep = 0;
+        let sumRecSep = 0;
+
+        tableData = res.data.map(r => {
+          const expMar = Number(r["เงินต้นที่คาดว่าจะได้(31 มี.ค. 69)"] || 0);
+          const expSep = Number(r["เงินต้นที่คาดว่าจะได้(30 ก.ย. 69)"] || 0);
+          const recMar = Number(r["เงินต้นรับคืน(31 มี.ค. 69)"] || 0);
+          const recSep = Number(r["เงินต้นรับคืน(30 ก.ย. 69)"] || 0);
+
+          const perMar = expMar > 0 ? recMar * 100 / expMar : 0;
+          const perSep = expSep > 0 ? recSep * 100 / expSep : 0;
+
+          sumExpSep += expSep;
+          sumRecSep += recSep;
+
+          return {
+            จังหวัด: r["จังหวัด"],
+            เขตตรวจ: r["เขตตรวจ"],
+            expMar,
+            expSep,
+            recMar,
+            recSep,
+            perMar,
+            perSep
+          };
+        });
+
+        renderTable(tableData);
+
+        document.getElementById("sumExpectedSep").innerText =
+          sumExpSep.toLocaleString() + " บาท";
+
+        document.getElementById("sumReceivedSep").innerText =
+          sumRecSep.toLocaleString() + " บาท";
+
+        document.getElementById("sumPercentSep").innerText =
+          sumExpSep > 0 ? (sumRecSep * 100 / sumExpSep).toFixed(2) + "%" : "0%";
+      });
+
+    function renderTable(data) {
+      const tbody = document.querySelector("#tbl tbody");
+      tbody.innerHTML = "";
+
+      data.forEach(r => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>
+            <a href="login.html?province=${encodeURIComponent(r.จังหวัด)}">
+              ${r.จังหวัด}
+            </a>
+          </td>
+          <td>${r.เขตตรวจ}</td>
+          <td>${r.expMar.toLocaleString()}</td>
+          <td>${r.expSep.toLocaleString()}</td>
+          <td>${r.recMar.toLocaleString()}</td>
+          <td>${r.recSep.toLocaleString()}</td>
+          <td>${r.perMar.toFixed(2)}%</td>
+          <td>${r.perSep.toFixed(2)}%</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    /* ===== Sorting ===== */
+    document.querySelectorAll("th").forEach(th => {
+      th.addEventListener("click", () => {
+        const key = th.dataset.key;
+        if (!key) return;
+
+        document.querySelectorAll("th").forEach(h =>
+          h.classList.remove("sort-asc", "sort-desc")
+        );
+
+        sortState[key] = sortState[key] === "asc" ? "desc" : "asc";
+        th.classList.add(sortState[key] === "asc" ? "sort-asc" : "sort-desc");
+
+        tableData.sort((a, b) => {
+          const v1 = a[key];
+          const v2 = b[key];
+
+          if (typeof v1 === "number") {
+            return sortState[key] === "asc" ? v1 - v2 : v2 - v1;
+          }
+          return sortState[key] === "asc"
+            ? String(v1).localeCompare(String(v2), "th")
+            : String(v2).localeCompare(String(v1), "th");
+        });
+
+        renderTable(tableData);
+      });
+    });
+  </script>
+
+</body>
+</html>
