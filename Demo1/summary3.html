@@ -27,6 +27,7 @@
       margin: 0;
     }
 
+    /* ===== Nav ===== */
     .navbar {
       background: var(--navy);
       padding: 12px;
@@ -35,8 +36,9 @@
       font-weight: 700;
     }
 
+    /* ===== Main ===== */
     .main {
-      max-width: 1400px;
+      max-width: 1200px;
       margin: auto;
       padding: 20px;
     }
@@ -49,7 +51,7 @@
     /* ===== Cards ===== */
     .cards {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
       gap: 16px;
       margin-bottom: 20px;
     }
@@ -90,16 +92,14 @@
       padding: 10px;
       border-bottom: 1px solid #eee;
       text-align: center;
+      /* ✅ กึ่งกลางทั้งหมด */
       font-size: .9rem;
-      white-space: nowrap;
     }
 
     th {
       background: #fce4ec;
       color: #880e4f;
       font-weight: 700;
-      cursor: pointer;
-      user-select: none;
     }
 
     tr:hover {
@@ -115,6 +115,12 @@
     a:hover {
       color: var(--pink);
       text-decoration: underline;
+    }
+
+    th {
+      cursor: pointer;
+      user-select: none;
+      position: relative;
     }
 
     th.sort-asc::after {
@@ -138,19 +144,19 @@
   <div class="main">
     <h2>ภาพรวมข้อมูลรายจังหวัด</h2>
 
-    <!-- ===== Cards ===== -->
+    <!-- ===== Cards Summary ===== -->
     <div class="cards">
       <div class="card">
-        <h3>เงินต้นที่คาดว่าจะได้ (30 ก.ย. 69)</h3>
-        <div class="value" id="sumExpectedSep">-</div>
+        <h3>เงินต้นที่คาดว่าจะได้รับ</h3>
+        <div class="value" id="sumExpected">-</div>
       </div>
       <div class="card">
-        <h3>เงินต้นรับคืน (30 ก.ย. 69)</h3>
-        <div class="value" id="sumReceivedSep">-</div>
+        <h3>เงินต้นรับคืน</h3>
+        <div class="value" id="sumReceived">-</div>
       </div>
       <div class="card">
-        <h3>ร้อยละการชำระคืน (30 ก.ย. 69)</h3>
-        <div class="value" id="sumPercentSep">-</div>
+        <h3>ร้อยละการชำระคืน</h3>
+        <div class="value" id="sumPercent">-</div>
       </div>
     </div>
 
@@ -160,14 +166,12 @@
         <tr>
           <th data-key="จังหวัด">จังหวัด</th>
           <th data-key="เขตตรวจ">เขตตรวจ</th>
-          <th data-key="expMar">เงินต้นที่คาดว่าจะได้<br>(31 มี.ค. 69)</th>
-          <th data-key="expSep">เงินต้นที่คาดว่าจะได้<br>(30 ก.ย. 69)</th>
-          <th data-key="recMar">เงินต้นรับคืน<br>(31 มี.ค. 69)</th>
-          <th data-key="recSep">เงินต้นรับคืน<br>(30 ก.ย. 69)</th>
-          <th data-key="perMar">ร้อยละการชำระคืน<br>(31 มี.ค. 69)</th>
-          <th data-key="perSep">ร้อยละการชำระคืน<br>(30 ก.ย. 69)</th>
+          <th data-key="เงินต้นที่คาดว่าจะได้">เงินต้นที่คาดว่าจะได้</th>
+          <th data-key="เงินต้นรับคืน">เงินต้นรับคืน</th>
+          <th data-key="percent">ร้อยละการชำระคืน</th>
         </tr>
       </thead>
+
       <tbody></tbody>
     </table>
   </div>
@@ -181,43 +185,38 @@
       .then(r => r.json())
       .then(res => {
 
-        let sumExpSep = 0;
-        let sumRecSep = 0;
+        let sumExpected = 0;
+        let sumReceived = 0;
 
         tableData = res.data.map(r => {
-          const expMar = Number(r["เงินต้นที่คาดว่าจะได้(31 มี.ค. 69)"] || 0);
-          const expSep = Number(r["เงินต้นที่คาดว่าจะได้(30 ก.ย. 69)"] || 0);
-          const recMar = Number(r["เงินต้นรับคืน(31 มี.ค. 69)"] || 0);
-          const recSep = Number(r["เงินต้นรับคืน(30 ก.ย. 69)"] || 0);
+          const expected = Number(r["เงินต้นที่คาดว่าจะได้"] || 0);
+          const received = Number(r["เงินต้นรับคืน"] || 0);
+          const percent = expected > 0 ? (received * 100 / expected) : 0;
 
-          const perMar = expMar > 0 ? recMar * 100 / expMar : 0;
-          const perSep = expSep > 0 ? recSep * 100 / expSep : 0;
-
-          sumExpSep += expSep;
-          sumRecSep += recSep;
+          sumExpected += expected;
+          sumReceived += received;
 
           return {
             จังหวัด: r["จังหวัด"],
             เขตตรวจ: r["เขตตรวจ"],
-            expMar,
-            expSep,
-            recMar,
-            recSep,
-            perMar,
-            perSep
+            "เงินต้นที่คาดว่าจะได้": expected,
+            "เงินต้นรับคืน": received,
+            percent
           };
         });
 
         renderTable(tableData);
 
-        document.getElementById("sumExpectedSep").innerText =
-          sumExpSep.toLocaleString() + " บาท";
+        document.getElementById("sumExpected").innerText =
+          sumExpected.toLocaleString() + " บาท";
 
-        document.getElementById("sumReceivedSep").innerText =
-          sumRecSep.toLocaleString() + " บาท";
+        document.getElementById("sumReceived").innerText =
+          sumReceived.toLocaleString() + " บาท";
 
-        document.getElementById("sumPercentSep").innerText =
-          sumExpSep > 0 ? (sumRecSep * 100 / sumExpSep).toFixed(2) + "%" : "0%";
+        document.getElementById("sumPercent").innerText =
+          sumExpected > 0
+            ? (sumReceived * 100 / sumExpected).toFixed(2) + "%"
+            : "0%";
       });
 
     function renderTable(data) {
@@ -227,19 +226,16 @@
       data.forEach(r => {
         const tr = document.createElement("tr");
         tr.innerHTML = `
-          <td>
-            <a href="login.html?province=${encodeURIComponent(r.จังหวัด)}">
-              ${r.จังหวัด}
-            </a>
-          </td>
-          <td>${r.เขตตรวจ}</td>
-          <td>${r.expMar.toLocaleString()}</td>
-          <td>${r.expSep.toLocaleString()}</td>
-          <td>${r.recMar.toLocaleString()}</td>
-          <td>${r.recSep.toLocaleString()}</td>
-          <td>${r.perMar.toFixed(2)}%</td>
-          <td>${r.perSep.toFixed(2)}%</td>
-        `;
+        <td>
+          <a href="login.html?province=${encodeURIComponent(r["จังหวัด"])}">
+            ${r["จังหวัด"]}
+          </a>
+        </td>
+        <td>${r["เขตตรวจ"]}</td>
+        <td>${r["เงินต้นที่คาดว่าจะได้"].toLocaleString()}</td>
+        <td>${r["เงินต้นรับคืน"].toLocaleString()}</td>
+        <td>${r.percent.toFixed(2)}%</td>
+      `;
         tbody.appendChild(tr);
       });
     }
@@ -250,9 +246,8 @@
         const key = th.dataset.key;
         if (!key) return;
 
-        document.querySelectorAll("th").forEach(h =>
-          h.classList.remove("sort-asc", "sort-desc")
-        );
+        // reset arrow
+        document.querySelectorAll("th").forEach(h => h.classList.remove("sort-asc", "sort-desc"));
 
         sortState[key] = sortState[key] === "asc" ? "desc" : "asc";
         th.classList.add(sortState[key] === "asc" ? "sort-asc" : "sort-desc");
@@ -264,6 +259,7 @@
           if (typeof v1 === "number") {
             return sortState[key] === "asc" ? v1 - v2 : v2 - v1;
           }
+
           return sortState[key] === "asc"
             ? String(v1).localeCompare(String(v2), "th")
             : String(v2).localeCompare(String(v1), "th");
@@ -274,5 +270,7 @@
     });
   </script>
 
+
 </body>
+
 </html>
