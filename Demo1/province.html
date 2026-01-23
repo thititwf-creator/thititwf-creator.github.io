@@ -318,17 +318,41 @@
     /* ===== Export Excel (.xlsx) ===== */
     function exportExcel() {
 
-      // ดึงข้อมูลจากตารางที่แสดงอยู่จริง (หลังกรอง)
       const table = document.getElementById("tbl");
 
-      // แปลง table → worksheet
       const wb = XLSX.utils.book_new();
-      const ws = XLSX.utils.table_to_sheet(table, { raw: true });
+      const ws = XLSX.utils.table_to_sheet(table, {
+        raw: true,
+        display: true
+      });
 
-      // ตั้งชื่อชีต
+      // 🔧 แปลง cell ที่เป็นตัวเลขให้ Excel รู้ว่าเป็น number
+      Object.keys(ws).forEach(addr => {
+        if (addr[0] === "!") return;
+
+        const cell = ws[addr];
+        if (!cell || cell.v == null) return;
+
+        // ลบ HTML tag (เช่น <mark>)
+        if (typeof cell.v === "string") {
+          let v = cell.v.replace(/<[^>]*>/g, "").trim();
+
+          // ลบ comma
+          v = v.replace(/,/g, "");
+
+          // ถ้าเป็นตัวเลขจริง
+          if (v !== "" && !isNaN(v)) {
+            cell.v = Number(v);
+            cell.t = "n";   // number
+          } else {
+            cell.v = v;    // text ปกติ
+            cell.t = "s";
+          }
+        }
+      });
+
       XLSX.utils.book_append_sheet(wb, ws, "ข้อมูลจังหวัด");
 
-      // สร้างไฟล์ Excel จริง
       XLSX.writeFile(
         wb,
         `ข้อมูลจังหวัด_${province}.xlsx`
