@@ -132,7 +132,7 @@
 <body>
 
   <div class="navbar">
-    หนี้ครบกำหนดชำระ ณ วันที่ 14 มกราคม 2569
+    หนี้ครบกำหนดชำระ ณ วันที่ 29 มกราคม 2569
   </div>
 
   <div class="main">
@@ -162,8 +162,8 @@
           <th data-key="เขตตรวจ">เขตตรวจ</th>
           <th data-key="expMar">เงินต้นที่คาดว่าจะได้<br>(31 มี.ค. 69)</th>
           <th data-key="expSep">เงินต้นที่คาดว่าจะได้<br>(30 ก.ย. 69)</th>
-          <th data-key="recMar">เงินต้นรับคืน<br>(31 มี.ค. 69)</th>
-          <th data-key="recSep">เงินต้นรับคืน<br>(30 ก.ย. 69)</th>
+          <th data-key="recMar">เงินต้นรับคืน<br></th>
+          <!-- <th data-key="recSep">เงินต้นรับคืน<br>(30 ก.ย. 69)</th> -->
           <th data-key="perMar">ร้อยละการชำระคืน<br>(31 มี.ค. 69)</th>
           <th data-key="perSep">ร้อยละการชำระคืน<br>(30 ก.ย. 69)</th>
         </tr>
@@ -236,7 +236,7 @@
           <td>${r.expMar.toLocaleString()}</td>
           <td>${r.expSep.toLocaleString()}</td>
           <td>${r.recMar.toLocaleString()}</td>
-          <td>${r.recSep.toLocaleString()}</td>
+          <!-- <td>${r.recSep.toLocaleString()}</td> -->
           <td>${r.perMar.toFixed(2)}%</td>
           <td>${r.perSep.toFixed(2)}%</td>
         `;
