@@ -1,176 +1,215 @@
 <!DOCTYPE html>
 <html lang="th">
+
 <head>
-  <meta charset="UTF-8">
-  <title>สรุปรายอำเภอ</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <title>สรุปรายอำเภอ</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap" rel="stylesheet">
 
-  <style>
-    :root {
-      --pink: #e91e63;
-      --navy: #1a237e;
-      --bg: #f5f5f5;
-      --border: #d1c4e9;
-    }
+    <style>
+        :root {
+            --pink: #e91e63;
+            --navy: #1a237e;
+            --bg: #f5f5f5;
+            --border: #d1c4e9;
+        }
 
-    body {
-      font-family: 'Sarabun', sans-serif;
-      background: var(--bg);
-      margin: 0;
-    }
+        body {
+            font-family: 'Sarabun', sans-serif;
+            background: var(--bg);
+            margin: 0;
+        }
 
-    .main {
-      max-width: 1200px;
-      margin: auto;
-      padding: 20px;
-    }
+        .main {
+            max-width: 1200px;
+            margin: auto;
+            padding: 20px;
+        }
 
-    h2 {
-      color: var(--pink);
-      margin-bottom: 12px;
-    }
+        h2 {
+            color: var(--pink);
+            margin-bottom: 12px;
+        }
 
-    .table-wrapper {
-      overflow-x: auto;
-      background: #fff;
-      border-radius: 14px;
-      box-shadow: 0 4px 10px rgba(0,0,0,.06);
-    }
+        .table-wrapper {
+            overflow-x: auto;
+            background: #fff;
+            border-radius: 14px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, .06);
+        }
 
-    table {
-      width: 100%;
-      min-width: 1000px;
-      border-collapse: collapse;
-      border: 2px solid var(--border);
-    }
+        table {
+            width: 100%;
+            min-width: 1000px;
+            border-collapse: collapse;
+            border: 2px solid var(--border);
+        }
 
-    th, td {
-      border: 1.5px solid var(--border);
-      padding: 8px;
-      text-align: center;
-      font-size: .9rem;
-      white-space: nowrap;
-    }
+        th,
+        td {
+            border: 1.5px solid var(--border);
+            padding: 8px;
+            text-align: center;
+            font-size: .9rem;
+            white-space: nowrap;
+        }
 
-    th {
-      background: #fce4ec;
-      color: #880e4f;
-      font-weight: 700;
-    }
+        th {
+            background: #fce4ec;
+            color: #880e4f;
+            font-weight: 700;
+        }
 
-    tbody tr:hover {
-      background: #f3e5f5;
-      cursor: pointer;
-    }
+        tbody tr:hover {
+            background: #f3e5f5;
+            cursor: pointer;
+        }
 
-    tfoot td {
-      font-weight: 700;
-      background: #f8bbd0;
-    }
-  </style>
+        tfoot td {
+            font-weight: 700;
+            background: #f8bbd0;
+        }
+    </style>
 </head>
 
 <body>
 
-<div class="main">
-  <h2 id="title">กำลังโหลดข้อมูล…</h2>
+    <div class="main">
+        <h2 id="title">กำลังโหลดข้อมูล…</h2>
 
-  <div class="table-wrapper">
-    <table id="tbl">
-      <thead></thead>
-      <tbody></tbody>
-      <tfoot></tfoot>
-    </table>
-  </div>
-</div>
+        <div class="table-wrapper">
+            <table id="tbl">
+                <thead></thead>
+                <tbody></tbody>
+                <tfoot></tfoot>
+            </table>
+        </div>
+    </div>
 
-<script src="js/config.js"></script>
-<script>
-  const params = new URLSearchParams(location.search);
-  const province = params.get("province");
-  const token = params.get("token");
+    <script src="js/config.js"></script>
+    <script>
+        const params = new URLSearchParams(location.search);
+        const province = params.get("province");
+        const token = params.get("token");
 
-  title.innerText = `สรุปรายอำเภอ จังหวัด${province}`;
+        title.innerText = `สรุปรายอำเภอ จังหวัด${province}`;
 
-  const START = new Date("2025-10-01");
-  const MAR31 = new Date("2026-03-31");
-  const SEP30 = new Date("2026-09-30");
+        const START = new Date("2025-10-01");
+        const MAR31 = new Date("2026-03-31");
+        const SEP30 = new Date("2026-09-30");
 
-  fetch(`${API}?province=${province}&token=${token}`)
-    .then(r => r.json())
-    .then(res => {
-      const summary = summarizeByDistrict(res.data);
-      renderTable(summary);
-    });
+        fetch(`${API}?province=${province}&token=${token}`)
+            .then(r => r.json())
+            .then(res => {
+                const summary = summarizeByDistrict(res.data);
+                renderTable(summary);
+            });
 
-  function summarizeByDistrict(data) {
-    const map = {};
+        function summarizeByDistrict(data) {
+            const map = {};
 
-    data.forEach(r => {
-      const district = r["อำเภอ"];
-      const due = new Date(r["กำหนดชำระ"]);
-      if (isNaN(due) || due < START) return;
+            data.forEach(r => {
+                const district = r["อำเภอ"];
+                const due = new Date(r["กำหนดชำระ"]);
+                if (isNaN(due) || due < START) return;
 
-      if (!map[district]) {
-        map[district] = {
-          expect_mar: 0, paid_mar: 0,
-          expect_sep: 0, paid_sep: 0
-        };
-      }
+                if (!map[district]) {
+                    map[district] = {
+                        expect_mar: 0, paid_mar: 0,
+                        expect_sep: 0, paid_sep: 0
+                    };
+                }
 
-      const expect = Number(r["เงินต้นที่คาดว่าจะได้"] || 0);
-      const paid = Number(r["เงินต้นรับคืน"] || 0);
+                const expect = Number(r["เงินต้นที่คาดว่าจะได้"] || 0);
+                const paid = Number(r["เงินต้นรับคืน"] || 0);
 
-      if (due <= MAR31) {
-        map[district].expect_mar += expect;
-        map[district].paid_mar += paid;
-      }
+                if (due <= MAR31) {
+                    map[district].expect_mar += expect;
+                    map[district].paid_mar += paid;
+                }
 
-      if (due <= SEP30) {
-        map[district].expect_sep += expect;
-        map[district].paid_sep += paid;
-      }
-    });
+                if (due <= SEP30) {
+                    map[district].expect_sep += expect;
+                    map[district].paid_sep += paid;
+                }
+            });
 
-    return Object.entries(map).map(([d, v]) => ({
-      อำเภอ: d,
-      "เงินต้นคาดว่าจะได้ (31 มี.ค. 69)": v.expect_mar,
-      "เงินต้นรับคืน (31 มี.ค. 69)": v.paid_mar,
-      "ร้อยละ (31 มี.ค. 69)": v.expect_mar ? v.paid_mar * 100 / v.expect_mar : 0,
-      "เงินต้นคาดว่าจะได้ (30 ก.ย. 69)": v.expect_sep,
-      "เงินต้นรับคืน (30 ก.ย. 69)": v.paid_sep,
-      "ร้อยละ (30 ก.ย. 69)": v.expect_sep ? v.paid_sep * 100 / v.expect_sep : 0
-    }));
-  }
+            return Object.entries(map).map(([d, v]) => ({
+                อำเภอ: d,
+                "เงินต้นคาดว่าจะได้ (31 มี.ค. 69)": v.expect_mar,
+                "เงินต้นรับคืน (31 มี.ค. 69)": v.paid_mar,
+                "ร้อยละ (31 มี.ค. 69)": v.expect_mar ? v.paid_mar * 100 / v.expect_mar : 0,
+                "เงินต้นคาดว่าจะได้ (30 ก.ย. 69)": v.expect_sep,
+                "เงินต้นรับคืน (30 ก.ย. 69)": v.paid_sep,
+                "ร้อยละ (30 ก.ย. 69)": v.expect_sep ? v.paid_sep * 100 / v.expect_sep : 0
+            }));
+        }
 
-  function renderTable(data) {
-    const thead = tbl.querySelector("thead");
-    const tbody = tbl.querySelector("tbody");
+        function renderTable(data) {
+            const thead = tbl.querySelector("thead");
+            const tbody = tbl.querySelector("tbody");
+            const tfoot = tbl.querySelector("tfoot");
 
-    const headers = Object.keys(data[0]);
+            const headers = Object.keys(data[0]);
 
-    thead.innerHTML = `
+            /* ===== THEAD ===== */
+            thead.innerHTML = `
       <tr>${headers.map(h => `<th>${h}</th>`).join("")}</tr>
     `;
 
-    tbody.innerHTML = "";
-    data.forEach(r => {
-      const tr = document.createElement("tr");
-      headers.forEach(h => {
-        let v = r[h];
-        if (typeof v === "number") {
-          v = h.includes("ร้อยละ")
-            ? v.toFixed(2)
-            : v.toLocaleString();
+            /* ===== TBODY ===== */
+            tbody.innerHTML = "";
+            data.forEach(r => {
+                const tr = document.createElement("tr");
+                headers.forEach(h => {
+                    let v = r[h];
+                    if (typeof v === "number") {
+                        v = h.includes("ร้อยละ")
+                            ? v.toFixed(2)
+                            : v.toLocaleString();
+                    }
+                    tr.innerHTML += `<td>${v}</td>`;
+                });
+                tbody.appendChild(tr);
+            });
+
+            /* ===== TFOOT (ผลรวมทั้งจังหวัด) ===== */
+            const total = {
+                expect_mar: 0, paid_mar: 0,
+                expect_sep: 0, paid_sep: 0
+            };
+
+            data.forEach(r => {
+                total.expect_mar += r["เงินต้นคาดว่าจะได้ (31 มี.ค. 69)"];
+                total.paid_mar += r["เงินต้นรับคืน (31 มี.ค. 69)"];
+                total.expect_sep += r["เงินต้นคาดว่าจะได้ (30 ก.ย. 69)"];
+                total.paid_sep += r["เงินต้นรับคืน (30 ก.ย. 69)"];
+            });
+
+            const percent_mar = total.expect_mar
+                ? total.paid_mar * 100 / total.expect_mar
+                : 0;
+
+            const percent_sep = total.expect_sep
+                ? total.paid_sep * 100 / total.expect_sep
+                : 0;
+
+            tfoot.innerHTML = `
+      <tr>
+        <td><strong>รวมทั้งจังหวัด</strong></td>
+        <td>${total.expect_mar.toLocaleString()}</td>
+        <td>${total.paid_mar.toLocaleString()}</td>
+        <td>${percent_mar.toFixed(2)}</td>
+        <td>${total.expect_sep.toLocaleString()}</td>
+        <td>${total.paid_sep.toLocaleString()}</td>
+        <td>${percent_sep.toFixed(2)}</td>
+      </tr>
+    `;
         }
-        tr.innerHTML += `<td>${v}</td>`;
-      });
-      tbody.appendChild(tr);
-    });
-  }
-</script>
+    </script>
 
 </body>
+
 </html>
