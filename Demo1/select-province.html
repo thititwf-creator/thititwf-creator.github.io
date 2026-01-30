@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="th">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -19,13 +18,12 @@
 
     * {
       box-sizing: border-box;
-      margin: 0;
-      padding: 0;
     }
 
     body {
       font-family: 'Sarabun', sans-serif;
       background: var(--bg);
+      margin: 0;
       min-height: 100vh;
     }
 
@@ -34,40 +32,38 @@
       background: var(--navy);
       padding: 12px;
       display: flex;
-      justify-content: center;
+      justify-content: flex-end;
     }
 
     .navbar button {
-      background: var(--pink);
+      background: transparent;
       color: #fff;
-      border: 2px solid var(--pink);
+      border: 1px solid #fff;
       border-radius: 8px;
       padding: 6px 14px;
       font-family: 'Sarabun';
-      font-size: .9rem;
-      font-weight: 700;
+      font-size: .85rem;
       cursor: pointer;
     }
 
     /* ===== Main ===== */
     .main {
       display: flex;
-      align-items: center;
       justify-content: center;
+      align-items: center;
       padding: 40px 16px;
     }
 
-    /* ===== Card ===== */
     .card {
       background: var(--card);
       width: 100%;
       max-width: 420px;
       border-radius: 16px;
       padding: 24px;
-      box-shadow: 0 6px 16px rgba(0, 0, 0, .08);
+      box-shadow: 0 6px 16px rgba(0,0,0,.08);
     }
 
-    .card h3 {
+    h3 {
       text-align: center;
       color: var(--deep-pink);
       margin-bottom: 18px;
@@ -82,18 +78,11 @@
 
     select {
       width: 100%;
-      padding: 10px 12px;
-      margin-bottom: 18px;
+      padding: 10px;
       border-radius: 8px;
       border: 1px solid #ccc;
+      margin-bottom: 18px;
       font-family: 'Sarabun';
-      font-size: .9rem;
-    }
-
-    select:focus {
-      outline: none;
-      border-color: var(--pink);
-      box-shadow: 0 0 0 2px rgba(233, 30, 99, .15);
     }
 
     button.action {
@@ -106,7 +95,6 @@
       font-size: 1rem;
       font-weight: 700;
       cursor: pointer;
-      transition: .2s;
     }
 
     button.action:hover {
@@ -116,72 +104,67 @@
     .note {
       margin-top: 12px;
       font-size: .8rem;
-      text-align: center;
       color: #777;
+      text-align: center;
     }
   </style>
 </head>
 
 <body>
 
-  <!-- ===== Navigation ===== -->
-  <!-- <div class="navbar">
-    <button onclick="location.href='login.html'">ออกจากระบบ</button>
-  </div> -->
+  <div class="navbar">
+    <button onclick="logout()">ออกจากระบบ</button>
+  </div>
 
-  <!-- ===== Main ===== -->
   <div class="main">
     <div class="card">
       <h3>เลือกจังหวัด</h3>
 
-      <label for="prov">จังหวัดที่คุณดูแล</label>
-      <select id="prov"></select>
+      <label>จังหวัด</label>
+      <select id="provinceSelect"></select>
 
       <button class="action" onclick="go()">ตกลง</button>
 
-      <div class="note">
-        ระบบข้อมูลกองทุนพัฒนาบทบาทสตรี
-      </div>
+      <div class="note">ระบบข้อมูลกองทุนพัฒนาบทบาทสตรี</div>
     </div>
   </div>
 
   <script src="js/config.js"></script>
   <script>
-    const provinces = JSON.parse(localStorage.getItem("provinces"));
+    const params = new URLSearchParams(location.search);
+    const token = params.get("token");
 
-    if (!provinces || provinces.length === 0) {
-      alert("ไม่พบรายชื่อจังหวัด กรุณา login ใหม่");
+    if (!token) {
+      alert("กรุณาเข้าสู่ระบบใหม่");
       location.href = "login.html";
     }
 
-    provinces.forEach(p => {
-      prov.innerHTML += `<option value="${p}">${p}</option>`;
-    });
+    // ดึงรายชื่อจังหวัด (ใช้ API เดิม)
+    fetch(`${API}?list=province&token=${encodeURIComponent(token)}`)
+      .then(r => r.json())
+      .then(list => {
+        if (!Array.isArray(list)) {
+          alert("ไม่สามารถโหลดรายชื่อจังหวัดได้");
+          return;
+        }
+
+        list.forEach(p => {
+          provinceSelect.innerHTML +=
+            `<option value="${p}">${p}</option>`;
+        });
+      });
 
     function go() {
-      const province = prov.value;
+      const province = provinceSelect.value;
 
-      fetch(`${API}?getTokenOf=${encodeURIComponent(province)}`)
-        .then(r => r.json())
-        .then(res => {
+      location.href =
+        `district.html?province=${encodeURIComponent(province)}&token=${encodeURIComponent(token)}`;
+    }
 
-          console.log("TOKEN RESPONSE:", res);
-
-          if (!res.token) {
-            alert("ไม่พบ token ของจังหวัดนี้");
-            return;
-          }
-
-          location.href =
-            `province.html?province=${encodeURIComponent(province)}&token=${encodeURIComponent(res.token)}`;
-        })
-        .catch(err => {
-          console.error(err);
-          alert("เรียก API ไม่สำเร็จ");
-        });
+    function logout() {
+      location.href = "login.html";
     }
   </script>
 
 </body>
-
 </html>

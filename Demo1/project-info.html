@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ข้อมูลจังหวัด</title>
+  <title>ข้อมูลรายโครงการ</title>
 
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap" rel="stylesheet">
 
@@ -17,9 +17,7 @@
       --border: #d1c4e9;
     }
 
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body {
       font-family: 'Sarabun', sans-serif;
@@ -30,32 +28,33 @@
     /* ===== Nav ===== */
     .navbar {
       background: var(--navy);
-      padding: 12px;
+      padding: 12px 16px;
       display: flex;
-      justify-content: center;
-      gap: 10px;
+      justify-content: space-between;
+      align-items: center;
+      color: #fff;
       flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .navbar .title {
+      font-weight: 700;
     }
 
     .navbar button {
-      background: #fff;
-      color: var(--navy);
-      border: 2px solid #fff;
-      border-radius: 8px;
-      padding: 6px 14px;
-      font-weight: 700;
-      cursor: pointer;
-    }
-
-    .navbar button.home {
-      background: var(--pink);
-      border-color: var(--pink);
+      background: transparent;
+      border: 1px solid #fff;
       color: #fff;
+      padding: 6px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-family: 'Sarabun';
+      font-size: .85rem;
     }
 
     /* ===== Main ===== */
     .main {
-      max-width: 1200px;
+      max-width: 1300px;
       margin: auto;
       padding: 20px;
     }
@@ -71,11 +70,12 @@
       align-items: center;
       gap: 10px;
       margin-bottom: 12px;
+      flex-wrap: wrap;
     }
 
     .toolbar input {
       flex: 1;
-      max-width: 320px;
+      max-width: 360px;
       padding: 8px 12px;
       border-radius: 8px;
       border: 1.5px solid #ccc;
@@ -92,7 +92,6 @@
       font-weight: 700;
     }
 
-
     /* ===== Table ===== */
     .table-wrapper {
       overflow-x: auto;
@@ -103,33 +102,24 @@
 
     table {
       width: 100%;
-      min-width: 900px;
+      min-width: 1000px;
       border-collapse: collapse;
       border: 2px solid var(--border);
     }
 
-    th,
-    td {
+    th, td {
       border: 1.5px solid var(--border);
       padding: 8px;
       text-align: center;
       white-space: nowrap;
-      font-size: .9rem;
+      font-size: .85rem;
     }
 
     th {
       background: #fce4ec;
       color: #880e4f;
       font-weight: 700;
-    }
-
-    thead input {
-      width: 100%;
-      padding: 4px;
-      font-size: .75rem;
-      text-align: center;
-      border: 1px solid #ccc;
-      border-radius: 4px;
+      cursor: pointer;
     }
 
     tbody tr:nth-child(even) {
@@ -140,228 +130,148 @@
       background: #f3e5f5;
     }
 
-    /* ===== Highlight ===== */
     mark {
       background: #fff59d;
-      color: #000;
       padding: 0 2px;
       border-radius: 3px;
-    }
-
-    /* ===== Sticky ===== */
-    /* .toolbar {
-      position: sticky;
-      top: 0;
-      z-index: 5;
-      background: var(--bg);
-      padding: 10px 0;
-    } */
-
-    thead th {
-      /* position: sticky; */
-      top: 56px;
-      /* ระยะจาก search bar */
-      z-index: 4;
-    }
-
-    /* ===== Sort cursor ===== */
-    th.sortable {
-      cursor: pointer;
-    }
-
-    th.sortable::after {
-      content: " ⇅";
-      font-size: .75rem;
-      color: #999;
     }
   </style>
 </head>
 
 <body>
 
-  <!-- ===== Navigation ===== -->
-  <!-- <div class="navbar">
-    <button class="home" onclick="location.href='index.html'">หน้าแรก</button>
-    <button onclick="location.href='twf-year-2568.html'">งานปี 2568</button>
-    <button onclick="location.href='twf-year-2569.html'">งานปี 2569</button>
-  </div> -->
+<div class="navbar">
+  <div class="title">CDD Women Fund</div>
+  <div>
+    <button onclick="goBack()">← กลับสรุปรายอำเภอ</button>
+    <button onclick="logout()">ออกจากระบบ</button>
+  </div>
+</div>
 
-  <!-- ===== Main ===== -->
-  <div class="main">
-    <h2 id="title">กำลังโหลดข้อมูล…</h2>
+<div class="main">
+  <h2 id="title">กำลังโหลดข้อมูล…</h2>
 
-    <!-- 🔍 Export -->
-    <div class="toolbar">
-      <input type="text" id="globalSearch" placeholder="🔍 ค้นหาจากข้อมูลทั้งหมด..." oninput="debouncedSearch()" />
-      <button onclick="exportExcel()">📤 ส่งออก Excel</button>
-    </div>
-
-
-
-    <div class="table-wrapper">
-      <table id="tbl">
-        <thead></thead>
-        <tbody></tbody>
-      </table>
-    </div>
+  <div class="toolbar">
+    <input id="globalSearch" placeholder="🔍 ค้นหาโครงการ..." oninput="debouncedSearch()">
+    <button onclick="exportExcel()">📤 ส่งออก Excel</button>
   </div>
 
-  <script src="js/config.js"></script>
-  <script>
+  <div class="table-wrapper">
+    <table id="tbl">
+      <thead></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+</div>
 
+<script src="js/config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+<script>
+  const params = new URLSearchParams(location.search);
+  const province = params.get("province");
+  const district = params.get("district");
+  const token = params.get("token");
 
-    const params = new URLSearchParams(location.search);
-    const province = params.get("province");
-    const token = params.get("token");
+  if (!province || !district || !token) {
+    alert("ข้อมูลไม่ครบ กรุณาเข้าสู่ระบบใหม่");
+    location.href = "login.html";
+  }
 
-    let tableData = [];
-    let headers = [];
-    let currentSort = { col: null, asc: true };
-    let searchTimer = null;
+  let tableData = [];
+  let headers = [];
+  let searchTimer = null;
+  let currentSort = { col: null, asc: true };
 
+  title.innerText = `รายโครงการ อำเภอ${district} จังหวัด${province}`;
 
-    title.innerText = `ข้อมูลจังหวัด ${province}`;
+  fetch(`${API}?province=${encodeURIComponent(province)}&token=${encodeURIComponent(token)}`)
+    .then(r => r.json())
+    .then(res => {
 
-    fetch(`${API}?province=${encodeURIComponent(province)}&token=${encodeURIComponent(token)}`)
-      .then(r => r.json())
-      .then(res => {
-        tableData = res.data;
-        headers = Object.keys(tableData[0]);
-        renderTable(tableData);
+      // 🔽 กรองเฉพาะอำเภอ
+      tableData = res.data.filter(r => r["อำเภอ"] === district);
 
-        // ✅ เพิ่มตรงนี้
-        history.replaceState(
-          null,
-          "",
-          location.pathname
-        );
+      if (tableData.length === 0) {
+        alert("ไม่พบข้อมูลโครงการ");
+        return;
+      }
+
+      headers = Object.keys(tableData[0]);
+      renderTable(tableData);
+    });
+
+  function renderTable(data) {
+    const thead = document.querySelector("#tbl thead");
+    const tbody = document.querySelector("#tbl tbody");
+    const keyword = globalSearch.value.toLowerCase();
+
+    thead.innerHTML = `
+      <tr>
+        ${headers.map((h,i)=>`<th onclick="sortTable(${i})">${h}</th>`).join("")}
+      </tr>
+    `;
+
+    tbody.innerHTML = "";
+    data.forEach(row => {
+      const tr = document.createElement("tr");
+      headers.forEach(h => {
+        let cell = String(row[h] ?? "");
+        if (keyword) {
+          const re = new RegExp(`(${keyword})`, "gi");
+          cell = cell.replace(re, "<mark>$1</mark>");
+        }
+        tr.innerHTML += `<td>${cell}</td>`;
       });
+      tbody.appendChild(tr);
+    });
+  }
 
-    function renderTable(data) {
-      const thead = document.querySelector("#tbl thead");
-      const tbody = document.querySelector("#tbl tbody");
-      const keyword = document.getElementById("globalSearch")?.value.toLowerCase() || "";
-
-      /* ===== Header (sortable) ===== */
-      thead.innerHTML = `
-    <tr>
-      ${headers.map((h, i) =>
-        `<th class="sortable" onclick="sortTable(${i})">${h}</th>`
-      ).join("")}
-    </tr>
-  `;
-
-      /* ===== Body ===== */
-      tbody.innerHTML = "";
-      data.forEach(row => {
-        const tr = document.createElement("tr");
-        headers.forEach(h => {
-          let cell = String(row[h] ?? "");
-          if (keyword) {
-            const regex = new RegExp(`(${keyword})`, "gi");
-            cell = cell.replace(regex, "<mark>$1</mark>");
-          }
-          tr.innerHTML += `<td>${cell}</td>`;
-        });
-        tbody.appendChild(tr);
-      });
-    }
-
-    function debouncedSearch() {
-      clearTimeout(searchTimer);
-      searchTimer = setTimeout(filterTable, 250);
-    }
-
-
-    /* ===== Global Search ===== */
-    function filterTable() {
-      const keyword = document
-        .getElementById("globalSearch")
-        .value
-        .toLowerCase()
-        .trim();
-
-      const filtered = tableData.filter(row =>
-        headers.some(h =>
-          String(row[h] ?? "")
-            .toLowerCase()
-            .includes(keyword)
-        )
+  function debouncedSearch() {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(() => {
+      const k = globalSearch.value.toLowerCase();
+      const filtered = tableData.filter(r =>
+        headers.some(h => String(r[h] ?? "").toLowerCase().includes(k))
       );
-
       renderTable(filtered);
-    }
+    }, 250);
+  }
 
-    function sortTable(colIndex) {
-      const key = headers[colIndex];
+  function sortTable(colIndex) {
+    const key = headers[colIndex];
+    currentSort.asc = currentSort.col === key ? !currentSort.asc : true;
+    currentSort.col = key;
 
-      currentSort.asc =
-        currentSort.col === key ? !currentSort.asc : true;
-      currentSort.col = key;
+    tableData.sort((a,b)=>{
+      const v1 = a[key] ?? "";
+      const v2 = b[key] ?? "";
+      if (!isNaN(v1) && !isNaN(v2)) {
+        return currentSort.asc ? v1 - v2 : v2 - v1;
+      }
+      return currentSort.asc
+        ? String(v1).localeCompare(String(v2),"th")
+        : String(v2).localeCompare(String(v1),"th");
+    });
 
-      tableData.sort((a, b) => {
-        const v1 = a[key] ?? "";
-        const v2 = b[key] ?? "";
+    debouncedSearch();
+  }
 
-        if (!isNaN(v1) && !isNaN(v2)) {
-          return currentSort.asc ? v1 - v2 : v2 - v1;
-        }
+  function exportExcel() {
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.json_to_sheet(tableData);
+    XLSX.utils.book_append_sheet(wb, ws, "รายโครงการ");
+    XLSX.writeFile(wb, `รายโครงการ_${province}_${district}.xlsx`);
+  }
 
-        return currentSort.asc
-          ? String(v1).localeCompare(String(v2), "th")
-          : String(v2).localeCompare(String(v1), "th");
-      });
+  function goBack() {
+    location.href =
+      `district.html?province=${encodeURIComponent(province)}&token=${encodeURIComponent(token)}`;
+  }
 
-      filterTable();
-    }
-
-    /* ===== Export Excel (.xlsx) ===== */
-    function exportExcel() {
-
-      const table = document.getElementById("tbl");
-
-      const wb = XLSX.utils.book_new();
-      const ws = XLSX.utils.table_to_sheet(table, {
-        raw: true,
-        display: true
-      });
-
-      // 🔧 แปลง cell ที่เป็นตัวเลขให้ Excel รู้ว่าเป็น number
-      Object.keys(ws).forEach(addr => {
-        if (addr[0] === "!") return;
-
-        const cell = ws[addr];
-        if (!cell || cell.v == null) return;
-
-        // ลบ HTML tag (เช่น <mark>)
-        if (typeof cell.v === "string") {
-          let v = cell.v.replace(/<[^>]*>/g, "").trim();
-
-          // ลบ comma
-          v = v.replace(/,/g, "");
-
-          // ถ้าเป็นตัวเลขจริง
-          if (v !== "" && !isNaN(v)) {
-            cell.v = Number(v);
-            cell.t = "n";   // number
-          } else {
-            cell.v = v;    // text ปกติ
-            cell.t = "s";
-          }
-        }
-      });
-
-      XLSX.utils.book_append_sheet(wb, ws, "ข้อมูลจังหวัด");
-
-      XLSX.writeFile(
-        wb,
-        `ข้อมูลจังหวัด_${province}.xlsx`
-      );
-    }
-
-  </script>
-  <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+  function logout() {
+    location.href = "login.html";
+  }
+</script>
 
 </body>
-
 </html>

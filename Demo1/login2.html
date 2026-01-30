@@ -11,7 +11,6 @@
     :root {
       --pink: #e91e63;
       --deep-pink: #d81b60;
-      --navy: #1a237e;
       --bg: #f5f5f5;
       --card: #ffffff;
     }
@@ -109,13 +108,32 @@
       .then(r => r.json())
       .then(res => {
         if (res.error) {
-          alert("Login ไม่สำเร็จ");
+          alert("ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง");
           return;
         }
 
-        // 👉 เข้า “สรุปรายอำเภอ”
+        /*
+          res ที่คาดหวังจาก GAS
+          {
+            token: "...",
+            role: "admin" | "province",
+            province: "เชียงใหม่" (เฉพาะจังหวัด)
+          }
+        */
+
+        // ====== ADMIN ======
+        if (res.role === 'admin') {
+          location.href =
+            `select-province.html?token=${res.token}`;
+          return;
+        }
+
+        // ====== จังหวัด ======
         location.href =
           `district.html?province=${encodeURIComponent(res.province)}&token=${res.token}`;
+      })
+      .catch(() => {
+        alert("ไม่สามารถเชื่อมต่อระบบได้");
       });
     }
   </script>

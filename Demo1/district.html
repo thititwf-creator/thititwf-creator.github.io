@@ -11,6 +11,7 @@
     <style>
         :root {
             --pink: #e91e63;
+            --navy: #1a237e;
             --bg: #f5f5f5;
             --border: #d1c4e9;
         }
@@ -19,6 +20,26 @@
             font-family: 'Sarabun', sans-serif;
             background: var(--bg);
             margin: 0;
+        }
+
+        /* ===== Nav ===== */
+        .navbar {
+            background: var(--navy);
+            padding: 12px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #fff;
+        }
+
+        .navbar button {
+            background: transparent;
+            border: 1px solid #fff;
+            color: #fff;
+            padding: 6px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Sarabun';
         }
 
         .main {
@@ -41,7 +62,7 @@
 
         table {
             width: 100%;
-            min-width: 1100px;
+            min-width: 1200px;
             border-collapse: collapse;
             border: 2px solid var(--border);
         }
@@ -69,10 +90,26 @@
             font-weight: 700;
             background: #f8bbd0;
         }
+
+        .btn {
+            background: var(--pink);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 6px 10px;
+            cursor: pointer;
+            font-family: 'Sarabun';
+            font-size: .8rem;
+        }
     </style>
 </head>
 
 <body>
+
+<div class="navbar">
+    <div>CDD Women Fund</div>
+    <button onclick="logout()">ออกจากระบบ</button>
+</div>
 
 <div class="main">
     <h2 id="title">กำลังโหลดข้อมูล…</h2>
@@ -92,13 +129,18 @@
     const province = params.get("province");
     const token = params.get("token");
 
+    if (!province || !token) {
+        alert("กรุณาเข้าสู่ระบบใหม่");
+        location.href = "login.html";
+    }
+
     title.innerText = `สรุปรายอำเภอ จังหวัด${province}`;
 
     const START = new Date("2025-10-01");
     const MAR31 = new Date("2026-03-31");
     const SEP30 = new Date("2026-09-30");
 
-    fetch(`${API}?province=${province}&token=${token}`)
+    fetch(`${API}?province=${encodeURIComponent(province)}&token=${encodeURIComponent(token)}`)
         .then(r => r.json())
         .then(res => {
             const summary = summarizeByDistrict(res.data);
@@ -109,8 +151,6 @@
         const map = {};
 
         data.forEach(r => {
-
-            // ✅ เฉพาะ "ไม่มีข้อมูล"
             if (r["สถานะการมีข้อมูลใน ค-ง"] !== "ไม่มีข้อมูล") return;
 
             const district = r["อำเภอ"];
@@ -118,23 +158,16 @@
             if (isNaN(due) || due < START) return;
 
             if (!map[district]) {
-                map[district] = {
-                    expect_mar: 0,
-                    expect_sep: 0,
-                    paid: 0
-                };
+                map[district] = { expect_mar: 0, expect_sep: 0, paid: 0 };
             }
 
             const expect = Number(r["เงินต้นที่คาดว่าจะได้"] || 0);
             const paid = Number(r["เงินต้นรับคืน"] || 0);
 
-            // 🔹 เป้าหมายถึง 31 มี.ค. 69 + รับคืน
             if (due <= MAR31) {
                 map[district].expect_mar += expect;
                 map[district].paid += paid;
             }
-
-            // 🔹 เป้าหมายถึง 30 ก.ย. 69
             if (due <= SEP30) {
                 map[district].expect_sep += expect;
             }
@@ -155,36 +188,42 @@
         const tbody = tbl.querySelector("tbody");
         const tfoot = tbl.querySelector("tfoot");
 
-        const headers = Object.keys(data[0]);
+        const headers = [...Object.keys(data[0]), "ดูโครงการ"];
 
-        /* ===== THEAD ===== */
-        thead.innerHTML = `<tr>${headers.map(h => `<th>${h}</th>`).join("")}</tr>`;
+        thead.innerHTML =
+            `<tr>${headers.map(h => `<th>${h}</th>`).join("")}</tr>`;
 
-        /* ===== TBODY ===== */
-        tbody.innerHTML = "";
-        data.forEach(r => {
-            const tr = document.createElement("tr");
-            headers.forEach(h => {
-                let v = r[h];
-                if (typeof v === "number") {
-                    v = h.includes("ร้อยละ")
-                        ? v.toFixed(2)
-                        : v.toLocaleString();
-                }
-                tr.innerHTML += `<td>${v}</td>`;
-            });
-            tbody.appendChild(tr);
-        });
-
-        /* ===== TFOOT ===== */
         let sum_expect_mar = 0;
         let sum_expect_sep = 0;
         let sum_paid = 0;
 
+        tbody.innerHTML = "";
         data.forEach(r => {
+            const tr = document.createElement("tr");
+
+            headers.forEach(h => {
+                let td = document.createElement("td");
+
+                if (h === "ดูโครงการ") {
+                    td.innerHTML =
+                        `<button class="btn" onclick="goProject('${r.อำเภอ}')">ดูโครงการ</button>`;
+                } else {
+                    let v = r[h];
+                    if (typeof v === "number") {
+                        v = h.includes("ร้อยละ")
+                            ? v.toFixed(2)
+                            : v.toLocaleString();
+                    }
+                    td.innerText = v;
+                }
+                tr.appendChild(td);
+            });
+
             sum_expect_mar += r["เงินต้นเป้าหมายการรับชำระคืน ณ 31 มี.ค. 69"];
             sum_expect_sep += r["เงินต้นเป้าหมายการรับชำระคืน ณ 30 ก.ย. 69"];
             sum_paid += r["เงินต้นที่ได้รับชำระคืนแล้ว"];
+
+            tbody.appendChild(tr);
         });
 
         const percent_mar = sum_expect_mar ? sum_paid * 100 / sum_expect_mar : 0;
@@ -198,8 +237,18 @@
                 <td>${percent_mar.toFixed(2)}</td>
                 <td>${sum_expect_sep.toLocaleString()}</td>
                 <td>${percent_sep.toFixed(2)}</td>
+                <td>-</td>
             </tr>
         `;
+    }
+
+    function goProject(district) {
+        location.href =
+            `project-info.html?province=${encodeURIComponent(province)}&district=${encodeURIComponent(district)}&token=${encodeURIComponent(token)}`;
+    }
+
+    function logout() {
+        location.href = "login.html";
     }
 </script>
 
