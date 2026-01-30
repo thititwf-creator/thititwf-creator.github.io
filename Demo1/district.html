@@ -112,7 +112,7 @@
 
             data.forEach(r => {
 
-                // ✅ กรองเฉพาะ "ไม่มีข้อมูล"
+                // ✅ เฉพาะ "ไม่มีข้อมูล"
                 if (r["สถานะการมีข้อมูลใน ค-ง"] !== "ไม่มีข้อมูล") return;
 
                 const district = r["อำเภอ"];
@@ -121,24 +121,24 @@
 
                 if (!map[district]) {
                     map[district] = {
-                        expect_mar: 0, paid_mar: 0,
-                        expect_sep: 0, paid_sep: 0
+                        expect_mar: 0,
+                        expect_sep: 0,
+                        paid: 0     // ✅ รับคืนก้อนเดียว (ถึง 31 มี.ค. 69)
                     };
                 }
 
                 const expect = Number(r["เงินต้นที่คาดว่าจะได้"] || 0);
                 const paid = Number(r["เงินต้นรับคืน"] || 0);
 
-                // 🔹 ช่วงถึง 31 มี.ค. 69
+                // 🔹 คาดว่าจะได้ ถึง 31 มี.ค. 69
                 if (due <= MAR31) {
                     map[district].expect_mar += expect;
-                    map[district].paid_mar += paid;
+                    map[district].paid += paid;   // ✅ รับคืนคิดเฉพาะช่วงนี้
                 }
 
-                // 🔹 ช่วงถึง 30 ก.ย. 69
+                // 🔹 คาดว่าจะได้ ถึง 30 ก.ย. 69
                 if (due <= SEP30) {
                     map[district].expect_sep += expect;
-                    map[district].paid_sep += paid;
                 }
             });
 
@@ -146,18 +146,18 @@
                 อำเภอ: d,
 
                 "เงินต้นคาดว่าจะได้ (31 มี.ค. 69)": v.expect_mar,
-                "เงินต้นรับคืน (31 มี.ค. 69)": v.paid_mar,
+                "เงินต้นรับคืน (ถึง 31 มี.ค. 69)": v.paid,
                 "ร้อยละ (31 มี.ค. 69)": v.expect_mar
-                    ? v.paid_mar * 100 / v.expect_mar
+                    ? v.paid * 100 / v.expect_mar
                     : 0,
 
                 "เงินต้นคาดว่าจะได้ (30 ก.ย. 69)": v.expect_sep,
-                "เงินต้นรับคืน (30 ก.ย. 69)": v.paid_sep,
                 "ร้อยละ (30 ก.ย. 69)": v.expect_sep
-                    ? v.paid_sep * 100 / v.expect_sep
+                    ? v.paid * 100 / v.expect_sep
                     : 0
             }));
         }
+
 
 
         function renderTable(data) {
@@ -188,38 +188,36 @@
                 tbody.appendChild(tr);
             });
 
-            /* ===== TFOOT (ผลรวมทั้งจังหวัด) ===== */
             const total = {
-                expect_mar: 0, paid_mar: 0,
-                expect_sep: 0, paid_sep: 0
+                expect_mar: 0,
+                expect_sep: 0,
+                paid: 0
             };
 
             data.forEach(r => {
                 total.expect_mar += r["เงินต้นคาดว่าจะได้ (31 มี.ค. 69)"];
-                total.paid_mar += r["เงินต้นรับคืน (31 มี.ค. 69)"];
                 total.expect_sep += r["เงินต้นคาดว่าจะได้ (30 ก.ย. 69)"];
-                total.paid_sep += r["เงินต้นรับคืน (30 ก.ย. 69)"];
+                total.paid += r["เงินต้นรับคืน (ถึง 31 มี.ค. 69)"];
             });
 
             const percent_mar = total.expect_mar
-                ? total.paid_mar * 100 / total.expect_mar
+                ? total.paid * 100 / total.expect_mar
                 : 0;
 
             const percent_sep = total.expect_sep
-                ? total.paid_sep * 100 / total.expect_sep
+                ? total.paid * 100 / total.expect_sep
                 : 0;
 
             tfoot.innerHTML = `
-      <tr>
-        <td><strong>รวมทั้งจังหวัด</strong></td>
-        <td>${total.expect_mar.toLocaleString()}</td>
-        <td>${total.paid_mar.toLocaleString()}</td>
-        <td>${percent_mar.toFixed(2)}</td>
-        <td>${total.expect_sep.toLocaleString()}</td>
-        <td>${total.paid_sep.toLocaleString()}</td>
-        <td>${percent_sep.toFixed(2)}</td>
-      </tr>
-    `;
+  <tr>
+    <td><strong>รวมทั้งจังหวัด</strong></td>
+    <td>${total.expect_mar.toLocaleString()}</td>
+    <td>${total.paid.toLocaleString()}</td>
+    <td>${percent_mar.toFixed(2)}</td>
+    <td>${total.expect_sep.toLocaleString()}</td>
+    <td>${percent_sep.toFixed(2)}</td>
+  </tr>
+`;
         }
     </script>
 
