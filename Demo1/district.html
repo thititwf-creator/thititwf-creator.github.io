@@ -11,7 +11,6 @@
     <style>
         :root {
             --pink: #e91e63;
-            --navy: #1a237e;
             --bg: #f5f5f5;
             --border: #d1c4e9;
         }
@@ -42,7 +41,7 @@
 
         table {
             width: 100%;
-            min-width: 1000px;
+            min-width: 1100px;
             border-collapse: collapse;
             border: 2px solid var(--border);
         }
@@ -64,7 +63,6 @@
 
         tbody tr:hover {
             background: #f3e5f5;
-            cursor: pointer;
         }
 
         tfoot td {
@@ -76,151 +74,134 @@
 
 <body>
 
-    <div class="main">
-        <h2 id="title">กำลังโหลดข้อมูล…</h2>
+<div class="main">
+    <h2 id="title">กำลังโหลดข้อมูล…</h2>
 
-        <div class="table-wrapper">
-            <table id="tbl">
-                <thead></thead>
-                <tbody></tbody>
-                <tfoot></tfoot>
-            </table>
-        </div>
+    <div class="table-wrapper">
+        <table id="tbl">
+            <thead></thead>
+            <tbody></tbody>
+            <tfoot></tfoot>
+        </table>
     </div>
+</div>
 
-    <script src="js/config.js"></script>
-    <script>
-        const params = new URLSearchParams(location.search);
-        const province = params.get("province");
-        const token = params.get("token");
+<script src="js/config.js"></script>
+<script>
+    const params = new URLSearchParams(location.search);
+    const province = params.get("province");
+    const token = params.get("token");
 
-        title.innerText = `สรุปรายอำเภอ จังหวัด${province}`;
+    title.innerText = `สรุปรายอำเภอ จังหวัด${province}`;
 
-        const START = new Date("2025-10-01");
-        const MAR31 = new Date("2026-03-31");
-        const SEP30 = new Date("2026-09-30");
+    const START = new Date("2025-10-01");
+    const MAR31 = new Date("2026-03-31");
+    const SEP30 = new Date("2026-09-30");
 
-        fetch(`${API}?province=${province}&token=${token}`)
-            .then(r => r.json())
-            .then(res => {
-                const summary = summarizeByDistrict(res.data);
-                renderTable(summary);
-            });
+    fetch(`${API}?province=${province}&token=${token}`)
+        .then(r => r.json())
+        .then(res => {
+            const summary = summarizeByDistrict(res.data);
+            renderTable(summary);
+        });
 
-        function summarizeByDistrict(data) {
-            const map = {};
+    function summarizeByDistrict(data) {
+        const map = {};
 
-            data.forEach(r => {
+        data.forEach(r => {
 
-                // ✅ เฉพาะ "ไม่มีข้อมูล"
-                if (r["สถานะการมีข้อมูลใน ค-ง"] !== "ไม่มีข้อมูล") return;
+            // ✅ เฉพาะ "ไม่มีข้อมูล"
+            if (r["สถานะการมีข้อมูลใน ค-ง"] !== "ไม่มีข้อมูล") return;
 
-                const district = r["อำเภอ"];
-                const due = new Date(r["กำหนดชำระ"]);
-                if (isNaN(due) || due < START) return;
+            const district = r["อำเภอ"];
+            const due = new Date(r["กำหนดชำระ"]);
+            if (isNaN(due) || due < START) return;
 
-                if (!map[district]) {
-                    map[district] = {
-                        expect_mar: 0,
-                        expect_sep: 0,
-                        paid: 0     // ✅ รับคืนก้อนเดียว (ถึง 31 มี.ค. 69)
-                    };
+            if (!map[district]) {
+                map[district] = {
+                    expect_mar: 0,
+                    expect_sep: 0,
+                    paid: 0
+                };
+            }
+
+            const expect = Number(r["เงินต้นที่คาดว่าจะได้"] || 0);
+            const paid = Number(r["เงินต้นรับคืน"] || 0);
+
+            // 🔹 เป้าหมายถึง 31 มี.ค. 69 + รับคืน
+            if (due <= MAR31) {
+                map[district].expect_mar += expect;
+                map[district].paid += paid;
+            }
+
+            // 🔹 เป้าหมายถึง 30 ก.ย. 69
+            if (due <= SEP30) {
+                map[district].expect_sep += expect;
+            }
+        });
+
+        return Object.entries(map).map(([d, v]) => ({
+            อำเภอ: d,
+            "เงินต้นเป้าหมายการรับชำระคืน ณ 31 มี.ค. 69": v.expect_mar,
+            "เงินต้นที่ได้รับชำระคืนแล้ว": v.paid,
+            "ร้อยละ (31 มี.ค. 69)": v.expect_mar ? v.paid * 100 / v.expect_mar : 0,
+            "เงินต้นเป้าหมายการรับชำระคืน ณ 30 ก.ย. 69": v.expect_sep,
+            "ร้อยละ (30 ก.ย. 69)": v.expect_sep ? v.paid * 100 / v.expect_sep : 0
+        }));
+    }
+
+    function renderTable(data) {
+        const thead = tbl.querySelector("thead");
+        const tbody = tbl.querySelector("tbody");
+        const tfoot = tbl.querySelector("tfoot");
+
+        const headers = Object.keys(data[0]);
+
+        /* ===== THEAD ===== */
+        thead.innerHTML = `<tr>${headers.map(h => `<th>${h}</th>`).join("")}</tr>`;
+
+        /* ===== TBODY ===== */
+        tbody.innerHTML = "";
+        data.forEach(r => {
+            const tr = document.createElement("tr");
+            headers.forEach(h => {
+                let v = r[h];
+                if (typeof v === "number") {
+                    v = h.includes("ร้อยละ")
+                        ? v.toFixed(2)
+                        : v.toLocaleString();
                 }
-
-                const expect = Number(r["เงินต้นที่คาดว่าจะได้"] || 0);
-                const paid = Number(r["เงินต้นรับคืน"] || 0);
-
-                // 🔹 คาดว่าจะได้ ถึง 31 มี.ค. 69
-                if (due <= MAR31) {
-                    map[district].expect_mar += expect;
-                    map[district].paid += paid;   // ✅ รับคืนคิดเฉพาะช่วงนี้
-                }
-
-                // 🔹 คาดว่าจะได้ ถึง 30 ก.ย. 69
-                if (due <= SEP30) {
-                    map[district].expect_sep += expect;
-                }
+                tr.innerHTML += `<td>${v}</td>`;
             });
+            tbody.appendChild(tr);
+        });
 
-            return Object.entries(map).map(([d, v]) => ({
-                อำเภอ: d,
+        /* ===== TFOOT ===== */
+        let sum_expect_mar = 0;
+        let sum_expect_sep = 0;
+        let sum_paid = 0;
 
-                "เงินต้นเป้าหมายการรับชำระคืน ณ 31 มี.ค. 69": v.expect_mar,
-                "เงินต้นที่ได้รับชำระคืนแล้ว": v.paid,
-                "ร้อยละ (31 มี.ค. 69)": v.expect_mar
-                    ? v.paid * 100 / v.expect_mar
-                    : 0,
+        data.forEach(r => {
+            sum_expect_mar += r["เงินต้นเป้าหมายการรับชำระคืน ณ 31 มี.ค. 69"];
+            sum_expect_sep += r["เงินต้นเป้าหมายการรับชำระคืน ณ 30 ก.ย. 69"];
+            sum_paid += r["เงินต้นที่ได้รับชำระคืนแล้ว"];
+        });
 
-                "เงินต้นเป้าหมายการรับชำระคืน ณ 30 ก.ย. 69": v.expect_sep,
-                "ร้อยละ (30 ก.ย. 69)": v.expect_sep
-                    ? v.paid * 100 / v.expect_sep
-                    : 0
-            }));
-        }
+        const percent_mar = sum_expect_mar ? sum_paid * 100 / sum_expect_mar : 0;
+        const percent_sep = sum_expect_sep ? sum_paid * 100 / sum_expect_sep : 0;
 
-
-
-        function renderTable(data) {
-            const thead = tbl.querySelector("thead");
-            const tbody = tbl.querySelector("tbody");
-            const tfoot = tbl.querySelector("tfoot");
-
-            const headers = Object.keys(data[0]);
-
-            /* ===== THEAD ===== */
-            thead.innerHTML = `
-      <tr>${headers.map(h => `<th>${h}</th>`).join("")}</tr>
-    `;
-
-            /* ===== TBODY ===== */
-            tbody.innerHTML = "";
-            data.forEach(r => {
-                const tr = document.createElement("tr");
-                headers.forEach(h => {
-                    let v = r[h];
-                    if (typeof v === "number") {
-                        v = h.includes("ร้อยละ")
-                            ? v.toFixed(2)
-                            : v.toLocaleString();
-                    }
-                    tr.innerHTML += `<td>${v}</td>`;
-                });
-                tbody.appendChild(tr);
-            });
-
-            const total = {
-                expect_mar: 0,
-                expect_sep: 0,
-                paid: 0
-            };
-
-            data.forEach(r => {
-                total.expect_mar += r["เงินต้นคาดว่าจะได้ (31 มี.ค. 69)"];
-                total.expect_sep += r["เงินต้นคาดว่าจะได้ (30 ก.ย. 69)"];
-                total.paid += r["เงินต้นรับคืน (ถึง 31 มี.ค. 69)"];
-            });
-
-            const percent_mar = total.expect_mar
-                ? total.paid * 100 / total.expect_mar
-                : 0;
-
-            const percent_sep = total.expect_sep
-                ? total.paid * 100 / total.expect_sep
-                : 0;
-
-            tfoot.innerHTML = `
-  <tr>
-    <td><strong>รวมทั้งจังหวัด</strong></td>
-    <td>${total.expect_mar.toLocaleString()}</td>
-    <td>${total.paid.toLocaleString()}</td>
-    <td>${percent_mar.toFixed(2)}</td>
-    <td>${total.expect_sep.toLocaleString()}</td>
-    <td>${percent_sep.toFixed(2)}</td>
-  </tr>
-`;
-        }
-    </script>
+        tfoot.innerHTML = `
+            <tr>
+                <td><strong>รวมทั้งจังหวัด</strong></td>
+                <td>${sum_expect_mar.toLocaleString()}</td>
+                <td>${sum_paid.toLocaleString()}</td>
+                <td>${percent_mar.toFixed(2)}</td>
+                <td>${sum_expect_sep.toLocaleString()}</td>
+                <td>${percent_sep.toFixed(2)}</td>
+            </tr>
+        `;
+    }
+</script>
 
 </body>
-
 </html>
