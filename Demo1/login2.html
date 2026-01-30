@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <title>เข้าสู่ระบบ – CDD Women Fund</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --pink: #e91e63;
+      --deep-pink: #d81b60;
+      --navy: #1a237e;
+      --bg: #f5f5f5;
+      --card: #ffffff;
+    }
+
+    body {
+      font-family: 'Sarabun', sans-serif;
+      background: var(--bg);
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .login-card {
+      background: var(--card);
+      width: 100%;
+      max-width: 380px;
+      padding: 24px;
+      border-radius: 16px;
+      box-shadow: 0 6px 16px rgba(0,0,0,.08);
+    }
+
+    h3 {
+      text-align: center;
+      color: var(--deep-pink);
+      margin-bottom: 18px;
+    }
+
+    label {
+      font-size: .85rem;
+      color: #555;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      margin: 6px 0 14px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-family: 'Sarabun';
+    }
+
+    button {
+      width: 100%;
+      padding: 10px;
+      background: var(--pink);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: var(--deep-pink);
+    }
+
+    .note {
+      margin-top: 12px;
+      font-size: .8rem;
+      color: #777;
+      text-align: center;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="login-card">
+    <h3>เข้าสู่ระบบ</h3>
+
+    <label>Username</label>
+    <input id="user">
+
+    <label>Password</label>
+    <input id="pass" type="password">
+
+    <button onclick="login()">เข้าสู่ระบบ</button>
+
+    <div class="note">ระบบข้อมูลกองทุนพัฒนาบทบาทสตรี</div>
+  </div>
+
+  <script src="js/config.js"></script>
+  <script>
+    function login() {
+      fetch(API, {
+        method: "POST",
+        body: JSON.stringify({
+          username: user.value,
+          password: pass.value
+        })
+      })
+      .then(r => r.json())
+      .then(res => {
+        if (res.error) {
+          alert("Login ไม่สำเร็จ");
+          return;
+        }
+
+        // 👉 เข้า “สรุปรายอำเภอ”
+        location.href =
+          `district.html?province=${encodeURIComponent(res.province)}&token=${res.token}`;
+      });
+    }
+  </script>
+
+</body>
+</html>
