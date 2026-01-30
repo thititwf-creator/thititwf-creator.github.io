@@ -141,12 +141,20 @@
     <!-- ===== Cards ===== -->
     <div class="cards">
       <div class="card">
+        <h3>เงินต้นที่คาดว่าจะได้ (31 มี.ค. 69)</h3>
+        <div class="value" id="sumExpectedSep">-</div>
+      </div>
+      <div class="card">
         <h3>เงินต้นที่คาดว่าจะได้ (30 ก.ย. 69)</h3>
         <div class="value" id="sumExpectedSep">-</div>
       </div>
       <div class="card">
-        <h3>เงินต้นรับคืน (30 ก.ย. 69)</h3>
+        <h3>เงินต้นรับคืน</h3>
         <div class="value" id="sumReceivedSep">-</div>
+      </div>
+      <div class="card">
+        <h3>ร้อยละการชำระคืน (31 มี.ค. 69)</h3>
+        <div class="value" id="sumPercentMar">-</div>
       </div>
       <div class="card">
         <h3>ร้อยละการชำระคืน (30 ก.ย. 69)</h3>
@@ -182,8 +190,9 @@
       .then(res => {
 
         let sumExpSep = 0;
+        let sumExpMar = 0;
         let sumRecSep = 0;
-
+          
         tableData = res.data.map(r => {
           const expMar = Number(r["เงินต้นที่คาดว่าจะได้(31 มี.ค. 69)"] || 0);
           const expSep = Number(r["เงินต้นที่คาดว่าจะได้(30 ก.ย. 69)"] || 0);
@@ -194,6 +203,8 @@
           const perSep = expSep > 0 ? recSep * 100 / expSep : 0;
 
           sumExpSep += expSep;
+          sumExpMar += expMar;
+
           sumRecSep += recSep;
 
           return {
@@ -218,6 +229,9 @@
 
         document.getElementById("sumPercentSep").innerText =
           sumExpSep > 0 ? (sumRecSep * 100 / sumExpSep).toFixed(2) + "%" : "0%";
+
+        document.getElementById("sumPercentMar").innerText =
+          sumExpMar > 0 ? (sumRecSep * 100 / sumExpMar).toFixed(2) + "%" : "0%";
       });
 
     function renderTable(data) {
