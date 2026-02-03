@@ -106,130 +106,130 @@
 
 <body>
 
-<div class="navbar">
-    <div>CDD Women Fund</div>
-    <button onclick="logout()">ออกจากระบบ</button>
-</div>
-
-<div class="main">
-    <h2 id="title">กำลังโหลดข้อมูล…</h2>
-
-    <div class="table-wrapper">
-        <table id="tbl">
-            <thead></thead>
-            <tbody></tbody>
-            <tfoot></tfoot>
-        </table>
+    <div class="navbar">
+        <div>CDD Women Fund</div>
+        <button onclick="logout()">ออกจากระบบ</button>
     </div>
-</div>
 
-<script src="js/config.js"></script>
-<script>
-    const params = new URLSearchParams(location.search);
-    const province = params.get("province");
-    const token = params.get("token");
+    <div class="main">
+        <h2 id="title">กำลังโหลดข้อมูล…</h2>
+        <button class="btn" onclick="goAllProjects()">ดูโครงการทั้งหมด</button>
+        <div class="table-wrapper">
+            <table id="tbl">
+                <thead></thead>
+                <tbody></tbody>
+                <tfoot></tfoot>
+            </table>
+        </div>
+    </div>
 
-    if (!province || !token) {
-        alert("กรุณาเข้าสู่ระบบใหม่");
-        location.href = "login.html";
-    }
+    <script src="js/config.js"></script>
+    <script>
+        const params = new URLSearchParams(location.search);
+        const province = params.get("province");
+        const token = params.get("token");
 
-    title.innerText = `สรุปรายอำเภอ จังหวัด${province}`;
+        if (!province || !token) {
+            alert("กรุณาเข้าสู่ระบบใหม่");
+            location.href = "login.html";
+        }
 
-    const START = new Date("2025-10-01");
-    const MAR31 = new Date("2026-03-31");
-    const SEP30 = new Date("2026-09-30");
+        title.innerText = `สรุปรายอำเภอ จังหวัด${province}`;
 
-    fetch(`${API}?province=${encodeURIComponent(province)}&token=${encodeURIComponent(token)}`)
-        .then(r => r.json())
-        .then(res => {
-            const summary = summarizeByDistrict(res.data);
-            renderTable(summary);
-        });
+        const START = new Date("2025-10-01");
+        const MAR31 = new Date("2026-03-31");
+        const SEP30 = new Date("2026-09-30");
 
-    function summarizeByDistrict(data) {
-        const map = {};
-
-        data.forEach(r => {
-            if (r["สถานะการมีข้อมูลใน ค-ง"] !== "ไม่มีข้อมูล") return;
-
-            const district = r["อำเภอ"];
-            const due = new Date(r["กำหนดชำระ"]);
-            if (isNaN(due) || due < START) return;
-
-            if (!map[district]) {
-                map[district] = { expect_mar: 0, expect_sep: 0, paid: 0 };
-            }
-
-            const expect = Number(r["เงินต้นที่คาดว่าจะได้"] || 0);
-            const paid = Number(r["เงินต้นรับคืน"] || 0);
-
-            if (due <= MAR31) {
-                map[district].expect_mar += expect;
-                map[district].paid += paid;
-            }
-            if (due <= SEP30) {
-                map[district].expect_sep += expect;
-            }
-        });
-
-        return Object.entries(map).map(([d, v]) => ({
-            อำเภอ: d,
-            "เงินต้นเป้าหมายการรับชำระคืน ณ 31 มี.ค. 69": v.expect_mar,
-            "เงินต้นที่ได้รับชำระคืนแล้ว": v.paid,
-            "ร้อยละ (31 มี.ค. 69)": v.expect_mar ? v.paid * 100 / v.expect_mar : 0,
-            "เงินต้นเป้าหมายการรับชำระคืน ณ 30 ก.ย. 69": v.expect_sep,
-            "ร้อยละ (30 ก.ย. 69)": v.expect_sep ? v.paid * 100 / v.expect_sep : 0
-        }));
-    }
-
-    function renderTable(data) {
-        const thead = tbl.querySelector("thead");
-        const tbody = tbl.querySelector("tbody");
-        const tfoot = tbl.querySelector("tfoot");
-
-        const headers = [...Object.keys(data[0]), "ดูโครงการ"];
-
-        thead.innerHTML =
-            `<tr>${headers.map(h => `<th>${h}</th>`).join("")}</tr>`;
-
-        let sum_expect_mar = 0;
-        let sum_expect_sep = 0;
-        let sum_paid = 0;
-
-        tbody.innerHTML = "";
-        data.forEach(r => {
-            const tr = document.createElement("tr");
-
-            headers.forEach(h => {
-                let td = document.createElement("td");
-
-                if (h === "ดูโครงการ") {
-                    td.innerHTML =
-                        `<button class="btn" onclick="goProject('${r.อำเภอ}')">ดูโครงการ</button>`;
-                } else {
-                    let v = r[h];
-                    if (typeof v === "number") {
-                        v = h.includes("ร้อยละ")
-                            ? v.toFixed(2)
-                            : v.toLocaleString();
-                    }
-                    td.innerText = v;
-                }
-                tr.appendChild(td);
+        fetch(`${API}?province=${encodeURIComponent(province)}&token=${encodeURIComponent(token)}`)
+            .then(r => r.json())
+            .then(res => {
+                const summary = summarizeByDistrict(res.data);
+                renderTable(summary);
             });
 
-            sum_expect_mar += r["เงินต้นเป้าหมายการรับชำระคืน ณ 31 มี.ค. 69"];
-            sum_expect_sep += r["เงินต้นเป้าหมายการรับชำระคืน ณ 30 ก.ย. 69"];
-            sum_paid += r["เงินต้นที่ได้รับชำระคืนแล้ว"];
+        function summarizeByDistrict(data) {
+            const map = {};
 
-            tbody.appendChild(tr);
-        });
+            data.forEach(r => {
+                if (r["สถานะการมีข้อมูลใน ค-ง"] !== "ไม่มีข้อมูล") return;
 
-        const percent_mar = sum_expect_mar ? sum_paid * 100 / sum_expect_mar : 0;
-        const percent_sep = sum_expect_sep ? sum_paid * 100 / sum_expect_sep : 0;
+                const district = r["อำเภอ"];
+                const due = new Date(r["กำหนดชำระ"]);
+                if (isNaN(due) || due < START) return;
 
-        tfoot.innerHTML = `
+                if (!map[district]) {
+                    map[district] = { expect_mar: 0, expect_sep: 0, paid: 0 };
+                }
+
+                const expect = Number(r["เงินต้นที่คาดว่าจะได้"] || 0);
+                const paid = Number(r["เงินต้นรับคืน"] || 0);
+
+                if (due <= MAR31) {
+                    map[district].expect_mar += expect;
+                    map[district].paid += paid;
+                }
+                if (due <= SEP30) {
+                    map[district].expect_sep += expect;
+                }
+            });
+
+            return Object.entries(map).map(([d, v]) => ({
+                อำเภอ: d,
+                "เงินต้นเป้าหมายการรับชำระคืน ณ 31 มี.ค. 69": v.expect_mar,
+                "เงินต้นที่ได้รับชำระคืนแล้ว": v.paid,
+                "ร้อยละ (31 มี.ค. 69)": v.expect_mar ? v.paid * 100 / v.expect_mar : 0,
+                "เงินต้นเป้าหมายการรับชำระคืน ณ 30 ก.ย. 69": v.expect_sep,
+                "ร้อยละ (30 ก.ย. 69)": v.expect_sep ? v.paid * 100 / v.expect_sep : 0
+            }));
+        }
+
+        function renderTable(data) {
+            const thead = tbl.querySelector("thead");
+            const tbody = tbl.querySelector("tbody");
+            const tfoot = tbl.querySelector("tfoot");
+
+            const headers = [...Object.keys(data[0]), "ดูโครงการ"];
+
+            thead.innerHTML =
+                `<tr>${headers.map(h => `<th>${h}</th>`).join("")}</tr>`;
+
+            let sum_expect_mar = 0;
+            let sum_expect_sep = 0;
+            let sum_paid = 0;
+
+            tbody.innerHTML = "";
+            data.forEach(r => {
+                const tr = document.createElement("tr");
+
+                headers.forEach(h => {
+                    let td = document.createElement("td");
+
+                    if (h === "ดูโครงการ") {
+                        td.innerHTML =
+                            `<button class="btn" onclick="goProject('${r.อำเภอ}')">ดูโครงการ</button>`;
+                    } else {
+                        let v = r[h];
+                        if (typeof v === "number") {
+                            v = h.includes("ร้อยละ")
+                                ? v.toFixed(2)
+                                : v.toLocaleString();
+                        }
+                        td.innerText = v;
+                    }
+                    tr.appendChild(td);
+                });
+
+                sum_expect_mar += r["เงินต้นเป้าหมายการรับชำระคืน ณ 31 มี.ค. 69"];
+                sum_expect_sep += r["เงินต้นเป้าหมายการรับชำระคืน ณ 30 ก.ย. 69"];
+                sum_paid += r["เงินต้นที่ได้รับชำระคืนแล้ว"];
+
+                tbody.appendChild(tr);
+            });
+
+            const percent_mar = sum_expect_mar ? sum_paid * 100 / sum_expect_mar : 0;
+            const percent_sep = sum_expect_sep ? sum_paid * 100 / sum_expect_sep : 0;
+
+            tfoot.innerHTML = `
             <tr>
                 <td><strong>รวมทั้งจังหวัด</strong></td>
                 <td>${sum_expect_mar.toLocaleString()}</td>
@@ -240,17 +240,24 @@
                 <td>-</td>
             </tr>
         `;
-    }
+        }
 
-    function goProject(district) {
-        location.href =
-            `project-info.html?province=${encodeURIComponent(province)}&district=${encodeURIComponent(district)}&token=${encodeURIComponent(token)}`;
-    }
+        function goProject(district) {
+            location.href =
+                `project-info.html?province=${encodeURIComponent(province)}&district=${encodeURIComponent(district)}&token=${encodeURIComponent(token)}`;
+        }
 
-    function logout() {
-        location.href = "login.html";
-    }
-</script>
+        function logout() {
+            location.href = "login.html";
+        }
+
+        function goAllProjects() {
+            location.href =
+                `project-info.html?province=${encodeURIComponent(province)}&token=${encodeURIComponent(token)}`;
+        }
+
+    </script>
 
 </body>
+
 </html>
