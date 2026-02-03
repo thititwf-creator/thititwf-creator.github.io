@@ -130,14 +130,13 @@
       <div class="note">ระบบข้อมูลกองทุนพัฒนาบทบาทสตรี</div>
     </div>
   </div>
-  
+
   <script src="js/config.js"></script>
   <script>
     // ===== admin only =====
-    const adminToken = localStorage.getItem("adminToken");
     const provincesRaw = localStorage.getItem("provinces");
 
-    if (!adminToken || !provincesRaw) {
+    if (!provincesRaw) {
       alert("กรุณาเข้าสู่ระบบใหม่");
       location.href = "login.html";
     }
@@ -149,17 +148,10 @@
       `<option value="">-- กรุณาเลือกจังหวัด --</option>`;
 
     provinces.forEach(p => {
-      const value = typeof p === "string"
-        ? p
-        : (p.name ?? p.province_name ?? p.id);
-
-      if (value) {
-        provinceSelect.innerHTML +=
-          `<option value="${value}">${value}</option>`;
-      }
+      provinceSelect.innerHTML +=
+        `<option value="${p}">${p}</option>`;
     });
 
-    // ===== เมื่อกดตกลง =====
     function go() {
       const province = provinceSelect.value;
       if (!province) {
@@ -167,28 +159,21 @@
         return;
       }
 
-      // 🔑 ขอ province token ใหม่ โดยใช้ adminToken
-      fetch(API, {
-        method: "POST",
-        body: JSON.stringify({
-          role: "admin",
-          province: province,
-          token: adminToken
-        })
-      })
+      // 🔑 ขอ token จังหวัดจาก GAS
+      fetch(`${API}?getTokenOf=${encodeURIComponent(province)}`)
         .then(r => r.json())
         .then(res => {
-          if (res.error || !res.token) {
-            alert("ไม่สามารถเข้าจังหวัดนี้ได้");
+          if (!res.token) {
+            alert("ไม่พบ token จังหวัดนี้");
             return;
           }
 
-          // ✅ ใช้ province token จริง
+          // ✅ เข้า district ด้วย token จังหวัดจริง
           location.href =
-            `district.html?province=${encodeURIComponent(province)}&token=${encodeURIComponent(res.token)}`;
+            `district.html?province=${encodeURIComponent(res.province)}&token=${encodeURIComponent(res.token)}`;
         })
         .catch(() => {
-          alert("เกิดข้อผิดพลาดในการเชื่อมต่อระบบ");
+          alert("ไม่สามารถเชื่อมต่อระบบได้");
         });
     }
 
@@ -197,6 +182,7 @@
       location.href = "login.html";
     }
   </script>
+
 
 
 </body>
