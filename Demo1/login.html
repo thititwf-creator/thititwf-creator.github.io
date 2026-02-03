@@ -2,8 +2,8 @@
 <html lang="th">
 <head>
   <meta charset="UTF-8">
-  <title>เข้าสู่ระบบ – CDD Women Fund</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>เลือกจังหวัด – CDD Women Fund</title>
 
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap" rel="stylesheet">
 
@@ -11,26 +11,52 @@
     :root {
       --pink: #e91e63;
       --deep-pink: #d81b60;
+      --navy: #1a237e;
       --bg: #f5f5f5;
       --card: #ffffff;
     }
+
+    * { box-sizing: border-box; }
 
     body {
       font-family: 'Sarabun', sans-serif;
       background: var(--bg);
       margin: 0;
       min-height: 100vh;
+    }
+
+    .navbar {
+      background: var(--navy);
+      padding: 12px;
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .navbar button {
+      background: var(--pink);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 6px 14px;
+      font-family: 'Sarabun';
+      font-size: .85rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .main {
       display: flex;
       justify-content: center;
       align-items: center;
+      padding: 40px 16px;
     }
 
-    .login-card {
+    .card {
       background: var(--card);
       width: 100%;
-      max-width: 380px;
-      padding: 24px;
+      max-width: 420px;
       border-radius: 16px;
+      padding: 24px;
       box-shadow: 0 6px 16px rgba(0,0,0,.08);
     }
 
@@ -43,18 +69,20 @@
     label {
       font-size: .85rem;
       color: #555;
+      margin-bottom: 6px;
+      display: block;
     }
 
-    input {
+    select {
       width: 100%;
       padding: 10px;
-      margin: 6px 0 14px;
       border-radius: 8px;
       border: 1px solid #ccc;
+      margin-bottom: 18px;
       font-family: 'Sarabun';
     }
 
-    button {
+    button.action {
       width: 100%;
       padding: 10px;
       background: var(--pink);
@@ -66,7 +94,7 @@
       cursor: pointer;
     }
 
-    button:hover {
+    button.action:hover {
       background: var(--deep-pink);
     }
 
@@ -81,60 +109,72 @@
 
 <body>
 
-  <div class="login-card">
-    <h3>เข้าสู่ระบบ</h3>
-
-    <label>Username</label>
-    <input id="user">
-
-    <label>Password</label>
-    <input id="pass" type="password">
-
-    <button onclick="login()">เข้าสู่ระบบ</button>
-
-    <div class="note">ระบบข้อมูลกองทุนพัฒนาบทบาทสตรี</div>
+  <div class="navbar">
+    <button onclick="logout()">ออกจากระบบ</button>
   </div>
 
-  <script src="js/config.js"></script>
+  <div class="main">
+    <div class="card">
+      <h3>เลือกจังหวัด</h3>
+
+      <label>จังหวัด</label>
+      <select id="provinceSelect"></select>
+
+      <button class="action" onclick="go()">ตกลง</button>
+
+      <div class="note">ระบบข้อมูลกองทุนพัฒนาบทบาทสตรี</div>
+    </div>
+  </div>
+
   <script>
-    function login() {
-      fetch(API, {
-        method: "POST",
-        body: JSON.stringify({
-          username: user.value,
-          password: pass.value
-        })
-      })
-      .then(r => r.json())
-      .then(res => {
-        if (res.error) {
-          alert("ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง");
-          return;
+    // ===== ดึงข้อมูล admin จาก localStorage =====
+    const token = localStorage.getItem("adminToken");
+    const provincesRaw = localStorage.getItem("provinces");
+
+    // ถ้าไม่ใช่ admin → กลับหน้า login
+    if (!token || !provincesRaw) {
+      alert("กรุณาเข้าสู่ระบบใหม่");
+      location.href = "login.html";
+    }
+
+    const provinces = JSON.parse(provincesRaw);
+    const provinceSelect = document.getElementById("provinceSelect");
+
+    // เติม dropdown
+    provinceSelect.innerHTML =
+      `<option value="">-- กรุณาเลือกจังหวัด --</option>`;
+
+    provinces.forEach(p => {
+      if (typeof p === "string") {
+        provinceSelect.innerHTML +=
+          `<option value="${p}">${p}</option>`;
+      } else {
+        const value =
+          p.id ?? p.province_id ?? p.code ?? p.name;
+        const label =
+          p.name ?? p.province_name ?? p.label;
+
+        if (value && label) {
+          provinceSelect.innerHTML +=
+            `<option value="${value}">${label}</option>`;
         }
+      }
+    });
 
-        /*
-          res ที่คาดหวังจาก GAS
-          {
-            token: "...",
-            role: "admin" | "province",
-            province: "เชียงใหม่" (เฉพาะจังหวัด)
-          }
-        */
+    function go() {
+      const province = provinceSelect.value;
+      if (!province) {
+        alert("กรุณาเลือกจังหวัด");
+        return;
+      }
 
-        // ====== ADMIN ======
-        if (res.role === 'admin') {
-          location.href =
-            `select-province.html?token=${res.token}`;
-          return;
-        }
+      location.href =
+        `project-info.html?province=${encodeURIComponent(province)}`;
+    }
 
-        // ====== จังหวัด ======
-        location.href =
-          `district.html?province=${encodeURIComponent(res.province)}&token=${res.token}`;
-      })
-      .catch(() => {
-        alert("ไม่สามารถเชื่อมต่อระบบได้");
-      });
+    function logout() {
+      localStorage.clear();
+      location.href = "login.html";
     }
   </script>
 
