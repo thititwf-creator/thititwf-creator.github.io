@@ -129,7 +129,7 @@
 </div>
 
 <script>
-  // ===== admin เท่านั้น =====
+  // ===== admin only =====
   const token = localStorage.getItem("adminToken");
   const provincesRaw = localStorage.getItem("provinces");
 
@@ -149,12 +149,10 @@
       provinceSelect.innerHTML +=
         `<option value="${p}">${p}</option>`;
     } else {
-      const value =
-        p.id ?? p.province_id ?? p.code ?? p.name;
-      const label =
-        p.name ?? p.province_name ?? p.label;
+      const value = p.id ?? p.province_id ?? p.code ?? p.name;
+      const label = p.name ?? p.province_name ?? p.label ?? value;
 
-      if (value && label) {
+      if (value) {
         provinceSelect.innerHTML +=
           `<option value="${value}">${label}</option>`;
       }
@@ -162,16 +160,16 @@
   });
 
   function go() {
-  const province = provinceSelect.value;
-  if (!province) {
-    alert("กรุณาเลือกจังหวัด");
-    return;
+    const province = provinceSelect.value;
+    if (!province) {
+      alert("กรุณาเลือกจังหวัด");
+      return;
+    }
+
+    // ✅ ส่ง token ไปกับ URL (เหมือน user จังหวัด)
+    location.href =
+      `district.html?province=${encodeURIComponent(province)}&token=${encodeURIComponent(token)}`;
   }
-
-  location.href =
-    `district.html?province=${encodeURIComponent(province)}&token=${encodeURIComponent(token)}`;
-}
-
 
   function logout() {
     localStorage.clear();
