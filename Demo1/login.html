@@ -98,55 +98,77 @@
 
   <script src="js/config.js"></script>
   <script>
+    // อ่าน province จาก URL (ถ้ามี)
+    const params = new URLSearchParams(window.location.search);
+    const urlProvince = params.get("province");
+
     function login() {
+
+      const username = user.value.trim();
+      const password = pass.value.trim();
+
+      if (!username || !password) {
+        alert("กรุณากรอก Username และ Password");
+        return;
+      }
+
       fetch(API, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          username: user.value.trim(),
-          password: pass.value.trim()
-        })
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password })
       })
-      .then(r => r.json())
-      .then(res => {
+        .then(r => r.json())
+        .then(res => {
 
-        if (!res || !res.token) {
-          alert("ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง");
-          return;
-        }
-
-        // ===== ADMIN =====
-        if (res.role === "admin") {
-
-          // ✅ สำคัญมาก
-          localStorage.setItem("adminToken", res.token);
-          localStorage.setItem("role", "admin");
-
-          if (Array.isArray(res.provinces)) {
-            localStorage.setItem(
-              "provinces",
-              JSON.stringify(res.provinces)
-            );
+          if (!res || res.success === false) {
+            alert("ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง");
+            return;
           }
 
-          location.href = "select-province.html";
-          return;
-        }
+          // ================= ADMIN =================
+          if (res.role === "admin") {
 
-        // ===== จังหวัด =====
-        localStorage.setItem("role", "province");
+            localStorage.clear();
+            localStorage.setItem("role", "admin");
+            localStorage.setItem("adminToken", res.token || "");
 
-        location.href =
-          `district.html?province=${encodeURIComponent(res.province)}&token=${encodeURIComponent(res.token)}`;
-      })
-      .catch(err => {
-        console.error(err);
-        alert("ไม่สามารถเชื่อมต่อระบบได้");
-      });
+            location.href = "select-province.html";
+            return;
+          }
+
+          // ================= PROVINCE =================
+          if (res.role === "province") {
+
+            if (!urlProvince) {
+              alert("ไม่พบข้อมูลจังหวัดจากระบบ");
+              return;
+            }
+
+            // เช็กว่าผู้ใช้จังหวัด login ตรงกับจังหวัดที่เข้ามาหรือไม่
+            if (res.province !== urlProvince) {
+              alert("คุณไม่มีสิทธิ์เข้าถึงจังหวัดนี้");
+              return;
+            }
+
+            localStorage.clear();
+            localStorage.setItem("role", "province");
+
+            location.href =
+              `district.html?province=${encodeURIComponent(res.province)}&token=${encodeURIComponent(res.token)}`;
+            return;
+          }
+
+          alert("ไม่พบบทบาทผู้ใช้งาน");
+
+        })
+        .catch(err => {
+          console.error(err);
+          alert("ไม่สามารถเชื่อมต่อระบบได้");
+        });
     }
   </script>
 
+
 </body>
+
 </html>
