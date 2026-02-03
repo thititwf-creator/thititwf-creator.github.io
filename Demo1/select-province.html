@@ -11,10 +11,12 @@
   <style>
     :root {
       --pink: #e91e63;
-      --deep-pink: #d81b60;
+      --deep-pink: #c2185b;
       --navy: #1a237e;
-      --bg: #f5f5f5;
+      --bg1: #fce4ec;
+      --bg2: #f5f5f5;
       --card: #ffffff;
+      --text-muted: #666;
     }
 
     * {
@@ -23,87 +25,125 @@
 
     body {
       font-family: 'Sarabun', sans-serif;
-      background: var(--bg);
       margin: 0;
       min-height: 100vh;
+      background: linear-gradient(to bottom right, var(--bg1), var(--bg2));
     }
 
+    /* ===== Navbar ===== */
     .navbar {
-      background: var(--navy);
-      padding: 12px 16px;
+      background: linear-gradient(90deg, #1a237e, #283593);
+      padding: 14px 20px;
       display: flex;
       justify-content: space-between;
       align-items: center;
       color: #fff;
+      font-weight: 700;
     }
 
     .navbar button {
-      background: transparent;
-      border: 1px solid #fff;
+      background: rgba(255, 255, 255, .12);
+      border: 1px solid rgba(255, 255, 255, .4);
       color: #fff;
-      padding: 6px 12px;
-      border-radius: 8px;
+      padding: 6px 14px;
+      border-radius: 10px;
       cursor: pointer;
       font-family: 'Sarabun';
       font-size: .85rem;
+      transition: .2s;
     }
 
+    .navbar button:hover {
+      background: rgba(255, 255, 255, .25);
+    }
+
+    /* ===== Main ===== */
     .main {
       display: flex;
       justify-content: center;
       align-items: center;
-      padding: 40px 16px;
+      padding: 48px 16px;
     }
 
     .card {
       background: var(--card);
       width: 100%;
       max-width: 420px;
-      border-radius: 16px;
-      padding: 24px;
-      box-shadow: 0 6px 16px rgba(0, 0, 0, .08);
+      border-radius: 18px;
+      padding: 28px 26px 24px;
+      box-shadow: 0 10px 25px rgba(233, 30, 99, .18);
+      animation: fadeUp .4s ease;
+    }
+
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     h3 {
       text-align: center;
       color: var(--deep-pink);
-      margin-bottom: 18px;
+      margin: 0 0 22px;
+      font-size: 1.25rem;
     }
 
     label {
       font-size: .85rem;
-      color: #555;
+      color: var(--text-muted);
+      font-weight: 700;
       margin-bottom: 6px;
       display: block;
     }
 
     select {
       width: 100%;
-      padding: 10px;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-      margin-bottom: 18px;
+      padding: 11px 12px;
+      border-radius: 10px;
+      border: 1.5px solid #ddd;
+      margin-bottom: 20px;
       font-family: 'Sarabun';
+      font-size: .95rem;
+      transition: .2s;
+    }
+
+    select:focus {
+      outline: none;
+      border-color: var(--pink);
+      box-shadow: 0 0 0 2px rgba(233, 30, 99, .15);
     }
 
     button.action {
       width: 100%;
-      padding: 10px;
-      background: var(--pink);
+      padding: 11px;
+      background: linear-gradient(135deg, var(--pink), var(--deep-pink));
       color: #fff;
       border: none;
-      border-radius: 10px;
+      border-radius: 12px;
       font-size: 1rem;
       font-weight: 700;
       cursor: pointer;
+      transition: transform .15s ease, box-shadow .15s ease;
     }
 
     button.action:hover {
-      background: var(--deep-pink);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 14px rgba(233, 30, 99, .35);
+    }
+
+    button.action:active {
+      transform: translateY(0);
+      box-shadow: 0 3px 8px rgba(233, 30, 99, .25);
     }
 
     .note {
-      margin-top: 12px;
+      margin-top: 16px;
       font-size: .8rem;
       color: #777;
       text-align: center;
@@ -122,14 +162,17 @@
     <div class="card">
       <h3>เลือกจังหวัด</h3>
 
-      <label>จังหวัด</label>
+      <label for="provinceSelect">จังหวัด</label>
       <select id="provinceSelect"></select>
 
       <button class="action" onclick="go()">ตกลง</button>
 
-      <div class="note">ระบบข้อมูลกองทุนพัฒนาบทบาทสตรี</div>
+      <div class="note">
+        ระบบข้อมูลกองทุนพัฒนาบทบาทสตรี
+      </div>
     </div>
   </div>
+
 
   <script src="js/config.js"></script>
   <script>
@@ -182,8 +225,6 @@
       location.href = "login.html";
     }
   </script>
-
-
 
 </body>
 
