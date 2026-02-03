@@ -27,7 +27,6 @@
       margin: 0;
     }
 
-    /* ===== Nav ===== */
     .navbar {
       background: var(--navy);
       padding: 12px 16px;
@@ -54,7 +53,6 @@
       font-size: .85rem;
     }
 
-    /* ===== Main ===== */
     .main {
       max-width: 1300px;
       margin: auto;
@@ -94,7 +92,6 @@
       font-weight: 700;
     }
 
-    /* ===== Table ===== */
     .table-wrapper {
       overflow-x: auto;
       background: #fff;
@@ -146,17 +143,17 @@
   <div class="navbar">
     <div class="title">CDD Women Fund</div>
     <div>
-      <button id="btnBack" onclick="goBack()">← กลับสรุปรายอำเภอ</button>
+      <button onclick="goBack()">← กลับสรุปรายอำเภอ</button>
       <button onclick="logout()">ออกจากระบบ</button>
     </div>
   </div>
 
   <div class="main">
-    <h2 id="title">กำลังโหลดข้อมูล…</h2>
+    <h2 id="title">ข้อมูลรายโครงการ</h2>
 
     <div class="toolbar">
       <input id="globalSearch" placeholder="🔍 ค้นหาโครงการ..." oninput="debouncedSearch()">
-      <p>**หมายเหตุ NULL หมายถึง ไม่มีข้อมูลในระบบ หรือข้อมูลเป็น 0</p>
+      <p>** หมายเหตุ: NULL = ไม่มีข้อมูลในระบบ หรือค่าเป็น 0</p>
       <button onclick="exportExcel()">📤 ส่งออก Excel</button>
     </div>
 
