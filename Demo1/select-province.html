@@ -16,9 +16,7 @@
       --card: #ffffff;
     }
 
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body {
       font-family: 'Sarabun', sans-serif;
@@ -121,7 +119,9 @@
       <h3>เลือกจังหวัด</h3>
 
       <label>จังหวัด</label>
-      <select id="provinceSelect"></select>
+      <select id="provinceSelect">
+        <option value="">กำลังโหลด...</option>
+      </select>
 
       <button class="action" onclick="go()">ตกลง</button>
 
@@ -129,7 +129,9 @@
     </div>
   </div>
 
+  <!-- config.js ต้องมีตัวแปร API -->
   <script src="js/config.js"></script>
+
   <script>
     const params = new URLSearchParams(location.search);
     const token = params.get("token");
@@ -139,23 +141,42 @@
       location.href = "login.html";
     }
 
-    // ดึงรายชื่อจังหวัด (ใช้ API เดิม)
+    const provinceSelect = document.getElementById("provinceSelect");
+
     fetch(`${API}?list=province&token=${encodeURIComponent(token)}`)
       .then(r => r.json())
-      .then(list => {
+      .then(res => {
+        console.log("Province API response:", res);
+
+        // รองรับทั้ง user และ admin
+        const list = Array.isArray(res) ? res : res.data;
+
         if (!Array.isArray(list)) {
           alert("ไม่สามารถโหลดรายชื่อจังหวัดได้");
+          provinceSelect.innerHTML =
+            `<option value="">-- ไม่พบข้อมูล --</option>`;
           return;
         }
+
+        provinceSelect.innerHTML =
+          `<option value="">-- กรุณาเลือกจังหวัด --</option>`;
 
         list.forEach(p => {
           provinceSelect.innerHTML +=
             `<option value="${p}">${p}</option>`;
         });
+      })
+      .catch(err => {
+        console.error(err);
+        alert("เกิดข้อผิดพลาดในการเชื่อมต่อระบบ");
       });
 
     function go() {
       const province = provinceSelect.value;
+      if (!province) {
+        alert("กรุณาเลือกจังหวัด");
+        return;
+      }
 
       location.href =
         `district.html?province=${encodeURIComponent(province)}&token=${encodeURIComponent(token)}`;
