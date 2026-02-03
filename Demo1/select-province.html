@@ -162,16 +162,16 @@
   });
 
   function go() {
-    const province = provinceSelect.value;
-    if (!province) {
-      alert("กรุณาเลือกจังหวัด");
-      return;
-    }
-
-    // admin → เข้าหน้า district (ไม่ต้องส่ง token ทาง URL)
-    location.href =
-      `district.html?province=${encodeURIComponent(province)}`;
+  const province = provinceSelect.value;
+  if (!province) {
+    alert("กรุณาเลือกจังหวัด");
+    return;
   }
+
+  location.href =
+    `district.html?province=${encodeURIComponent(province)}&token=${encodeURIComponent(token)}`;
+}
+
 
   function logout() {
     localStorage.clear();
