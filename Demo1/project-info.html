@@ -17,7 +17,9 @@
       --border: #d1c4e9;
     }
 
-    * { box-sizing: border-box; }
+    * {
+      box-sizing: border-box;
+    }
 
     body {
       font-family: 'Sarabun', sans-serif;
@@ -107,7 +109,8 @@
       border: 2px solid var(--border);
     }
 
-    th, td {
+    th,
+    td {
       border: 1.5px solid var(--border);
       padding: 8px;
       text-align: center;
@@ -140,138 +143,154 @@
 
 <body>
 
-<div class="navbar">
-  <div class="title">CDD Women Fund</div>
-  <div>
-    <button onclick="goBack()">← กลับสรุปรายอำเภอ</button>
-    <button onclick="logout()">ออกจากระบบ</button>
-  </div>
-</div>
-
-<div class="main">
-  <h2 id="title">กำลังโหลดข้อมูล…</h2>
-
-  <div class="toolbar">
-    <input id="globalSearch" placeholder="🔍 ค้นหาโครงการ..." oninput="debouncedSearch()">
-    <button onclick="exportExcel()">📤 ส่งออก Excel</button>
+  <div class="navbar">
+    <div class="title">CDD Women Fund</div>
+    <div>
+      <button id="btnBack" onclick="goBack()">← กลับสรุปรายอำเภอ</button>
+      <button onclick="logout()">ออกจากระบบ</button>
+    </div>
   </div>
 
-  <div class="table-wrapper">
-    <table id="tbl">
-      <thead></thead>
-      <tbody></tbody>
-    </table>
+  <div class="main">
+    <h2 id="title">กำลังโหลดข้อมูล…</h2>
+
+    <div class="toolbar">
+      <input id="globalSearch" placeholder="🔍 ค้นหาโครงการ..." oninput="debouncedSearch()">
+      <button onclick="exportExcel()">📤 ส่งออก Excel</button>
+    </div>
+
+    <div class="table-wrapper">
+      <table id="tbl">
+        <thead></thead>
+        <tbody></tbody>
+      </table>
+    </div>
   </div>
-</div>
 
-<script src="js/config.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
-<script>
-  const params = new URLSearchParams(location.search);
-  const province = params.get("province");
-  const district = params.get("district");
-  const token = params.get("token");
+  <script src="js/config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+  <script>
+    const params = new URLSearchParams(location.search);
+    const province = params.get("province");
+    const district = params.get("district");
+    const token = params.get("token");
 
-  if (!province || !district || !token) {
-    alert("ข้อมูลไม่ครบ กรุณาเข้าสู่ระบบใหม่");
-    location.href = "login.html";
-  }
+    if (!province || !token) {
+      alert("ข้อมูลไม่ครบ กรุณาเข้าสู่ระบบใหม่");
+      location.href = "login.html";
+    }
 
-  let tableData = [];
-  let headers = [];
-  let searchTimer = null;
-  let currentSort = { col: null, asc: true };
+    let tableData = [];
+    let headers = [];
+    let searchTimer = null;
+    let currentSort = { col: null, asc: true };
 
-  title.innerText = `รายโครงการ อำเภอ${district} จังหวัด${province}`;
+    title.innerText = district
+      ? `รายโครงการ อำเภอ${district} จังหวัด${province}`
+      : `รายโครงการทั้งหมด จังหวัด${province}`;
 
-  fetch(`${API}?province=${encodeURIComponent(province)}&token=${encodeURIComponent(token)}`)
-    .then(r => r.json())
-    .then(res => {
 
-      // 🔽 กรองเฉพาะอำเภอ
-      tableData = res.data.filter(r => r["อำเภอ"] === district);
+    fetch(`${API}?province=${encodeURIComponent(province)}&token=${encodeURIComponent(token)}`)
+      .then(r => r.json())
+      .then(res => {
 
-      if (tableData.length === 0) {
-        alert("ไม่พบข้อมูลโครงการ");
-        return;
-      }
+        // 🔽 กรองเฉพาะอำเภอ
+        tableData = district
+          ? res.data.filter(r => r["อำเภอ"] === district)
+          : res.data; // ทั้งจังหวัด
 
-      headers = Object.keys(tableData[0]);
-      renderTable(tableData);
-    });
 
-  function renderTable(data) {
-    const thead = document.querySelector("#tbl thead");
-    const tbody = document.querySelector("#tbl tbody");
-    const keyword = globalSearch.value.toLowerCase();
+        if (tableData.length === 0) {
+          alert("ไม่พบข้อมูลโครงการ");
+          return;
+        }
 
-    thead.innerHTML = `
+        headers = Object.keys(tableData[0]);
+        renderTable(tableData);
+      });
+
+    function renderTable(data) {
+      const thead = document.querySelector("#tbl thead");
+      const tbody = document.querySelector("#tbl tbody");
+      const keyword = globalSearch.value.toLowerCase();
+
+      thead.innerHTML = `
       <tr>
-        ${headers.map((h,i)=>`<th onclick="sortTable(${i})">${h}</th>`).join("")}
+        ${headers.map((h, i) => `<th onclick="sortTable(${i})">${h}</th>`).join("")}
       </tr>
     `;
 
-    tbody.innerHTML = "";
-    data.forEach(row => {
-      const tr = document.createElement("tr");
-      headers.forEach(h => {
-        let cell = String(row[h] ?? "");
-        if (keyword) {
-          const re = new RegExp(`(${keyword})`, "gi");
-          cell = cell.replace(re, "<mark>$1</mark>");
-        }
-        tr.innerHTML += `<td>${cell}</td>`;
+      tbody.innerHTML = "";
+      data.forEach(row => {
+        const tr = document.createElement("tr");
+        headers.forEach(h => {
+          let cell = String(row[h] ?? "");
+          if (keyword) {
+            const re = new RegExp(`(${keyword})`, "gi");
+            cell = cell.replace(re, "<mark>$1</mark>");
+          }
+          tr.innerHTML += `<td>${cell}</td>`;
+        });
+        tbody.appendChild(tr);
       });
-      tbody.appendChild(tr);
-    });
-  }
+    }
 
-  function debouncedSearch() {
-    clearTimeout(searchTimer);
-    searchTimer = setTimeout(() => {
-      const k = globalSearch.value.toLowerCase();
-      const filtered = tableData.filter(r =>
-        headers.some(h => String(r[h] ?? "").toLowerCase().includes(k))
-      );
-      renderTable(filtered);
-    }, 250);
-  }
+    function debouncedSearch() {
+      clearTimeout(searchTimer);
+      searchTimer = setTimeout(() => {
+        const k = globalSearch.value.toLowerCase();
+        const filtered = tableData.filter(r =>
+          headers.some(h => String(r[h] ?? "").toLowerCase().includes(k))
+        );
+        renderTable(filtered);
+      }, 250);
+    }
 
-  function sortTable(colIndex) {
-    const key = headers[colIndex];
-    currentSort.asc = currentSort.col === key ? !currentSort.asc : true;
-    currentSort.col = key;
+    function sortTable(colIndex) {
+      const key = headers[colIndex];
+      currentSort.asc = currentSort.col === key ? !currentSort.asc : true;
+      currentSort.col = key;
 
-    tableData.sort((a,b)=>{
-      const v1 = a[key] ?? "";
-      const v2 = b[key] ?? "";
-      if (!isNaN(v1) && !isNaN(v2)) {
-        return currentSort.asc ? v1 - v2 : v2 - v1;
-      }
-      return currentSort.asc
-        ? String(v1).localeCompare(String(v2),"th")
-        : String(v2).localeCompare(String(v1),"th");
-    });
+      tableData.sort((a, b) => {
+        const v1 = a[key] ?? "";
+        const v2 = b[key] ?? "";
+        if (!isNaN(v1) && !isNaN(v2)) {
+          return currentSort.asc ? v1 - v2 : v2 - v1;
+        }
+        return currentSort.asc
+          ? String(v1).localeCompare(String(v2), "th")
+          : String(v2).localeCompare(String(v1), "th");
+      });
 
-    debouncedSearch();
-  }
+      debouncedSearch();
+    }
 
-  function exportExcel() {
-    const wb = XLSX.utils.book_new();
-    const ws = XLSX.utils.json_to_sheet(tableData);
-    XLSX.utils.book_append_sheet(wb, ws, "รายโครงการ");
-    XLSX.writeFile(wb, `รายโครงการ_${province}_${district}.xlsx`);
-  }
+    function exportExcel() {
+      const wb = XLSX.utils.book_new();
+      const ws = XLSX.utils.json_to_sheet(tableData);
+      XLSX.utils.book_append_sheet(wb, ws, "รายโครงการ");
+      const fileName = district
+        ? `รายโครงการ_${province}_${district}.xlsx`
+        : `รายโครงการ_${province}_ทั้งหมด.xlsx`;
 
-  function goBack() {
-    location.href =
-      `district.html?province=${encodeURIComponent(province)}&token=${encodeURIComponent(token)}`;
-  }
+      XLSX.writeFile(wb, fileName);
 
-  function logout() {
-    location.href = "login.html";
-  }
-</script>
+    }
+
+    function goBack() {
+      location.href =
+        `district.html?province=${encodeURIComponent(province)}&token=${encodeURIComponent(token)}`;
+    }
+
+    function logout() {
+      location.href = "login.html";
+    }
+    if (!district) {
+      document.getElementById("btnBack").style.display = "none";
+    }
+
+  </script>
 
 </body>
+
 </html>
