@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="th">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -16,7 +17,9 @@
       --card: #ffffff;
     }
 
-    * { box-sizing: border-box; }
+    * {
+      box-sizing: border-box;
+    }
 
     body {
       font-family: 'Sarabun', sans-serif;
@@ -58,7 +61,7 @@
       max-width: 420px;
       border-radius: 16px;
       padding: 24px;
-      box-shadow: 0 6px 16px rgba(0,0,0,.08);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, .08);
     }
 
     h3 {
@@ -146,15 +149,11 @@
     fetch(`${API}?list=province&token=${encodeURIComponent(token)}`)
       .then(r => r.json())
       .then(res => {
-        console.log("Province API response:", res);
+        console.log("Province API:", res);
 
-        // รองรับทั้ง user และ admin
         const list = Array.isArray(res) ? res : res.data;
-
         if (!Array.isArray(list)) {
-          alert("ไม่สามารถโหลดรายชื่อจังหวัดได้");
-          provinceSelect.innerHTML =
-            `<option value="">-- ไม่พบข้อมูล --</option>`;
+          alert("รูปแบบข้อมูลไม่ถูกต้อง");
           return;
         }
 
@@ -162,13 +161,26 @@
           `<option value="">-- กรุณาเลือกจังหวัด --</option>`;
 
         list.forEach(p => {
-          provinceSelect.innerHTML +=
-            `<option value="${p}">${p}</option>`;
+          // กันทุกเคส
+          if (typeof p === "string") {
+            provinceSelect.innerHTML +=
+              `<option value="${p}">${p}</option>`;
+          } else if (typeof p === "object") {
+            const value =
+              p.id ?? p.province_id ?? p.code ?? "";
+            const label =
+              p.name ?? p.province_name ?? p.label ?? "";
+
+            if (value && label) {
+              provinceSelect.innerHTML +=
+                `<option value="${value}">${label}</option>`;
+            }
+          }
         });
       })
       .catch(err => {
         console.error(err);
-        alert("เกิดข้อผิดพลาดในการเชื่อมต่อระบบ");
+        alert("ไม่สามารถเชื่อมต่อระบบได้");
       });
 
     function go() {
@@ -188,4 +200,5 @@
   </script>
 
 </body>
+
 </html>
