@@ -134,26 +134,23 @@
 
   <!-- config.js ต้องมีตัวแปร API -->
   <script src="js/config.js"></script>
-
   <script>
     const params = new URLSearchParams(location.search);
-    const token = params.get("token");
-
-    if (!token) {
-      alert("กรุณาเข้าสู่ระบบใหม่");
-      location.href = "login.html";
-    }
+    let token = params.get("token");
 
     const provinceSelect = document.getElementById("provinceSelect");
 
-    fetch(`${API}?list=province&token=${encodeURIComponent(token)}`)
+    // สร้าง query token เฉพาะกรณีที่มี
+    const tokenQuery = token ? `&token=${encodeURIComponent(token)}` : "";
+
+    fetch(`${API}?list=province${tokenQuery}`)
       .then(r => r.json())
       .then(res => {
         console.log("Province API:", res);
 
         const list = Array.isArray(res) ? res : res.data;
         if (!Array.isArray(list)) {
-          alert("รูปแบบข้อมูลไม่ถูกต้อง");
+          alert("ไม่สามารถโหลดรายชื่อจังหวัดได้");
           return;
         }
 
@@ -161,15 +158,14 @@
           `<option value="">-- กรุณาเลือกจังหวัด --</option>`;
 
         list.forEach(p => {
-          // กันทุกเคส
           if (typeof p === "string") {
             provinceSelect.innerHTML +=
               `<option value="${p}">${p}</option>`;
-          } else if (typeof p === "object") {
+          } else {
             const value =
-              p.id ?? p.province_id ?? p.code ?? "";
+              p.id ?? p.province_id ?? p.code;
             const label =
-              p.name ?? p.province_name ?? p.label ?? "";
+              p.name ?? p.province_name ?? p.label;
 
             if (value && label) {
               provinceSelect.innerHTML +=
@@ -180,7 +176,7 @@
       })
       .catch(err => {
         console.error(err);
-        alert("ไม่สามารถเชื่อมต่อระบบได้");
+        alert("เกิดข้อผิดพลาดในการเชื่อมต่อระบบ");
       });
 
     function go() {
@@ -190,14 +186,16 @@
         return;
       }
 
+      const tokenParam = token ? `&token=${encodeURIComponent(token)}` : "";
       location.href =
-        `district.html?province=${encodeURIComponent(province)}&token=${encodeURIComponent(token)}`;
+        `district.html?province=${encodeURIComponent(province)}${tokenParam}`;
     }
 
     function logout() {
       location.href = "login.html";
     }
   </script>
+
 
 </body>
 
