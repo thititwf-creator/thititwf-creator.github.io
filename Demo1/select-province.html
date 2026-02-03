@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="th">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -17,9 +16,7 @@
       --card: #ffffff;
     }
 
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body {
       font-family: 'Sarabun', sans-serif;
@@ -28,26 +25,26 @@
       min-height: 100vh;
     }
 
-    /* ===== Nav ===== */
     .navbar {
       background: var(--navy);
-      padding: 12px;
+      padding: 12px 16px;
       display: flex;
-      justify-content: flex-end;
+      justify-content: space-between;
+      align-items: center;
+      color: #fff;
     }
 
     .navbar button {
       background: transparent;
-      color: #fff;
       border: 1px solid #fff;
+      color: #fff;
+      padding: 6px 12px;
       border-radius: 8px;
-      padding: 6px 14px;
+      cursor: pointer;
       font-family: 'Sarabun';
       font-size: .85rem;
-      cursor: pointer;
     }
 
-    /* ===== Main ===== */
     .main {
       display: flex;
       justify-content: center;
@@ -61,7 +58,7 @@
       max-width: 420px;
       border-radius: 16px;
       padding: 24px;
-      box-shadow: 0 6px 16px rgba(0, 0, 0, .08);
+      box-shadow: 0 6px 16px rgba(0,0,0,.08);
     }
 
     h3 {
@@ -113,90 +110,74 @@
 
 <body>
 
-  <div class="navbar">
-    <button onclick="logout()">ออกจากระบบ</button>
+<div class="navbar">
+  <div>CDD Women Fund (Admin)</div>
+  <button onclick="logout()">ออกจากระบบ</button>
+</div>
+
+<div class="main">
+  <div class="card">
+    <h3>เลือกจังหวัด</h3>
+
+    <label>จังหวัด</label>
+    <select id="provinceSelect"></select>
+
+    <button class="action" onclick="go()">ตกลง</button>
+
+    <div class="note">ระบบข้อมูลกองทุนพัฒนาบทบาทสตรี</div>
   </div>
+</div>
 
-  <div class="main">
-    <div class="card">
-      <h3>เลือกจังหวัด</h3>
+<script>
+  // ===== admin เท่านั้น =====
+  const token = localStorage.getItem("adminToken");
+  const provincesRaw = localStorage.getItem("provinces");
 
-      <label>จังหวัด</label>
-      <select id="provinceSelect">
-        <option value="">กำลังโหลด...</option>
-      </select>
+  if (!token || !provincesRaw) {
+    alert("กรุณาเข้าสู่ระบบใหม่");
+    location.href = "login.html";
+  }
 
-      <button class="action" onclick="go()">ตกลง</button>
+  const provinces = JSON.parse(provincesRaw);
+  const provinceSelect = document.getElementById("provinceSelect");
 
-      <div class="note">ระบบข้อมูลกองทุนพัฒนาบทบาทสตรี</div>
-    </div>
-  </div>
+  provinceSelect.innerHTML =
+    `<option value="">-- กรุณาเลือกจังหวัด --</option>`;
 
-  <!-- config.js ต้องมีตัวแปร API -->
-  <script src="js/config.js"></script>
-  <script>
-    const params = new URLSearchParams(location.search);
-    let token = params.get("token");
+  provinces.forEach(p => {
+    if (typeof p === "string") {
+      provinceSelect.innerHTML +=
+        `<option value="${p}">${p}</option>`;
+    } else {
+      const value =
+        p.id ?? p.province_id ?? p.code ?? p.name;
+      const label =
+        p.name ?? p.province_name ?? p.label;
 
-    const provinceSelect = document.getElementById("provinceSelect");
-
-    // สร้าง query token เฉพาะกรณีที่มี
-    const tokenQuery = token ? `&token=${encodeURIComponent(token)}` : "";
-
-    fetch(`${API}?list=province${tokenQuery}`)
-      .then(r => r.json())
-      .then(res => {
-        console.log("Province API:", res);
-
-        const list = Array.isArray(res) ? res : res.data;
-        if (!Array.isArray(list)) {
-          alert("ไม่สามารถโหลดรายชื่อจังหวัดได้");
-          return;
-        }
-
-        provinceSelect.innerHTML =
-          `<option value="">-- กรุณาเลือกจังหวัด --</option>`;
-
-        list.forEach(p => {
-          if (typeof p === "string") {
-            provinceSelect.innerHTML +=
-              `<option value="${p}">${p}</option>`;
-          } else {
-            const value =
-              p.id ?? p.province_id ?? p.code;
-            const label =
-              p.name ?? p.province_name ?? p.label;
-
-            if (value && label) {
-              provinceSelect.innerHTML +=
-                `<option value="${value}">${label}</option>`;
-            }
-          }
-        });
-      })
-      .catch(err => {
-        console.error(err);
-        alert("เกิดข้อผิดพลาดในการเชื่อมต่อระบบ");
-      });
-
-    function go() {
-      const province = provinceSelect.value;
-      if (!province) {
-        alert("กรุณาเลือกจังหวัด");
-        return;
+      if (value && label) {
+        provinceSelect.innerHTML +=
+          `<option value="${value}">${label}</option>`;
       }
+    }
+  });
 
-      const tokenParam = token ? `&token=${encodeURIComponent(token)}` : "";
-      location.href =
-        `district.html?province=${encodeURIComponent(province)}${tokenParam}`;
+  function go() {
+    const province = provinceSelect.value;
+    if (!province) {
+      alert("กรุณาเลือกจังหวัด");
+      return;
     }
 
-    function logout() {
-      location.href = "login.html";
-    }
-  </script>
+    // admin → เข้าหน้า district (ไม่ต้องส่ง token ทาง URL)
+    location.href =
+      `district.html?province=${encodeURIComponent(province)}`;
+  }
 
+  function logout() {
+    localStorage.clear();
+    location.href = "login.html";
+  }
+</script>
 
 </body>
-
 </html>
