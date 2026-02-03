@@ -11,7 +11,7 @@
   <style>
     :root {
       --pink: #e91e63;
-      --deep-pink: #d81b60;
+      --deep-pink: #c2185b;
       --navy: #1a237e;
       --bg: #f5f5f5;
       --card: #ffffff;
@@ -23,54 +23,74 @@
 
     body {
       font-family: 'Sarabun', sans-serif;
-      background: var(--bg);
+      background: linear-gradient(to bottom right, #fce4ec, #f5f5f5);
       margin: 0;
     }
 
+    /* ===== Navbar ===== */
     .navbar {
-      background: var(--navy);
-      padding: 12px;
+      background: linear-gradient(90deg, #1a237e, #283593);
+      padding: 14px 20px;
       text-align: center;
       color: #fff;
       font-weight: 700;
+      position: relative;
     }
 
+    .logo-top {
+      position: absolute;
+      top: 50%;
+      right: 20px;
+      transform: translateY(-50%);
+    }
+
+    .logo-top img {
+      height: 46px;
+    }
+
+    /* ===== Main ===== */
     .main {
       max-width: 1400px;
       margin: auto;
-      padding: 20px;
+      padding: 24px;
     }
 
     h2 {
       color: var(--deep-pink);
-      margin-bottom: 16px;
+      margin-bottom: 18px;
     }
 
     /* ===== Cards ===== */
     .cards {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-      gap: 16px;
-      margin-bottom: 20px;
+      gap: 18px;
+      margin-bottom: 24px;
     }
 
     .card {
       background: var(--card);
-      border-radius: 14px;
-      padding: 16px;
+      border-radius: 16px;
+      padding: 18px;
       text-align: center;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, .08);
+      box-shadow: 0 6px 14px rgba(0, 0, 0, .08);
+      transition: transform .2s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-3px);
     }
 
     .card h3 {
       margin: 0;
       font-size: .95rem;
       color: var(--navy);
+      line-height: 1.4;
     }
 
     .card .value {
-      margin-top: 8px;
-      font-size: 1.4rem;
+      margin-top: 10px;
+      font-size: 1.6rem;
       font-weight: 700;
       color: var(--deep-pink);
     }
@@ -80,14 +100,14 @@
       width: 100%;
       border-collapse: collapse;
       background: #fff;
-      border-radius: 14px;
+      border-radius: 16px;
       overflow: hidden;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, .06);
+      box-shadow: 0 6px 14px rgba(0, 0, 0, .08);
     }
 
     th,
     td {
-      padding: 10px;
+      padding: 10px 12px;
       border-bottom: 1px solid #eee;
       text-align: center;
       font-size: .9rem;
@@ -102,8 +122,12 @@
       user-select: none;
     }
 
-    tr:hover {
+    tbody tr:nth-child(even) td {
       background: #fafafa;
+    }
+
+    tbody tr:hover td {
+      background: #fde7f3;
     }
 
     a {
@@ -133,6 +157,12 @@
 
   <div class="navbar">
     หนี้ครบกำหนดชำระ ณ วันที่ 29 มกราคม 2569
+
+    <!-- โลโก้มุมขวาบน -->
+    <div class="logo-top">
+      <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQZtkPBp_xmIFgEEmX2cyScE1QzabzZbtNdbQ&s"
+        alt="Women Fund Logo">
+    </div>
   </div>
 
   <div class="main">
@@ -140,8 +170,6 @@
 
     <!-- ===== Cards ===== -->
     <div class="cards">
-
-      <!-- ===== 31 มี.ค. 69 ===== -->
       <div class="card">
         <h3>31 มี.ค. 69<br>เงินต้นที่คาดว่าจะได้</h3>
         <div class="value" id="sumExpectedMar">-</div>
@@ -152,7 +180,6 @@
         <div class="value" id="sumPercentMar">-</div>
       </div>
 
-      <!-- ===== 30 ก.ย. 69 ===== -->
       <div class="card">
         <h3>30 ก.ย. 69<br>เงินต้นที่คาดว่าจะได้</h3>
         <div class="value" id="sumExpectedSep">-</div>
@@ -163,14 +190,11 @@
         <div class="value" id="sumPercentSep">-</div>
       </div>
 
-      <!-- ===== เงินต้นรับคืน ===== -->
       <div class="card">
         <h3>เงินต้นรับคืน (สะสม)</h3>
         <div class="value" id="sumReceivedSep">-</div>
       </div>
-
     </div>
-
 
     <!-- ===== Table ===== -->
     <table id="tbl">
@@ -180,8 +204,7 @@
           <th data-key="เขตตรวจ">เขตตรวจ</th>
           <th data-key="expMar">เงินต้นที่คาดว่าจะได้<br>(31 มี.ค. 69)</th>
           <th data-key="expSep">เงินต้นที่คาดว่าจะได้<br>(30 ก.ย. 69)</th>
-          <th data-key="recMar">เงินต้นรับคืน<br></th>
-          <!-- <th data-key="recSep">เงินต้นรับคืน<br>(30 ก.ย. 69)</th> -->
+          <th data-key="recMar">เงินต้นรับคืน</th>
           <th data-key="perMar">ร้อยละการชำระคืน<br>(31 มี.ค. 69)</th>
           <th data-key="perSep">ร้อยละการชำระคืน<br>(30 ก.ย. 69)</th>
         </tr>
