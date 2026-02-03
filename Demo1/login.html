@@ -47,7 +47,7 @@
     }
 
     input {
-      width: 80%;
+      width: 100%;
       padding: 10px;
       margin: 6px 0 14px;
       border-radius: 8px;
@@ -101,51 +101,52 @@
     function login() {
       fetch(API, {
         method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
         body: JSON.stringify({
-          username: user.value,
-          password: pass.value
+          username: user.value.trim(),
+          password: pass.value.trim()
         })
       })
-        .then(r => r.json())
-        .then(res => {
-          if (res.error) {
-            alert("ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง");
-            return;
+      .then(r => r.json())
+      .then(res => {
+
+        if (!res || !res.token) {
+          alert("ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง");
+          return;
+        }
+
+        // ===== ADMIN =====
+        if (res.role === "admin") {
+
+          // ✅ สำคัญมาก
+          localStorage.setItem("adminToken", res.token);
+          localStorage.setItem("role", "admin");
+
+          if (Array.isArray(res.provinces)) {
+            localStorage.setItem(
+              "provinces",
+              JSON.stringify(res.provinces)
+            );
           }
 
-          /*
-            res ที่คาดหวังจาก GAS
-            {
-              token: "...",
-              role: "admin" | "province",
-              province: "เชียงใหม่" (เฉพาะจังหวัด)
-            }
-          */
+          location.href = "select-province.html";
+          return;
+        }
 
-          // ====== ADMIN ======
-          if (res.role === 'admin') {
-            localStorage.setItem("adminToken", res.token);
+        // ===== จังหวัด =====
+        localStorage.setItem("role", "province");
 
-            // ถ้า GAS ส่งรายชื่อจังหวัดมาด้วย
-            if (res.provinces) {
-              localStorage.setItem("provinces", JSON.stringify(res.provinces));
-            }
-
-            location.href = "select-province.html";
-            return;
-          }
-
-
-          // ====== จังหวัด ======
-          location.href =
-            `district.html?province=${encodeURIComponent(res.province)}&token=${res.token}`;
-        })
-        .catch(() => {
-          alert("ไม่สามารถเชื่อมต่อระบบได้");
-        });
+        location.href =
+          `district.html?province=${encodeURIComponent(res.province)}&token=${encodeURIComponent(res.token)}`;
+      })
+      .catch(err => {
+        console.error(err);
+        alert("ไม่สามารถเชื่อมต่อระบบได้");
+      });
     }
   </script>
 
 </body>
-
 </html>
