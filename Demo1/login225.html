@@ -123,55 +123,37 @@
       </div>
     </div>
   </div>
+
   <script src="js/config.js"></script>
   <script>
     function login() {
       fetch(API, {
         method: "POST",
         body: JSON.stringify({
-          username: user.value.trim(),
+          username: user.value,
           password: pass.value
         })
       })
         .then(r => r.json())
         .then(res => {
-
-          // ❌ login fail
-          if (!res || res.error) {
-            alert(res?.message || "Login ไม่สำเร็จ");
+          if (res.error) {
+            alert("Login ไม่สำเร็จ");
             return;
           }
 
-          const token = res.token;
-
-          /* =========================
-             🟢 user จังหวัด
-             ========================= */
-          if (res.role === "province" && res.province) {
+          if (res.role === "province") {
             location.href =
-              `district.html?province=${encodeURIComponent(res.province)}&token=${encodeURIComponent(token)}`;
-            return;
+              `project-info.html?province=${encodeURIComponent(res.province)}&token=${res.token}`;
           }
 
-          /* =========================
-             🟣 admin
-             ========================= */
-          if (res.role === "admin" && Array.isArray(res.provinces)) {
-            localStorage.setItem("adminToken", token);
+          if (res.role === "admin") {
+            localStorage.setItem("adminToken", res.token);
             localStorage.setItem("provinces", JSON.stringify(res.provinces));
             location.href = "select-province.html";
-            return;
           }
-
-          // fallback
-          alert("รูปแบบข้อมูลผู้ใช้ไม่ถูกต้อง");
-        })
-        .catch(() => {
-          alert("ไม่สามารถเชื่อมต่อระบบได้");
         });
     }
   </script>
-
 
 </body>
 

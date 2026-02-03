@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="th">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -16,7 +17,9 @@
       --card: #ffffff;
     }
 
-    * { box-sizing: border-box; }
+    * {
+      box-sizing: border-box;
+    }
 
     body {
       font-family: 'Sarabun', sans-serif;
@@ -58,7 +61,7 @@
       max-width: 420px;
       border-radius: 16px;
       padding: 24px;
-      box-shadow: 0 6px 16px rgba(0,0,0,.08);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, .08);
     }
 
     h3 {
@@ -110,72 +113,92 @@
 
 <body>
 
-<div class="navbar">
-  <div>CDD Women Fund (Admin)</div>
-  <button onclick="logout()">ออกจากระบบ</button>
-</div>
-
-<div class="main">
-  <div class="card">
-    <h3>เลือกจังหวัด</h3>
-
-    <label>จังหวัด</label>
-    <select id="provinceSelect"></select>
-
-    <button class="action" onclick="go()">ตกลง</button>
-
-    <div class="note">ระบบข้อมูลกองทุนพัฒนาบทบาทสตรี</div>
+  <div class="navbar">
+    <div>CDD Women Fund (Admin)</div>
+    <button onclick="logout()">ออกจากระบบ</button>
   </div>
-</div>
 
-<script>
-  // ===== admin only =====
-  const token = localStorage.getItem("adminToken");
-  const provincesRaw = localStorage.getItem("provinces");
+  <div class="main">
+    <div class="card">
+      <h3>เลือกจังหวัด</h3>
 
-  if (!token || !provincesRaw) {
-    alert("กรุณาเข้าสู่ระบบใหม่");
-    location.href = "login.html";
-  }
+      <label>จังหวัด</label>
+      <select id="provinceSelect"></select>
 
-  const provinces = JSON.parse(provincesRaw);
-  const provinceSelect = document.getElementById("provinceSelect");
+      <button class="action" onclick="go()">ตกลง</button>
 
-  provinceSelect.innerHTML =
-    `<option value="">-- กรุณาเลือกจังหวัด --</option>`;
+      <div class="note">ระบบข้อมูลกองทุนพัฒนาบทบาทสตรี</div>
+    </div>
+  </div>
+  
+  <script src="js/config.js"></script>
+  <script>
+    // ===== admin only =====
+    const adminToken = localStorage.getItem("adminToken");
+    const provincesRaw = localStorage.getItem("provinces");
 
-  provinces.forEach(p => {
-    if (typeof p === "string") {
-      provinceSelect.innerHTML +=
-        `<option value="${p}">${p}</option>`;
-    } else {
-      const value = p.id ?? p.province_id ?? p.code ?? p.name;
-      const label = p.name ?? p.province_name ?? p.label ?? value;
+    if (!adminToken || !provincesRaw) {
+      alert("กรุณาเข้าสู่ระบบใหม่");
+      location.href = "login.html";
+    }
+
+    const provinces = JSON.parse(provincesRaw);
+    const provinceSelect = document.getElementById("provinceSelect");
+
+    provinceSelect.innerHTML =
+      `<option value="">-- กรุณาเลือกจังหวัด --</option>`;
+
+    provinces.forEach(p => {
+      const value = typeof p === "string"
+        ? p
+        : (p.name ?? p.province_name ?? p.id);
 
       if (value) {
         provinceSelect.innerHTML +=
-          `<option value="${value}">${label}</option>`;
+          `<option value="${value}">${value}</option>`;
       }
+    });
+
+    // ===== เมื่อกดตกลง =====
+    function go() {
+      const province = provinceSelect.value;
+      if (!province) {
+        alert("กรุณาเลือกจังหวัด");
+        return;
+      }
+
+      // 🔑 ขอ province token ใหม่ โดยใช้ adminToken
+      fetch(API, {
+        method: "POST",
+        body: JSON.stringify({
+          role: "admin",
+          province: province,
+          token: adminToken
+        })
+      })
+        .then(r => r.json())
+        .then(res => {
+          if (res.error || !res.token) {
+            alert("ไม่สามารถเข้าจังหวัดนี้ได้");
+            return;
+          }
+
+          // ✅ ใช้ province token จริง
+          location.href =
+            `district.html?province=${encodeURIComponent(province)}&token=${encodeURIComponent(res.token)}`;
+        })
+        .catch(() => {
+          alert("เกิดข้อผิดพลาดในการเชื่อมต่อระบบ");
+        });
     }
-  });
 
-  function go() {
-    const province = provinceSelect.value;
-    if (!province) {
-      alert("กรุณาเลือกจังหวัด");
-      return;
+    function logout() {
+      localStorage.clear();
+      location.href = "login.html";
     }
+  </script>
 
-    // ✅ ส่ง token ไปกับ URL (เหมือน user จังหวัด)
-    location.href =
-      `district.html?province=${encodeURIComponent(province)}&token=${encodeURIComponent(token)}`;
-  }
-
-  function logout() {
-    localStorage.clear();
-    location.href = "login.html";
-  }
-</script>
 
 </body>
+
 </html>
