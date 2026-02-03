@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html lang="th">
-
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>เข้าสู่ระบบ – CDD Women Fund</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap" rel="stylesheet">
 
@@ -12,92 +11,50 @@
     :root {
       --pink: #e91e63;
       --deep-pink: #d81b60;
-      --navy: #1a237e;
       --bg: #f5f5f5;
       --card: #ffffff;
-    }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
     }
 
     body {
       font-family: 'Sarabun', sans-serif;
       background: var(--bg);
-      color: #000;
+      margin: 0;
       min-height: 100vh;
-    }
-
-    /* ===== Nav ===== */
-    .navbar {
-      background: var(--navy);
-      padding: 12px;
       display: flex;
       justify-content: center;
-    }
-
-    .navbar button {
-      background: var(--pink);
-      color: #fff;
-      border: 2px solid var(--pink);
-      border-radius: 8px;
-      padding: 6px 14px;
-      font-family: 'Sarabun';
-      font-size: .9rem;
-      font-weight: 700;
-      cursor: pointer;
-    }
-
-    /* ===== Main ===== */
-    .main {
-      display: flex;
       align-items: center;
-      justify-content: center;
-      padding: 40px 16px;
     }
 
-    /* ===== Login Card ===== */
     .login-card {
       background: var(--card);
       width: 100%;
       max-width: 380px;
-      border-radius: 16px;
       padding: 24px;
-      box-shadow: 0 6px 16px rgba(0, 0, 0, .08);
+      border-radius: 16px;
+      box-shadow: 0 6px 16px rgba(0,0,0,.08);
     }
 
-    .login-card h3 {
+    h3 {
       text-align: center;
       color: var(--deep-pink);
       margin-bottom: 18px;
     }
 
-    .login-card label {
+    label {
       font-size: .85rem;
       color: #555;
-      margin-bottom: 4px;
-      display: block;
     }
 
-    .login-card input {
+    input {
       width: 100%;
-      padding: 10px 12px;
-      margin-bottom: 14px;
+      padding: 10px;
+      margin: 6px 0 14px;
       border-radius: 8px;
       border: 1px solid #ccc;
       font-family: 'Sarabun';
-      font-size: .9rem;
     }
 
-    .login-card input:focus {
-      outline: none;
-      border-color: var(--pink);
-      box-shadow: 0 0 0 2px rgba(233, 30, 99, .15);
-    }
-
-    .login-card button {
+    button {
       width: 100%;
       padding: 10px;
       background: var(--pink);
@@ -107,48 +64,35 @@
       font-size: 1rem;
       font-weight: 700;
       cursor: pointer;
-      transition: .2s;
     }
 
-    .login-card button:hover {
+    button:hover {
       background: var(--deep-pink);
     }
 
-    .login-note {
-      text-align: center;
+    .note {
+      margin-top: 12px;
       font-size: .8rem;
       color: #777;
-      margin-top: 12px;
+      text-align: center;
     }
   </style>
 </head>
 
 <body>
 
-  <!-- ===== Navigation ===== -->
-  <!-- <div class="navbar">
-    <button onclick="location.href='https://thititwf-creator.github.io/test1.html'">
-      หน้าแรก
-    </button>
-  </div> -->
+  <div class="login-card">
+    <h3>เข้าสู่ระบบ</h3>
 
-  <!-- ===== Main ===== -->
-  <div class="main">
-    <div class="login-card">
-      <h3>เข้าสู่ระบบ</h3>
+    <label>Username</label>
+    <input id="user">
 
-      <label for="user">Username</label>
-      <input id="user" placeholder="กรอกชื่อผู้ใช้">
+    <label>Password</label>
+    <input id="pass" type="password">
 
-      <label for="pass">Password</label>
-      <input id="pass" type="password" placeholder="กรอกรหัสผ่าน">
+    <button onclick="login()">เข้าสู่ระบบ</button>
 
-      <button onclick="login()">เข้าสู่ระบบ</button>
-
-      <div class="login-note">
-        ระบบข้อมูลกองทุนพัฒนาบทบาทสตรี
-      </div>
-    </div>
+    <div class="note">ระบบข้อมูลกองทุนพัฒนาบทบาทสตรี</div>
   </div>
 
   <script src="js/config.js"></script>
@@ -161,27 +105,38 @@
           password: pass.value
         })
       })
-        .then(r => r.json())
-        .then(res => {
-          if (res.error) {
-            alert("Login ไม่สำเร็จ");
-            return;
-          }
+      .then(r => r.json())
+      .then(res => {
+        if (res.error) {
+          alert("ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง");
+          return;
+        }
 
-          if (res.role === "province") {
-            location.href =
-              `project-info.html?province=${encodeURIComponent(res.province)}&token=${res.token}`;
+        /*
+          res ที่คาดหวังจาก GAS
+          {
+            token: "...",
+            role: "admin" | "province",
+            province: "เชียงใหม่" (เฉพาะจังหวัด)
           }
+        */
 
-          if (res.role === "admin") {
-            localStorage.setItem("adminToken", res.token);
-            localStorage.setItem("provinces", JSON.stringify(res.provinces));
-            location.href = "select-province.html";
-          }
-        });
+        // ====== ADMIN ======
+        if (res.role === 'admin') {
+          location.href =
+            `select-province.html?token=${res.token}`;
+          return;
+        }
+
+        // ====== จังหวัด ======
+        location.href =
+          `district.html?province=${encodeURIComponent(res.province)}&token=${res.token}`;
+      })
+      .catch(() => {
+        alert("ไม่สามารถเชื่อมต่อระบบได้");
+      });
     }
   </script>
 
 </body>
-
 </html>
