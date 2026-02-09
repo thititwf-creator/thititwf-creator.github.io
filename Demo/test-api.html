@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <title>ค้นหาข้อมูลโครงการ</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    body {
+      font-family: system-ui, -apple-system, "Sarabun", sans-serif;
+      background: #f5f6fa;
+      padding: 40px;
+    }
+
+    .card {
+      max-width: 600px;
+      margin: auto;
+      background: #fff;
+      padding: 24px;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.08);
+    }
+
+    h1 {
+      margin-top: 0;
+      text-align: center;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      font-size: 16px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      margin-bottom: 12px;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      font-size: 16px;
+      border-radius: 8px;
+      border: none;
+      background: #0066ff;
+      color: #fff;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #0052cc;
+    }
+
+    .result {
+      margin-top: 24px;
+    }
+
+    .row {
+      display: flex;
+      margin-bottom: 8px;
+    }
+
+    .label {
+      width: 150px;
+      font-weight: bold;
+    }
+
+    .error {
+      color: #d63031;
+      text-align: center;
+      margin-top: 16px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="card">
+    <h1>ค้นหาข้อมูลโครงการ</h1>
+
+    <input
+      type="text"
+      id="dsNumber"
+      placeholder="กรอกเลขที่สัญญา / เลขที่โครงการ"
+    />
+
+    <button onclick="searchProject()">ค้นหา</button>
+
+    <div id="result" class="result"></div>
+  </div>
+
+  <script>
+    const API_BASE_URL =
+      "https://stephanie-drinking-replacing-certificate.trycloudflare.com/debtor-info";
+
+    async function searchProject() {
+      const dsNumber = document.getElementById("dsNumber").value.trim();
+      const resultDiv = document.getElementById("result");
+
+      resultDiv.innerHTML = "";
+
+      if (!dsNumber) {
+        resultDiv.innerHTML =
+          '<div class="error">กรุณากรอกเลขที่สัญญา</div>';
+        return;
+      }
+
+      try {
+        const response = await fetch(
+          `${API_BASE_URL}?ds_number_promise=${encodeURIComponent(dsNumber)}`
+        );
+
+        const data = await response.json();
+
+        if (data.found && data.data.length > 0) {
+          const item = data.data[0];
+
+          resultDiv.innerHTML = `
+            <div class="row">
+              <div class="label">เลขที่โครงการ</div>
+              <div>${item.ds_number_promise}</div>
+            </div>
+            <div class="row">
+              <div class="label">ชื่อโครงการ</div>
+              <div>${item.ds_project}</div>
+            </div>
+            <div class="row">
+              <div class="label">สถานะโครงการ</div>
+              <div>${item.ds_status_project}</div>
+            </div>
+          `;
+        } else {
+          resultDiv.innerHTML =
+            `<div class="error">${data.message || "ไม่พบข้อมูล"}</div>`;
+        }
+      } catch (error) {
+        resultDiv.innerHTML =
+          '<div class="error">ไม่สามารถเชื่อมต่อ API ได้</div>';
+        console.error(error);
+      }
+    }
+  </script>
+</body>
+</html>
