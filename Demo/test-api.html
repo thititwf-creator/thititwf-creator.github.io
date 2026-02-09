@@ -13,7 +13,7 @@
     }
 
     .card {
-      max-width: 600px;
+      max-width: 720px;
       margin: auto;
       background: #fff;
       padding: 24px;
@@ -60,7 +60,7 @@
     }
 
     .label {
-      width: 150px;
+      width: 160px;
       font-weight: bold;
     }
 
@@ -79,7 +79,7 @@
     <input
       type="text"
       id="dsNumber"
-      placeholder="กรอกเลขที่สัญญา / เลขที่โครงการ"
+      placeholder="กรอกเลขที่สัญญา"
     />
 
     <button onclick="searchProject()">ค้นหา</button>
@@ -89,7 +89,15 @@
 
   <script>
     const API_BASE_URL =
-      " https://marvel-nodes-jar-existing.trycloudflare.com/debtor-info";
+      "https://marvel-nodes-jar-existing.trycloudflare.com/debtor-info";
+
+    function formatMoney(value) {
+      if (value === null || value === undefined) return "-";
+      return Number(value).toLocaleString("th-TH", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      }) + " บาท";
+    }
 
     async function searchProject() {
       const dsNumber = document.getElementById("dsNumber").value.trim();
@@ -115,7 +123,24 @@
 
           resultDiv.innerHTML = `
             <div class="row">
-              <div class="label">เลขที่โครงการ</div>
+              <div class="label">จังหวัด</div>
+              <div>${item.province}</div>
+            </div>
+            <div class="row">
+              <div class="label">อำเภอ</div>
+              <div>${item.district}</div>
+            </div>
+            <div class="row">
+              <div class="label">ตำบล</div>
+              <div>${item.sub_district}</div>
+            </div>
+            <div class="row">
+              <div class="label">ปีงบประมาณ</div>
+              <div>${item.fiscal_year}</div>
+            </div>
+            <hr>
+            <div class="row">
+              <div class="label">เลขที่สัญญา</div>
               <div>${item.ds_number_promise}</div>
             </div>
             <div class="row">
@@ -123,8 +148,12 @@
               <div>${item.ds_project}</div>
             </div>
             <div class="row">
-              <div class="label">สถานะโครงการ</div>
-              <div>${item.ds_status_project}</div>
+              <div class="label">ชื่อผู้เสนอ</div>
+              <div>${item.ds_name}</div>
+            </div>
+            <div class="row">
+              <div class="label">เงินอนุมัติ</div>
+              <div>${formatMoney(item.ds_rev_money)}</div>
             </div>
           `;
         } else {
