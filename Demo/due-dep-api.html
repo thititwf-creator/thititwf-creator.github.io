@@ -55,11 +55,12 @@ tfoot td{
 <div class="card">
 <h2>ค้นหากำหนดชำระ</h2>
 
+<!-- ค้นหา: เลขที่สัญญา + จังหวัด -->
 <div class="grid">
-  <input id="contract" placeholder="เลขที่สัญญา">
-  <input id="province" placeholder="จังหวัด">
-  <input id="district" placeholder="อำเภอ">
-  <input id="subdistrict" placeholder="ตำบล">
+  <input id="contract" placeholder="เลขที่สัญญา (ไม่บังคับ)">
+  <input id="province" placeholder="จังหวัด (ไม่บังคับ)">
+  <div></div>
+  <div></div>
 </div>
 
 <div class="grid">
@@ -82,7 +83,7 @@ tfoot td{
 </div>
 
 <script>
-const API = "https://sculpture-ownership-necessarily-miles.trycloudflare.com/due-debt";
+const API = ".../due-debt"; // ใส่ API จริง
 let fullData = [];
 let pageData = [];
 let sortKey = null;
@@ -117,8 +118,6 @@ function search(){
 
   if(contract.value) q.append("ds_number_promise", contract.value);
   if(province.value) q.append("province", province.value);
-  if(district.value) q.append("district", district.value);
-  if(subdistrict.value) q.append("sub_district", subdistrict.value);
 
   fetch(API+"?"+q)
     .then(r=>r.json())
@@ -159,7 +158,9 @@ function renderTable(data){
     html += `<tr>`;
     cols.forEach(c=>{
       const v = r[c.k] ?? "";
-      html += `<td class="${c.left?'left':''}">${typeof v==="number"?v.toLocaleString():v}</td>`;
+      html += `<td class="${c.left?'left':''}">
+        ${typeof v==="number" ? v.toLocaleString() : v}
+      </td>`;
     });
     html += `</tr>`;
   });
