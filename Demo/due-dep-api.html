@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <title>ตรวจสอบกำหนดชำระ</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    body {
+      font-family: "Sarabun", system-ui;
+      background: #f4f6fb;
+      padding: 32px;
+    }
+    .card {
+      max-width: 960px;
+      margin: auto;
+      background: #fff;
+      padding: 24px;
+      border-radius: 12px;
+      box-shadow: 0 8px 24px rgba(0,0,0,.08);
+    }
+    h1 { text-align: center; }
+    input, button {
+      padding: 10px;
+      font-size: 15px;
+      margin-bottom: 12px;
+      width: 100%;
+    }
+    button {
+      background: #0057ff;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      font-size: 14px;
+    }
+    th {
+      background: #f0f2f8;
+    }
+    .error {
+      color: red;
+      text-align: center;
+      margin-top: 12px;
+    }
+  </style>
+</head>
+
+<body>
+<div class="card">
+  <h1>ตรวจสอบข้อมูลกำหนดชำระ</h1>
+
+  <input id="contract" placeholder="เลขที่สัญญา (ไม่บังคับ)">
+  <input type="date" id="start">
+  <input type="date" id="end">
+
+  <button onclick="search()">ค้นหา</button>
+
+  <div id="result"></div>
+</div>
+
+<script>
+const API_URL = "https://sculpture-ownership-necessarily-miles.trycloudflare.com/due-debt";
+
+function money(v) {
+  return Number(v).toLocaleString("th-TH", {
+    minimumFractionDigits: 2
+  });
+}
+
+async function search() {
+  const c = document.getElementById("contract").value.trim();
+  const s = document.getElementById("start").value;
+  const e = document.getElementById("end").value;
+  const result = document.getElementById("result");
+
+  result.innerHTML = "";
+
+  if (!s || !e) {
+    result.innerHTML = `<div class="error">กรุณาเลือกช่วงวันที่</div>`;
+    return;
+  }
+
+  let url = `${API_URL}?start_date=${s}&end_date=${e}`;
+  if (c) url += `&ds_number_promise=${encodeURIComponent(c)}`;
+
+  const res = await fetch(url);
+  const data = await res.json();
+
+  if (!data.found) {
+    result.innerHTML = `<div class="error">ไม่พบข้อมูล</div>`;
+    return;
+  }
+
+  let html = `<table>
+    <tr>
+      <th>จังหวัด</th>
+      <th>เลขสัญญา</th>
+      <th>โครงการ</th>
+      <th>กำหนดชำระ</th>
+      <th>เงินต้น</th>
+      <th>ดอกเบี้ย</th>
+      <th>เบี้ยปรับ</th>
+    </tr>`;
+
+  data.data.forEach(r => {
+    html += `<tr>
+      <td>${r.province}</td>
+      <td>${r.ds_number_promise}</td>
+      <td>${r.ds_project}</td>
+      <td>${r.due_date}</td>
+      <td>${money(r.expect_principle)}</td>
+      <td>${money(r.interest)}</td>
+      <td>${money(r.penalty)}</td>
+    </tr>`;
+  });
+
+  html += `</table>`;
+  result.innerHTML = html;
+}
+</script>
+</body>
+</html>
