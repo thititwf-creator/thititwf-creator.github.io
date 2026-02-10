@@ -55,7 +55,6 @@ tfoot td{
 <div class="card">
 <h2>ค้นหากำหนดชำระ</h2>
 
-<!-- ค้นหา: เลขที่สัญญา + จังหวัด -->
 <div class="grid">
   <input id="contract" placeholder="เลขที่สัญญา (ไม่บังคับ)">
   <input id="province" placeholder="จังหวัด (ไม่บังคับ)">
@@ -84,6 +83,7 @@ tfoot td{
 
 <script>
 const API = "https://sculpture-ownership-necessarily-miles.trycloudflare.com/due-debt";
+
 let fullData = [];
 let pageData = [];
 let sortKey = null;
@@ -204,11 +204,43 @@ function summary(data){
   };
 }
 
+/* ===== แปลงวันที่เป็นภาษาไทย (พ.ศ.) ===== */
+function formatThaiDate(dateStr){
+  const m = ["ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.",
+             "ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."];
+
+  const d = new Date(dateStr);
+  if(isNaN(d)) return "";
+  return `${d.getDate()} ${m[d.getMonth()]} ${d.getFullYear()+543}`;
+}
+
+/* ===== Export Excel ===== */
 function exportExcel(){
-  const ws = XLSX.utils.json_to_sheet(pageData);
+  if(!pageData.length){
+    alert("ไม่มีข้อมูลสำหรับ Export");
+    return;
+  }
+
+  const startTxt = formatThaiDate(start.value);
+  const endTxt   = formatThaiDate(end.value);
+  const todayTxt = formatThaiDate(new Date().toISOString().slice(0,10));
+
+  const filename =
+    `กำหนดชำระของวันที่ ${startTxt} ถึง ${endTxt} ณ วันที่ ${todayTxt}.xlsx`;
+
+  const exportData = pageData.map(r=>{
+    const o = {};
+    cols.forEach(c=>{
+      o[c.t] = r[c.k] ?? "";
+    });
+    return o;
+  });
+
+  const ws = XLSX.utils.json_to_sheet(exportData);
   const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, "DueDebt");
-  XLSX.writeFile(wb, "due_debt.xlsx");
+  XLSX.utils.book_append_sheet(wb, ws, "กำหนดชำระ");
+
+  XLSX.writeFile(wb, filename);
 }
 </script>
 </body>
