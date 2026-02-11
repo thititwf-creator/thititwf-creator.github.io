@@ -1,293 +1,345 @@
 <!DOCTYPE html>
 <html lang="th">
+
 <head>
-<meta charset="UTF-8">
-<title>Due Report Dashboard</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8">
+  <title>Due Report Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 
-<style>
-body{
-  margin:0;
-  font-family:"Sarabun",system-ui;
-  background:linear-gradient(135deg,#667eea,#764ba2);
-}
-.container{
-  max-width:1400px;
-  margin:40px auto;
-  padding:20px;
-}
-.card{
-  background:#fff;
-  border-radius:16px;
-  padding:25px;
-  box-shadow:0 10px 25px rgba(0,0,0,.15);
-}
-h2{margin-top:0}
-.grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
-  gap:10px;
-  margin-bottom:15px;
-}
-input,select{
-  padding:8px;
-  border-radius:8px;
-  border:1px solid #ddd;
-}
-button{
-  padding:8px 14px;
-  border:none;
-  border-radius:8px;
-  cursor:pointer;
-  font-weight:bold;
-}
-.btn-search{background:#27ae60;color:#fff}
-.btn-show{background:#f39c12;color:#fff}
-.btn-export{background:#2980b9;color:#fff}
+  <style>
+    body {
+      margin: 0;
+      font-family: "Sarabun", system-ui;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+    }
 
-/* table */
-.table-wrapper{
-  max-height:500px;
-  overflow:auto;
-  margin-top:20px;
-  border-radius:12px;
-}
+    .container {
+      max-width: 1400px;
+      margin: 40px auto;
+      padding: 20px;
+    }
 
-table{
-  width:100%;
-  border-collapse:collapse;
-  font-size:13px;
-  background:white;
-}
-th,td{
-  padding:6px;
-  border-bottom:1px solid #eee;
-}
-th{
-  background:#2c3e50;
-  color:#fff;
-  cursor:pointer;
-  position:sticky;
-  top:0;
-  z-index:10;
-  user-select:none;
-}
-th.sortable::after{
-  content:" ⇅";
-  font-size:11px;
-  opacity:0.6;
-}
-th.sort-asc::after{
-  content:" ▲";
-}
-th.sort-desc::after{
-  content:" ▼";
-}
-td.number{text-align:right}
-tfoot td{
-  font-weight:bold;
-  background:#f4f6f9;
-  position:sticky;
-  bottom:0;
-}
-tbody tr:hover{background:#f1f2f6}
-</style>
+    .card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 25px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, .15);
+    }
+
+    h2 {
+      margin-top: 0
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+
+    input,
+    select {
+      padding: 8px;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+    }
+
+    button {
+      padding: 8px 14px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .btn-search {
+      background: #27ae60;
+      color: #fff
+    }
+
+    .btn-show {
+      background: #f39c12;
+      color: #fff
+    }
+
+    .btn-export {
+      background: #2980b9;
+      color: #fff
+    }
+
+    /* table */
+    .table-wrapper {
+      max-height: 500px;
+      overflow: auto;
+      margin-top: 20px;
+      border-radius: 12px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      background: white;
+    }
+
+    th,
+    td {
+      padding: 6px;
+      border-bottom: 1px solid #eee;
+    }
+
+    th {
+      background: #2c3e50;
+      color: #fff;
+      cursor: pointer;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      user-select: none;
+    }
+
+    th.sortable::after {
+      content: " ⇅";
+      font-size: 11px;
+      opacity: 0.6;
+    }
+
+    th.sort-asc::after {
+      content: " ▲";
+    }
+
+    th.sort-desc::after {
+      content: " ▼";
+    }
+
+    td.number {
+      text-align: right
+    }
+
+    tfoot td {
+      font-weight: bold;
+      background: #f4f6f9;
+      position: sticky;
+      bottom: 0;
+    }
+
+    tbody tr:hover {
+      background: #f1f2f6
+    }
+  </style>
 </head>
 
 <body>
-<div class="container">
-<div class="card">
+  <div class="container">
+    <div class="card">
 
-<h2>📊 รายงานข้อมูลกำหนดชำระ</h2>
+      <h2>📊 รายงานข้อมูลกำหนดชำระ</h2>
 
-<div class="grid">
-  <input type="date" id="start_date">
-  <input type="date" id="end_date">
+      <div class="grid">
+        <input type="date" id="start_date">
+        <input type="date" id="end_date">
 
-  <select id="province">
-    <option value="">ทั้งหมด</option>
-  </select>
+        <select id="province">
+          <option value="">ทั้งหมด</option>
+        </select>
 
-  <input type="text" id="project_status" placeholder="สถานะโครงการ">
-  <input type="text" id="contract_no" placeholder="เลขที่สัญญา">
+        <select id="project_status">
+          <option value="">ทั้งหมด</option>
+          <option value="เปิดโครงการ">เปิดโครงการ</option>
+          <option value="ปิดโครงการ">ปิดโครงการ</option>
+          <option value="ระหว่างดำเนินคดี">ระหว่างดำเนินคดี</option>
+        </select>
+        <input type="text" id="contract_no" placeholder="เลขที่สัญญา">
 
-  <div>
-    <input type="number" id="start_row" value="1" style="width:60px"> -
-    <input type="number" id="end_row" value="100" style="width:60px">
+        <div>
+          <input type="number" id="start_row" value="1" style="width:60px"> -
+          <input type="number" id="end_row" value="100" style="width:60px">
+        </div>
+      </div>
+
+      <button class="btn-search" onclick="searchData()">ค้นหา</button>
+      <button class="btn-show" onclick="showRange()">แสดง</button>
+      <button class="btn-export" onclick="exportExcel()">Export Excel</button>
+
+      <div id="info" style="margin-top:10px;font-weight:bold"></div>
+
+      <div class="table-wrapper">
+        <table id="table">
+          <thead></thead>
+          <tbody></tbody>
+          <tfoot></tfoot>
+        </table>
+      </div>
+
+    </div>
   </div>
-</div>
 
-<button class="btn-search" onclick="searchData()">ค้นหา</button>
-<button class="btn-show" onclick="showRange()">แสดง</button>
-<button class="btn-export" onclick="exportExcel()">Export Excel</button>
+  <script>
 
-<div id="info" style="margin-top:10px;font-weight:bold"></div>
+    const API_URL = "https://api.twferp.click/due-report";
+    let fullData = [];
+    let currentView = [];
+    let sortState = { column: null, direction: "asc" };
 
-<div class="table-wrapper">
-<table id="table">
-<thead></thead>
-<tbody></tbody>
-<tfoot></tfoot>
-</table>
-</div>
+    const provinces = ["กรุงเทพมหานคร", "กระบี่", "กาญจนบุรี", "กาฬสินธุ์", "กำแพงเพชร", "ขอนแก่น", "จันทบุรี", "ฉะเชิงเทรา", "ชลบุรี", "ชัยนาท", "ชัยภูมิ", "ชุมพร", "เชียงราย", "เชียงใหม่", "ตรัง", "ตราด", "ตาก", "นครนายก", "นครปฐม", "นครพนม", "นครราชสีมา", "นครศรีธรรมราช", "นครสวรรค์", "นนทบุรี", "นราธิวาส", "น่าน", "บึงกาฬ", "บุรีรัมย์", "ปทุมธานี", "ประจวบคีรีขันธ์", "ปราจีนบุรี", "ปัตตานี", "พระนครศรีอยุธยา", "พะเยา", "พังงา", "พัทลุง", "พิจิตร", "พิษณุโลก", "เพชรบุรี", "เพชรบูรณ์", "แพร่", "ภูเก็ต", "มหาสารคาม", "มุกดาหาร", "แม่ฮ่องสอน", "ยะลา", "ยโสธร", "ร้อยเอ็ด", "ระนอง", "ระยอง", "ราชบุรี", "ลพบุรี", "ลำปาง", "ลำพูน", "เลย", "ศรีสะเกษ", "สกลนคร", "สงขลา", "สตูล", "สมุทรปราการ", "สมุทรสงคราม", "สมุทรสาคร", "สระแก้ว", "สระบุรี", "สิงห์บุรี", "สุโขทัย", "สุพรรณบุรี", "สุราษฎร์ธานี", "สุรินทร์", "หนองคาย", "หนองบัวลำภู", "อ่างทอง", "อำนาจเจริญ", "อุดรธานี", "อุตรดิตถ์", "อุทัยธานี", "อุบลราชธานี"];
 
-</div>
-</div>
-
-<script>
-
-const API_URL = "https://api.twferp.click/due-report";
-let fullData = [];
-let currentView = [];
-let sortState = { column:null, direction:"asc" };
-
-const provinces = ["กรุงเทพมหานคร","กระบี่","กาญจนบุรี","กาฬสินธุ์","กำแพงเพชร","ขอนแก่น","จันทบุรี","ฉะเชิงเทรา","ชลบุรี","ชัยนาท","ชัยภูมิ","ชุมพร","เชียงราย","เชียงใหม่","ตรัง","ตราด","ตาก","นครนายก","นครปฐม","นครพนม","นครราชสีมา","นครศรีธรรมราช","นครสวรรค์","นนทบุรี","นราธิวาส","น่าน","บึงกาฬ","บุรีรัมย์","ปทุมธานี","ประจวบคีรีขันธ์","ปราจีนบุรี","ปัตตานี","พระนครศรีอยุธยา","พะเยา","พังงา","พัทลุง","พิจิตร","พิษณุโลก","เพชรบุรี","เพชรบูรณ์","แพร่","ภูเก็ต","มหาสารคาม","มุกดาหาร","แม่ฮ่องสอน","ยะลา","ยโสธร","ร้อยเอ็ด","ระนอง","ระยอง","ราชบุรี","ลพบุรี","ลำปาง","ลำพูน","เลย","ศรีสะเกษ","สกลนคร","สงขลา","สตูล","สมุทรปราการ","สมุทรสงคราม","สมุทรสาคร","สระแก้ว","สระบุรี","สิงห์บุรี","สุโขทัย","สุพรรณบุรี","สุราษฎร์ธานี","สุรินทร์","หนองคาย","หนองบัวลำภู","อ่างทอง","อำนาจเจริญ","อุดรธานี","อุตรดิตถ์","อุทัยธานี","อุบลราชธานี"];
-
-provinces.forEach(p=>{
-  const opt=document.createElement("option");
-  opt.value=p;
-  opt.textContent=p;
-  province.appendChild(opt);
-});
-
-function formatNumber(num){
-  return new Intl.NumberFormat('th-TH').format(num);
-}
-
-async function searchData(){
-
-  const params = new URLSearchParams({
-    start_date:start_date.value,
-    end_date:end_date.value,
-    province:province.value,
-    project_status:project_status.value,
-    contract_no:contract_no.value,
-    export_all:true
-  });
-
-  const res = await fetch(`${API_URL}?${params}`);
-  const json = await res.json();
-
-  fullData = json.data || [];
-  sortState = { column:null, direction:"asc" };
-  showRange();
-
-  info.innerText = `พบทั้งหมด ${formatNumber(fullData.length)} รายการ`;
-}
-
-function showRange(){
-  const start=parseInt(start_row.value)||1;
-  const end=parseInt(end_row.value)||fullData.length;
-  currentView=fullData.slice(start-1,end);
-  renderTable(currentView);
-}
-
-function renderTable(data){
-
-  const thead=table.querySelector("thead");
-  const tbody=table.querySelector("tbody");
-  const tfoot=table.querySelector("tfoot");
-
-  thead.innerHTML="";
-  tbody.innerHTML="";
-  tfoot.innerHTML="";
-
-  if(!data.length) return;
-
-  const headers=Object.keys(data[0]);
-
-  const trHead=document.createElement("tr");
-  headers.forEach(h=>{
-    const th=document.createElement("th");
-    th.textContent=h;
-    th.classList.add("sortable");
-    th.onclick=()=>sortTable(h);
-
-    if(sortState.column===h){
-      th.classList.remove("sortable");
-      th.classList.add(sortState.direction==="asc"?"sort-asc":"sort-desc");
-    }
-
-    trHead.appendChild(th);
-  });
-  thead.appendChild(trHead);
-
-  data.forEach(row=>{
-    const tr=document.createElement("tr");
-    headers.forEach(h=>{
-      const td=document.createElement("td");
-      if(typeof row[h]==="number"){
-        td.textContent=formatNumber(row[h]);
-        td.classList.add("number");
-      }else{
-        td.textContent=row[h]??"";
-      }
-      tr.appendChild(td);
+    provinces.forEach(p => {
+      const opt = document.createElement("option");
+      opt.value = p;
+      opt.textContent = p;
+      province.appendChild(opt);
     });
-    tbody.appendChild(tr);
-  });
 
-  let totals={};
-  data.forEach(row=>{
-    headers.forEach(h=>{
-      if(typeof row[h]==="number"){
-        totals[h]=(totals[h]||0)+row[h];
+    function formatNumber(num) {
+      return new Intl.NumberFormat('th-TH').format(num);
+    }
+
+    async function searchData() {
+
+      const params = new URLSearchParams({
+        start_date: start_date.value,
+        end_date: end_date.value,
+        province: province.value,
+        project_status: project_status.value,
+        contract_no: contract_no.value,
+        export_all: true
+      });
+
+      const res = await fetch(`${API_URL}?${params}`);
+      const json = await res.json();
+
+      fullData = json.data || [];
+      sortState = { column: null, direction: "asc" };
+      showRange();
+
+      info.innerText = `พบทั้งหมด ${formatNumber(fullData.length)} รายการ`;
+    }
+
+    function showRange() {
+      const start = parseInt(start_row.value) || 1;
+      const end = parseInt(end_row.value) || fullData.length;
+      currentView = fullData.slice(start - 1, end);
+      renderTable(currentView);
+    }
+
+    function renderTable(data) {
+
+      const thead = table.querySelector("thead");
+      const tbody = table.querySelector("tbody");
+      const tfoot = table.querySelector("tfoot");
+
+      thead.innerHTML = "";
+      tbody.innerHTML = "";
+      tfoot.innerHTML = "";
+
+      if (!data.length) return;
+
+      const headers = Object.keys(data[0]);
+
+      const trHead = document.createElement("tr");
+      headers.forEach(h => {
+        const th = document.createElement("th");
+        th.textContent = h;
+        th.classList.add("sortable");
+        th.onclick = () => sortTable(h);
+
+        if (sortState.column === h) {
+          th.classList.remove("sortable");
+          th.classList.add(sortState.direction === "asc" ? "sort-asc" : "sort-desc");
+        }
+
+        trHead.appendChild(th);
+      });
+      thead.appendChild(trHead);
+
+      data.forEach(row => {
+        const tr = document.createElement("tr");
+        headers.forEach(h => {
+          const td = document.createElement("td");
+          if (typeof row[h] === "number") {
+            td.textContent = formatNumber(row[h]);
+            td.classList.add("number");
+          } else {
+            td.textContent = row[h] ?? "";
+          }
+          tr.appendChild(td);
+        });
+        tbody.appendChild(tr);
+      });
+
+      let totals = {};
+      data.forEach(row => {
+        headers.forEach(h => {
+          if (typeof row[h] === "number") {
+            totals[h] = (totals[h] || 0) + row[h];
+          }
+        });
+      });
+
+      const trFoot = document.createElement("tr");
+      headers.forEach((h, i) => {
+        const td = document.createElement("td");
+        if (i === 0) td.textContent = "รวม";
+        else if (totals[h]) {
+          td.textContent = formatNumber(totals[h]);
+          td.classList.add("number");
+        }
+        trFoot.appendChild(td);
+      });
+      tfoot.appendChild(trFoot);
+    }
+
+    function sortTable(col) {
+
+      if (sortState.column === col) {
+        sortState.direction = sortState.direction === "asc" ? "desc" : "asc";
+      } else {
+        sortState.column = col;
+        sortState.direction = "asc";
       }
-    });
-  });
 
-  const trFoot=document.createElement("tr");
-  headers.forEach((h,i)=>{
-    const td=document.createElement("td");
-    if(i===0) td.textContent="รวม";
-    else if(totals[h]){
-      td.textContent=formatNumber(totals[h]);
-      td.classList.add("number");
+      currentView.sort((a, b) => {
+        if (typeof a[col] === "number") {
+          return sortState.direction === "asc" ? a[col] - b[col] : b[col] - a[col];
+        }
+        return sortState.direction === "asc"
+          ? String(a[col]).localeCompare(String(b[col]), 'th')
+          : String(b[col]).localeCompare(String(a[col]), 'th');
+      });
+
+      renderTable(currentView);
     }
-    trFoot.appendChild(td);
-  });
-  tfoot.appendChild(trFoot);
-}
 
-function sortTable(col){
+    function exportExcel() {
+      if (!currentView.length) {
+        alert("ไม่มีข้อมูล");
+        return;
+      }
 
-  if(sortState.column===col){
-    sortState.direction=sortState.direction==="asc"?"desc":"asc";
-  }else{
-    sortState.column=col;
-    sortState.direction="asc";
-  }
+      const ws = XLSX.utils.json_to_sheet(currentView);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Due Report");
 
-  currentView.sort((a,b)=>{
-    if(typeof a[col]==="number"){
-      return sortState.direction==="asc"?a[col]-b[col]:b[col]-a[col];
+      // ====== จัดรูปแบบชื่อไฟล์ ======
+      const provinceText = province.value || "ทุกจังหวัด";
+      const statusText = project_status.value || "ทุกสถานะ";
+      const startDate = start_date.value || "-";
+      const endDate = end_date.value || "-";
+
+      const today = new Date().toLocaleDateString('th-TH');
+
+      const fileName =
+        `กำหนดชำระ จังหวัด ${provinceText} ` +
+        `สถานะ ${statusText} ` +
+        `วันที่ ${startDate} ถึง ${endDate} ` +
+        `ข้อมูล ณ วันที่ ${today}.xlsx`;
+
+      XLSX.writeFile(wb, fileName);
     }
-    return sortState.direction==="asc"
-      ? String(a[col]).localeCompare(String(b[col]),'th')
-      : String(b[col]).localeCompare(String(a[col]),'th');
-  });
 
-  renderTable(currentView);
-}
-
-function exportExcel(){
-  if(!currentView.length){
-    alert("ไม่มีข้อมูล");
-    return;
-  }
-
-  const ws=XLSX.utils.json_to_sheet(currentView);
-  const wb=XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb,ws,"Due Report");
-
-  const today=new Date().toLocaleDateString('th-TH');
-  const fileName=`กำหนดชำระ_${province.value||"ทุกจังหวัด"}_${today}.xlsx`;
-
-  XLSX.writeFile(wb,fileName);
-}
-
-</script>
+  </script>
 </body>
+
 </html>
