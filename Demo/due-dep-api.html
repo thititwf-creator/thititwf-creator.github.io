@@ -1,338 +1,318 @@
 <!DOCTYPE html>
 <html lang="th">
-
 <head>
-  <meta charset="UTF-8">
-  <title>รายงานข้อมูลกำหนดชำระ</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<title>Due Report Dashboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <style>
-    body {
-      font-family: system-ui, -apple-system, "Sarabun", sans-serif;
-      background: #f4f6f9;
-      padding: 20px;
-    }
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 
-    .card {
-      background: #fff;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-    }
+<style>
+body {
+  margin: 0;
+  font-family: "Sarabun", system-ui;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+}
 
-    h2 {
-      margin-top: 0;
-    }
+.container {
+  max-width: 1400px;
+  margin: 40px auto;
+  padding: 20px;
+}
 
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 10px;
-      margin-bottom: 15px;
-    }
+.card {
+  background: white;
+  border-radius: 16px;
+  padding: 25px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+}
 
-    input,
-    select,
-    button {
-      padding: 6px;
-      font-size: 14px;
-    }
+h2 {
+  margin-top: 0;
+}
 
-    button {
-      cursor: pointer;
-    }
+.filter-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 10px;
+  margin-bottom: 15px;
+}
 
-    .table-wrapper {
-      overflow: auto;
-      max-height: 600px;
-      border: 1px solid #ddd;
-    }
+input, select {
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+}
 
-    table {
-      border-collapse: collapse;
-      width: 100%;
-      min-width: 1600px;
-    }
+button {
+  padding: 10px 15px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+}
 
-    th,
-    td {
-      border: 1px solid #ddd;
-      padding: 6px;
-      font-size: 13px;
-      text-align: right;
-      white-space: nowrap;
-    }
+.btn-search {
+  background: #4caf50;
+  color: white;
+}
 
-    th {
-      background: #1f4e79;
-      color: #fff;
-      position: sticky;
-      top: 0;
-      cursor: pointer;
-    }
+.btn-export {
+  background: #2196f3;
+  color: white;
+}
 
-    th.left,
-    td.left {
-      text-align: left;
-    }
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
 
-    tfoot td {
-      background: #e9f1fb;
-      font-weight: bold;
-    }
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  font-size: 14px;
+}
 
-    .info-bar {
-      margin: 10px 0;
-      font-weight: bold;
-    }
-  </style>
+th, td {
+  padding: 8px;
+  border-bottom: 1px solid #eee;
+}
+
+th {
+  background: #2c3e50;
+  color: white;
+  cursor: pointer;
+}
+
+th.sort-asc::after { content: " ▲"; }
+th.sort-desc::after { content: " ▼"; }
+
+td.number {
+  text-align: right;
+}
+
+tbody tr:hover {
+  background: #f5f6fa;
+}
+
+tfoot td {
+  font-weight: bold;
+  background: #f1f2f6;
+}
+</style>
 </head>
 
 <body>
-  <div class="card">
-    <h2>รายงานข้อมูลกำหนดชำระ</h2>
 
-    <div class="grid">
-      <div>
-        <label>วันที่เริ่มต้น</label>
-        <input type="date" id="start_date">
-      </div>
-      <div>
-        <label>วันที่สิ้นสุด</label>
-        <input type="date" id="end_date">
-      </div>
-      <div>
-        <label>จังหวัด</label>
-        <select id="province"></select>
-      </div>
-      <div>
-        <label>สถานะโครงการ</label>
-        <select id="project_status">
-          <option>ทั้งหมด</option>
-          <option>เปิดโครงการ</option>
-          <option>ปิดโครงการ</option>
-          <option>ระหว่างดำเนินคดี</option>
-        </select>
-      </div>
-      <div>
-        <label>เลขที่สัญญา</label>
-        <input type="text" id="contract_no">
-      </div>
-      <div>
-        <label>ช่วงแสดงผล</label>
-        <input type="number" id="start_row" value="1" style="width:60px;"> -
-        <input type="number" id="end_row" value="100" style="width:60px;">
-      </div>
-    </div>
+<div class="container">
+<div class="card">
 
-    <button onclick="searchData()">ค้นหา</button>
-    <button onclick="exportExcel()">Export Excel</button>
+<h2>📊 รายงานข้อมูลกำหนดชำระ</h2>
 
-    <div class="info-bar" id="info"></div>
+<div class="filter-grid">
+  <input type="date" id="start_date">
+  <input type="date" id="end_date">
+  <input type="text" id="province" placeholder="จังหวัด">
+  <input type="text" id="project_status" placeholder="สถานะโครงการ">
+  <input type="text" id="contract_no" placeholder="เลขสัญญา">
+  <input type="number" id="start_row" value="1">
+  <input type="number" id="end_row" value="100">
+</div>
 
-    <div class="table-wrapper">
-      <table id="resultTable">
-        <thead>
-          <tr>
-            <th class="left" data-key="จังหวัด">จังหวัด</th>
-            <th class="left" data-key="อำเภอ">อำเภอ</th>
-            <th class="left" data-key="ตำบล">ตำบล</th>
-            <th class="left" data-key="ปีงบประมาณ">ปีงบประมาณ</th>
-            <th class="left" data-key="เลขที่สัญญา">เลขที่สัญญา</th>
-            <th class="left" data-key="ชื่อโครงการ">ชื่อโครงการ</th>
-            <th class="left" data-key="สถานะโครงการ">สถานะโครงการ</th>
-            <th data-key="กำหนดชำระ">กำหนดชำระ</th>
-            <th data-key="เงินต้นที่คาดว่าจะได้">เงินต้นที่คาดว่าจะได้</th>
-            <th data-key="ดอกเบี้ย">ดอกเบี้ย</th>
-            <th data-key="เบี้ยปรับ">เบี้ยปรับ</th>
-            <th data-key="ดอกเบี้ยผิดนัด">ดอกเบี้ยผิดนัด</th>
-            <th data-key="เงินต้นรับคืน">เงินต้นรับคืน</th>
-            <th data-key="ดอกเบี้ยรับคืน">ดอกเบี้ยรับคืน</th>
-            <th data-key="เบี้ยปรับรับคืน">เบี้ยปรับรับคืน</th>
-            <th data-key="ดอกเบี้ยผิดนัดรับคืน">ดอกเบี้ยผิดนัดรับคืน</th>
-            <th data-key="รับเงินเกิน">รับเงินเกิน</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-        <tfoot></tfoot>
-      </table>
-    </div>
+<button class="btn-search" id="searchBtn" onclick="searchData()">ค้นหา</button>
+<button class="btn-export" id="exportBtn" onclick="exportExcel()">Export Excel</button>
 
-  </div>
+<div id="info" style="margin-top:10px;"></div>
 
-  <script>
-    const API_URL = "https://api.twferp.click/due-report"; // 🔥 เปลี่ยนเป็นของคุณ
-    let currentData = [];
+<table id="dataTable">
+<thead></thead>
+<tbody></tbody>
+<tfoot></tfoot>
+</table>
 
-    const provinces = [
-      "ทั้งหมด", "กรุงเทพมหานคร", "กระบี่", "กาญจนบุรี", "กาฬสินธุ์", "กำแพงเพชร",
-      "ขอนแก่น", "จันทบุรี", "ฉะเชิงเทรา", "ชลบุรี", "ชัยนาท", "ชัยภูมิ",
-      "ชุมพร", "เชียงราย", "เชียงใหม่", "ตรัง", "ตราด", "ตาก", "นครนายก",
-      "นครปฐม", "นครพนม", "นครราชสีมา", "นครศรีธรรมราช", "นครสวรรค์",
-      "นนทบุรี", "นราธิวาส", "น่าน", "บึงกาฬ", "บุรีรัมย์", "ปทุมธานี",
-      "ประจวบคีรีขันธ์", "ปราจีนบุรี", "ปัตตานี", "พระนครศรีอยุธยา",
-      "พะเยา", "พังงา", "พัทลุง", "พิจิตร", "พิษณุโลก", "เพชรบุรี",
-      "เพชรบูรณ์", "แพร่", "ภูเก็ต", "มหาสารคาม", "มุกดาหาร",
-      "แม่ฮ่องสอน", "ยะลา", "ยโสธร", "ร้อยเอ็ด", "ระนอง", "ระยอง",
-      "ราชบุรี", "ลพบุรี", "ลำปาง", "ลำพูน", "เลย", "ศรีสะเกษ",
-      "สกลนคร", "สงขลา", "สตูล", "สมุทรปราการ", "สมุทรสงคราม",
-      "สมุทรสาคร", "สระแก้ว", "สระบุรี", "สิงห์บุรี", "สุโขทัย",
-      "สุพรรณบุรี", "สุราษฎร์ธานี", "สุรินทร์", "หนองคาย", "หนองบัวลำภู",
-      "อ่างทอง", "อำนาจเจริญ", "อุดรธานี", "อุตรดิตถ์", "อุทัยธานี",
-      "อุบลราชธานี"
-    ];
+</div>
+</div>
 
-    const provinceSelect = document.getElementById("province");
-    provinces.forEach(p => {
-      const opt = document.createElement("option");
-      opt.value = p;
-      opt.textContent = p;
-      provinceSelect.appendChild(opt);
-    });
+<script>
 
-    async function searchData() {
+const API_URL = "https://your-api-url";
 
-      const params = new URLSearchParams({
-        start_date: start_date.value,
-        end_date: end_date.value,
-        province: province.value,
-        project_status: project_status.value,
-        contract_no: contract_no.value,
-        start_row: start_row.value,
-        end_row: end_row.value
-      });
+let currentData = [];
+let sortState = { column: null, direction: "asc" };
 
-      const res = await fetch(`${API_URL}?${params}`);
-      const json = await res.json();
+function formatNumber(num) {
+  return new Intl.NumberFormat('th-TH').format(num);
+}
 
-      currentData = json.data || [];
-      renderTable(currentData);
+async function searchData() {
 
-      document.getElementById("info").innerText =
-        `แสดง ${json.start_row}-${json.end_row} / ${json.total}`;
+  const btn = searchBtn;
+  btn.disabled = true;
+  btn.textContent = "กำลังโหลด...";
+
+  const params = new URLSearchParams({
+    start_date: start_date.value,
+    end_date: end_date.value,
+    province: province.value,
+    project_status: project_status.value,
+    contract_no: contract_no.value,
+    start_row: start_row.value,
+    end_row: end_row.value
+  });
+
+  const res = await fetch(`${API_URL}?${params}`);
+  const json = await res.json();
+
+  currentData = json.data || [];
+  renderTable(currentData);
+
+  info.innerText = `พบทั้งหมด ${json.total || currentData.length} รายการ`;
+
+  btn.disabled = false;
+  btn.textContent = "ค้นหา";
+}
+
+function renderTable(data) {
+
+  const thead = dataTable.querySelector("thead");
+  const tbody = dataTable.querySelector("tbody");
+  const tfoot = dataTable.querySelector("tfoot");
+
+  thead.innerHTML = "";
+  tbody.innerHTML = "";
+  tfoot.innerHTML = "";
+
+  if (!data.length) return;
+
+  const headers = Object.keys(data[0]);
+
+  // HEADER
+  const trHead = document.createElement("tr");
+  headers.forEach(header => {
+    const th = document.createElement("th");
+    th.textContent = header;
+    th.onclick = () => sortTable(header);
+
+    if (sortState.column === header) {
+      th.classList.add(sortState.direction === "asc" ? "sort-asc" : "sort-desc");
     }
 
-    function renderTable(data) {
+    trHead.appendChild(th);
+  });
+  thead.appendChild(trHead);
 
-      const tbody = document.querySelector("#resultTable tbody");
-      const tfoot = document.querySelector("#resultTable tfoot");
-      tbody.innerHTML = "";
-      tfoot.innerHTML = "";
+  // BODY
+  data.forEach(row => {
+    const tr = document.createElement("tr");
 
-      let totals = {};
+    headers.forEach(h => {
+      const td = document.createElement("td");
 
-      data.forEach(row => {
-        const tr = document.createElement("tr");
-
-        Object.keys(row).forEach(key => {
-          const td = document.createElement("td");
-
-          if (typeof row[key] === "number") {
-            td.textContent = row[key].toLocaleString();
-            totals[key] = (totals[key] || 0) + row[key];
-          } else {
-            td.textContent = row[key];
-            td.classList.add("left");
-          }
-
-          tr.appendChild(td);
-        });
-
-        tbody.appendChild(tr);
-      });
-
-      const trf = document.createElement("tr");
-      Object.keys(data[0] || {}).forEach((key, i) => {
-        const td = document.createElement("td");
-        if (i < 8) {
-          td.textContent = (i === 0) ? "รวม" : "";
-        } else {
-          td.textContent = (totals[key] || 0).toLocaleString();
-        }
-        trf.appendChild(td);
-      });
-      tfoot.appendChild(trf);
-    }
-
-    async function exportExcel() {
-
-      const params = new URLSearchParams({
-        start_date: start_date.value,
-        end_date: end_date.value,
-        province: province.value,
-        project_status: project_status.value,
-        contract_no: contract_no.value,
-        export_all: true
-      });
-
-      const res = await fetch(`${API_URL}?${params}`);
-      const data = await res.json();
-
-      if (!data.data || data.data.length === 0) {
-        alert("ไม่มีข้อมูล");
-        return;
+      if (typeof row[h] === "number") {
+        td.textContent = formatNumber(row[h]);
+        td.classList.add("number");
+      } else {
+        td.textContent = row[h] ?? "";
       }
 
-      const ws = XLSX.utils.json_to_sheet(data.data);
-      const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, "Due Report");
+      tr.appendChild(td);
+    });
 
-      XLSX.writeFile(wb, "due_report.xlsx");
+    tbody.appendChild(tr);
+  });
+
+  // FOOTER SUM
+  let totals = {};
+  data.forEach(row => {
+    headers.forEach(h => {
+      if (typeof row[h] === "number") {
+        totals[h] = (totals[h] || 0) + row[h];
+      }
+    });
+  });
+
+  const trFoot = document.createElement("tr");
+  headers.forEach((h, i) => {
+    const td = document.createElement("td");
+
+    if (i === 0) {
+      td.textContent = "รวม";
+    } else if (totals[h]) {
+      td.textContent = formatNumber(totals[h]);
+      td.classList.add("number");
     }
 
-    let currentSort = {
-      key: null,
-      direction: "asc"
-    };
+    trFoot.appendChild(td);
+  });
 
-    document.querySelectorAll("th").forEach(th => {
-      th.addEventListener("click", () => {
+  tfoot.appendChild(trFoot);
+}
 
-        const key = th.dataset.key;
+function sortTable(column) {
 
-        // ถ้ากดคอลัมน์เดิม → สลับทิศทาง
-        if (currentSort.key === key) {
-          currentSort.direction =
-            currentSort.direction === "asc" ? "desc" : "asc";
-        } else {
-          currentSort.key = key;
-          currentSort.direction = "asc";
-        }
+  if (sortState.column === column) {
+    sortState.direction = sortState.direction === "asc" ? "desc" : "asc";
+  } else {
+    sortState.column = column;
+    sortState.direction = "asc";
+  }
 
-        // ล้างสัญลักษณ์เก่า
-        document.querySelectorAll("th").forEach(h => {
-          h.textContent = h.dataset.key;
-        });
+  currentData.sort((a, b) => {
 
-        // ใส่สัญลักษณ์ใหม่
-        th.textContent =
-          key + (currentSort.direction === "asc" ? " ▲" : " ▼");
+    let valA = a[column];
+    let valB = b[column];
 
-        currentData.sort((a, b) => {
+    if (typeof valA === "number") {
+      return sortState.direction === "asc"
+        ? valA - valB
+        : valB - valA;
+    }
 
-          let valA = a[key];
-          let valB = b[key];
+    return sortState.direction === "asc"
+      ? String(valA).localeCompare(String(valB))
+      : String(valB).localeCompare(String(valA));
+  });
 
-          // ถ้าเป็นตัวเลข
-          if (typeof valA === "number" && typeof valB === "number") {
-            return currentSort.direction === "asc"
-              ? valA - valB
-              : valB - valA;
-          }
+  renderTable(currentData);
+}
 
-          // ถ้าเป็น string หรือวันที่
-          valA = String(valA);
-          valB = String(valB);
+async function exportExcel() {
 
-          return currentSort.direction === "asc"
-            ? valA.localeCompare(valB, 'th')
-            : valB.localeCompare(valA, 'th');
-        });
+  const btn = exportBtn;
+  btn.disabled = true;
+  btn.textContent = "กำลัง Export...";
 
-        renderTable(currentData);
-      });
-    });
-  </script>
+  const params = new URLSearchParams({
+    start_date: start_date.value,
+    end_date: end_date.value,
+    province: province.value,
+    project_status: project_status.value,
+    contract_no: contract_no.value,
+    export_all: true
+  });
+
+  const res = await fetch(`${API_URL}?${params}`);
+  const json = await res.json();
+
+  if (!json.data || json.data.length === 0) {
+    alert("ไม่มีข้อมูล");
+    btn.disabled = false;
+    btn.textContent = "Export Excel";
+    return;
+  }
+
+  const ws = XLSX.utils.json_to_sheet(json.data);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Due Report");
+
+  const today = new Date().toISOString().slice(0,10);
+  XLSX.writeFile(wb, `due_report_${today}.xlsx`);
+
+  btn.disabled = false;
+  btn.textContent = "Export Excel";
+}
+
+</script>
 </body>
-
 </html>
