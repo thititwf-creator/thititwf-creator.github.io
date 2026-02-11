@@ -1,189 +1,198 @@
 <!DOCTYPE html>
 <html lang="th">
+
 <head>
-<meta charset="UTF-8">
-<title>รายงานข้อมูลกำหนดชำระ</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8">
+  <title>รายงานข้อมูลกำหนดชำระ</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<style>
-body {
-    font-family: system-ui, -apple-system, "Sarabun", sans-serif;
-    background: #f4f6f9;
-    padding: 20px;
-}
+  <style>
+    body {
+      font-family: system-ui, -apple-system, "Sarabun", sans-serif;
+      background: #f4f6f9;
+      padding: 20px;
+    }
 
-.card {
-    background: #fff;
-    padding: 20px;
-    border-radius: 12px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-}
+    .card {
+      background: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    }
 
-h2 { margin-top: 0; }
+    h2 {
+      margin-top: 0;
+    }
 
-.grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 10px;
-    margin-bottom: 15px;
-}
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 10px;
+      margin-bottom: 15px;
+    }
 
-input, select, button {
-    padding: 6px;
-    font-size: 14px;
-}
+    input,
+    select,
+    button {
+      padding: 6px;
+      font-size: 14px;
+    }
 
-button {
-    cursor: pointer;
-}
+    button {
+      cursor: pointer;
+    }
 
-.table-wrapper {
-    overflow: auto;
-    max-height: 600px;
-    border: 1px solid #ddd;
-}
+    .table-wrapper {
+      overflow: auto;
+      max-height: 600px;
+      border: 1px solid #ddd;
+    }
 
-table {
-    border-collapse: collapse;
-    width: 100%;
-    min-width: 1600px;
-}
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      min-width: 1600px;
+    }
 
-th, td {
-    border: 1px solid #ddd;
-    padding: 6px;
-    font-size: 13px;
-    text-align: right;
-    white-space: nowrap;
-}
+    th,
+    td {
+      border: 1px solid #ddd;
+      padding: 6px;
+      font-size: 13px;
+      text-align: right;
+      white-space: nowrap;
+    }
 
-th {
-    background: #1f4e79;
-    color: #fff;
-    position: sticky;
-    top: 0;
-    cursor: pointer;
-}
+    th {
+      background: #1f4e79;
+      color: #fff;
+      position: sticky;
+      top: 0;
+      cursor: pointer;
+    }
 
-th.left, td.left { text-align: left; }
+    th.left,
+    td.left {
+      text-align: left;
+    }
 
-tfoot td {
-    background: #e9f1fb;
-    font-weight: bold;
-}
+    tfoot td {
+      background: #e9f1fb;
+      font-weight: bold;
+    }
 
-.info-bar {
-    margin: 10px 0;
-    font-weight: bold;
-}
-</style>
+    .info-bar {
+      margin: 10px 0;
+      font-weight: bold;
+    }
+  </style>
 </head>
 
 <body>
-<div class="card">
-<h2>รายงานข้อมูลกำหนดชำระ</h2>
+  <div class="card">
+    <h2>รายงานข้อมูลกำหนดชำระ</h2>
 
-<div class="grid">
-    <div>
+    <div class="grid">
+      <div>
         <label>วันที่เริ่มต้น</label>
         <input type="date" id="start_date">
-    </div>
-    <div>
+      </div>
+      <div>
         <label>วันที่สิ้นสุด</label>
         <input type="date" id="end_date">
-    </div>
-    <div>
+      </div>
+      <div>
         <label>จังหวัด</label>
         <select id="province"></select>
-    </div>
-    <div>
+      </div>
+      <div>
         <label>สถานะโครงการ</label>
         <select id="project_status">
-            <option>ทั้งหมด</option>
-            <option>เปิดโครงการ</option>
-            <option>ปิดโครงการ</option>
-            <option>ระหว่างดำเนินคดี</option>
+          <option>ทั้งหมด</option>
+          <option>เปิดโครงการ</option>
+          <option>ปิดโครงการ</option>
+          <option>ระหว่างดำเนินคดี</option>
         </select>
-    </div>
-    <div>
+      </div>
+      <div>
         <label>เลขที่สัญญา</label>
         <input type="text" id="contract_no">
-    </div>
-    <div>
+      </div>
+      <div>
         <label>ช่วงแสดงผล</label>
         <input type="number" id="start_row" value="1" style="width:60px;"> -
         <input type="number" id="end_row" value="100" style="width:60px;">
+      </div>
     </div>
-</div>
 
-<button onclick="searchData()">ค้นหา</button>
-<button onclick="exportData()">Export Excel</button>
+    <button onclick="searchData()">ค้นหา</button>
+    <button onclick="exportData()">Export Excel</button>
 
-<div class="info-bar" id="info"></div>
+    <div class="info-bar" id="info"></div>
 
-<div class="table-wrapper">
-<table id="resultTable">
-<thead>
-<tr>
-<th class="left" data-key="จังหวัด">จังหวัด</th>
-<th class="left" data-key="อำเภอ">อำเภอ</th>
-<th class="left" data-key="ตำบล">ตำบล</th>
-<th class="left" data-key="ปีงบประมาณ">ปีงบประมาณ</th>
-<th class="left" data-key="เลขที่สัญญา">เลขที่สัญญา</th>
-<th class="left" data-key="ชื่อโครงการ">ชื่อโครงการ</th>
-<th class="left" data-key="สถานะโครงการ">สถานะโครงการ</th>
-<th data-key="กำหนดชำระ">กำหนดชำระ</th>
-<th data-key="เงินต้นที่คาดว่าจะได้">เงินต้นที่คาดว่าจะได้</th>
-<th data-key="ดอกเบี้ย">ดอกเบี้ย</th>
-<th data-key="เบี้ยปรับ">เบี้ยปรับ</th>
-<th data-key="ดอกเบี้ยผิดนัด">ดอกเบี้ยผิดนัด</th>
-<th data-key="เงินต้นรับคืน">เงินต้นรับคืน</th>
-<th data-key="ดอกเบี้ยรับคืน">ดอกเบี้ยรับคืน</th>
-<th data-key="เบี้ยปรับรับคืน">เบี้ยปรับรับคืน</th>
-<th data-key="ดอกเบี้ยผิดนัดรับคืน">ดอกเบี้ยผิดนัดรับคืน</th>
-<th data-key="รับเงินเกิน">รับเงินเกิน</th>
-</tr>
-</thead>
-<tbody></tbody>
-<tfoot></tfoot>
-</table>
-</div>
+    <div class="table-wrapper">
+      <table id="resultTable">
+        <thead>
+          <tr>
+            <th class="left" data-key="จังหวัด">จังหวัด</th>
+            <th class="left" data-key="อำเภอ">อำเภอ</th>
+            <th class="left" data-key="ตำบล">ตำบล</th>
+            <th class="left" data-key="ปีงบประมาณ">ปีงบประมาณ</th>
+            <th class="left" data-key="เลขที่สัญญา">เลขที่สัญญา</th>
+            <th class="left" data-key="ชื่อโครงการ">ชื่อโครงการ</th>
+            <th class="left" data-key="สถานะโครงการ">สถานะโครงการ</th>
+            <th data-key="กำหนดชำระ">กำหนดชำระ</th>
+            <th data-key="เงินต้นที่คาดว่าจะได้">เงินต้นที่คาดว่าจะได้</th>
+            <th data-key="ดอกเบี้ย">ดอกเบี้ย</th>
+            <th data-key="เบี้ยปรับ">เบี้ยปรับ</th>
+            <th data-key="ดอกเบี้ยผิดนัด">ดอกเบี้ยผิดนัด</th>
+            <th data-key="เงินต้นรับคืน">เงินต้นรับคืน</th>
+            <th data-key="ดอกเบี้ยรับคืน">ดอกเบี้ยรับคืน</th>
+            <th data-key="เบี้ยปรับรับคืน">เบี้ยปรับรับคืน</th>
+            <th data-key="ดอกเบี้ยผิดนัดรับคืน">ดอกเบี้ยผิดนัดรับคืน</th>
+            <th data-key="รับเงินเกิน">รับเงินเกิน</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+        <tfoot></tfoot>
+      </table>
+    </div>
 
-</div>
+  </div>
 
-<script>
-const API_URL = "https://api.twferp.click/due-report"; // 🔥 เปลี่ยนเป็นของคุณ
-let currentData = [];
+  <script>
+    const API_URL = "https://api.twferp.click/due-report"; // 🔥 เปลี่ยนเป็นของคุณ
+    let currentData = [];
 
-const provinces = [
-"ทั้งหมด","กรุงเทพมหานคร","กระบี่","กาญจนบุรี","กาฬสินธุ์","กำแพงเพชร",
-"ขอนแก่น","จันทบุรี","ฉะเชิงเทรา","ชลบุรี","ชัยนาท","ชัยภูมิ",
-"ชุมพร","เชียงราย","เชียงใหม่","ตรัง","ตราด","ตาก","นครนายก",
-"นครปฐม","นครพนม","นครราชสีมา","นครศรีธรรมราช","นครสวรรค์",
-"นนทบุรี","นราธิวาส","น่าน","บึงกาฬ","บุรีรัมย์","ปทุมธานี",
-"ประจวบคีรีขันธ์","ปราจีนบุรี","ปัตตานี","พระนครศรีอยุธยา",
-"พะเยา","พังงา","พัทลุง","พิจิตร","พิษณุโลก","เพชรบุรี",
-"เพชรบูรณ์","แพร่","ภูเก็ต","มหาสารคาม","มุกดาหาร",
-"แม่ฮ่องสอน","ยะลา","ยโสธร","ร้อยเอ็ด","ระนอง","ระยอง",
-"ราชบุรี","ลพบุรี","ลำปาง","ลำพูน","เลย","ศรีสะเกษ",
-"สกลนคร","สงขลา","สตูล","สมุทรปราการ","สมุทรสงคราม",
-"สมุทรสาคร","สระแก้ว","สระบุรี","สิงห์บุรี","สุโขทัย",
-"สุพรรณบุรี","สุราษฎร์ธานี","สุรินทร์","หนองคาย","หนองบัวลำภู",
-"อ่างทอง","อำนาจเจริญ","อุดรธานี","อุตรดิตถ์","อุทัยธานี",
-"อุบลราชธานี"
-];
+    const provinces = [
+      "ทั้งหมด", "กรุงเทพมหานคร", "กระบี่", "กาญจนบุรี", "กาฬสินธุ์", "กำแพงเพชร",
+      "ขอนแก่น", "จันทบุรี", "ฉะเชิงเทรา", "ชลบุรี", "ชัยนาท", "ชัยภูมิ",
+      "ชุมพร", "เชียงราย", "เชียงใหม่", "ตรัง", "ตราด", "ตาก", "นครนายก",
+      "นครปฐม", "นครพนม", "นครราชสีมา", "นครศรีธรรมราช", "นครสวรรค์",
+      "นนทบุรี", "นราธิวาส", "น่าน", "บึงกาฬ", "บุรีรัมย์", "ปทุมธานี",
+      "ประจวบคีรีขันธ์", "ปราจีนบุรี", "ปัตตานี", "พระนครศรีอยุธยา",
+      "พะเยา", "พังงา", "พัทลุง", "พิจิตร", "พิษณุโลก", "เพชรบุรี",
+      "เพชรบูรณ์", "แพร่", "ภูเก็ต", "มหาสารคาม", "มุกดาหาร",
+      "แม่ฮ่องสอน", "ยะลา", "ยโสธร", "ร้อยเอ็ด", "ระนอง", "ระยอง",
+      "ราชบุรี", "ลพบุรี", "ลำปาง", "ลำพูน", "เลย", "ศรีสะเกษ",
+      "สกลนคร", "สงขลา", "สตูล", "สมุทรปราการ", "สมุทรสงคราม",
+      "สมุทรสาคร", "สระแก้ว", "สระบุรี", "สิงห์บุรี", "สุโขทัย",
+      "สุพรรณบุรี", "สุราษฎร์ธานี", "สุรินทร์", "หนองคาย", "หนองบัวลำภู",
+      "อ่างทอง", "อำนาจเจริญ", "อุดรธานี", "อุตรดิตถ์", "อุทัยธานี",
+      "อุบลราชธานี"
+    ];
 
-const provinceSelect = document.getElementById("province");
-provinces.forEach(p=>{
-    const opt = document.createElement("option");
-    opt.value = p;
-    opt.textContent = p;
-    provinceSelect.appendChild(opt);
-});
+    const provinceSelect = document.getElementById("province");
+    provinces.forEach(p => {
+      const opt = document.createElement("option");
+      opt.value = p;
+      opt.textContent = p;
+      provinceSelect.appendChild(opt);
+    });
 
-async function searchData() {
+    async function searchData() {
 
-    const params = new URLSearchParams({
+      const params = new URLSearchParams({
         start_date: start_date.value,
         end_date: end_date.value,
         province: province.value,
@@ -191,84 +200,126 @@ async function searchData() {
         contract_no: contract_no.value,
         start_row: start_row.value,
         end_row: end_row.value
-    });
+      });
 
-    const res = await fetch(`${API_URL}?${params}`);
-    const json = await res.json();
+      const res = await fetch(`${API_URL}?${params}`);
+      const json = await res.json();
 
-    currentData = json.data || [];
-    renderTable(currentData);
+      currentData = json.data || [];
+      renderTable(currentData);
 
-    document.getElementById("info").innerText =
+      document.getElementById("info").innerText =
         `แสดง ${json.start_row}-${json.end_row} / ${json.total}`;
-}
+    }
 
-function renderTable(data) {
+    function renderTable(data) {
 
-    const tbody = document.querySelector("#resultTable tbody");
-    const tfoot = document.querySelector("#resultTable tfoot");
-    tbody.innerHTML = "";
-    tfoot.innerHTML = "";
+      const tbody = document.querySelector("#resultTable tbody");
+      const tfoot = document.querySelector("#resultTable tfoot");
+      tbody.innerHTML = "";
+      tfoot.innerHTML = "";
 
-    let totals = {};
+      let totals = {};
 
-    data.forEach(row=>{
+      data.forEach(row => {
         const tr = document.createElement("tr");
 
-        Object.keys(row).forEach(key=>{
-            const td = document.createElement("td");
+        Object.keys(row).forEach(key => {
+          const td = document.createElement("td");
 
-            if (typeof row[key] === "number") {
-                td.textContent = row[key].toLocaleString();
-                totals[key] = (totals[key] || 0) + row[key];
-            } else {
-                td.textContent = row[key];
-                td.classList.add("left");
-            }
+          if (typeof row[key] === "number") {
+            td.textContent = row[key].toLocaleString();
+            totals[key] = (totals[key] || 0) + row[key];
+          } else {
+            td.textContent = row[key];
+            td.classList.add("left");
+          }
 
-            tr.appendChild(td);
+          tr.appendChild(td);
         });
 
         tbody.appendChild(tr);
-    });
+      });
 
-    const trf = document.createElement("tr");
-    Object.keys(data[0] || {}).forEach((key,i)=>{
+      const trf = document.createElement("tr");
+      Object.keys(data[0] || {}).forEach((key, i) => {
         const td = document.createElement("td");
-        if(i < 8){
-            td.textContent = (i===0) ? "รวม" : "";
+        if (i < 8) {
+          td.textContent = (i === 0) ? "รวม" : "";
         } else {
-            td.textContent = (totals[key] || 0).toLocaleString();
+          td.textContent = (totals[key] || 0).toLocaleString();
         }
         trf.appendChild(td);
-    });
-    tfoot.appendChild(trf);
-}
+      });
+      tfoot.appendChild(trf);
+    }
 
-function exportData(){
-    const params = new URLSearchParams({
+    function exportData() {
+      const params = new URLSearchParams({
         start_date: start_date.value,
         end_date: end_date.value,
         province: province.value,
         project_status: project_status.value,
         contract_no: contract_no.value,
         export_all: true
-    });
+      });
 
-    window.open(`${API_URL}?${params}`);
-}
+      window.open(`${API_URL}?${params}`);
+    }
 
-document.querySelectorAll("th").forEach(th=>{
-    th.addEventListener("click", ()=>{
+    let currentSort = {
+      key: null,
+      direction: "asc"
+    };
+
+    document.querySelectorAll("th").forEach(th => {
+      th.addEventListener("click", () => {
+
         const key = th.dataset.key;
-        currentData.sort((a,b)=>{
-            if(a[key] > b[key]) return 1;
-            if(a[key] < b[key]) return -1;
-            return 0;
+
+        // ถ้ากดคอลัมน์เดิม → สลับทิศทาง
+        if (currentSort.key === key) {
+          currentSort.direction =
+            currentSort.direction === "asc" ? "desc" : "asc";
+        } else {
+          currentSort.key = key;
+          currentSort.direction = "asc";
+        }
+
+        // ล้างสัญลักษณ์เก่า
+        document.querySelectorAll("th").forEach(h => {
+          h.textContent = h.dataset.key;
         });
+
+        // ใส่สัญลักษณ์ใหม่
+        th.textContent =
+          key + (currentSort.direction === "asc" ? " ▲" : " ▼");
+
+        currentData.sort((a, b) => {
+
+          let valA = a[key];
+          let valB = b[key];
+
+          // ถ้าเป็นตัวเลข
+          if (typeof valA === "number" && typeof valB === "number") {
+            return currentSort.direction === "asc"
+              ? valA - valB
+              : valB - valA;
+          }
+
+          // ถ้าเป็น string หรือวันที่
+          valA = String(valA);
+          valB = String(valB);
+
+          return currentSort.direction === "asc"
+            ? valA.localeCompare(valB, 'th')
+            : valB.localeCompare(valA, 'th');
+        });
+
         renderTable(currentData);
+      });
     });
-});
-</script>
+  </script>
 </body>
+
 </html>
