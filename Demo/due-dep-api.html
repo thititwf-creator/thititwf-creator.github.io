@@ -8,128 +8,118 @@
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 
 <style>
-body {
-  margin: 0;
-  font-family: "Sarabun", system-ui;
-  background: linear-gradient(135deg, #667eea, #764ba2);
+body{
+  margin:0;
+  font-family:"Sarabun",system-ui;
+  background:linear-gradient(135deg,#667eea,#764ba2);
+}
+.container{
+  max-width:1400px;
+  margin:40px auto;
+  padding:20px;
+}
+.card{
+  background:#fff;
+  border-radius:16px;
+  padding:25px;
+  box-shadow:0 10px 25px rgba(0,0,0,.15);
+}
+h2{margin-top:0}
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+  gap:10px;
+  margin-bottom:15px;
+}
+input,select{
+  padding:8px;
+  border-radius:8px;
+  border:1px solid #ddd;
+}
+button{
+  padding:8px 14px;
+  border:none;
+  border-radius:8px;
+  cursor:pointer;
+  font-weight:bold;
+}
+.btn-search{background:#27ae60;color:#fff}
+.btn-show{background:#f39c12;color:#fff}
+.btn-export{background:#2980b9;color:#fff}
+
+/* table */
+.table-wrapper{
+  max-height:500px;
+  overflow:auto;
+  margin-top:20px;
+  border-radius:12px;
 }
 
-.container {
-  max-width: 1400px;
-  margin: 40px auto;
-  padding: 20px;
+table{
+  width:100%;
+  border-collapse:collapse;
+  font-size:13px;
+  background:white;
 }
-
-.card {
-  background: white;
-  border-radius: 16px;
-  padding: 25px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+th,td{
+  padding:6px;
+  border-bottom:1px solid #eee;
 }
-
-h2 {
-  margin-top: 0;
+th{
+  background:#2c3e50;
+  color:#fff;
+  cursor:pointer;
+  position:sticky;
+  top:0;
+  z-index:10;
 }
-
-.filter-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 10px;
-  margin-bottom: 15px;
+td.number{text-align:right}
+tfoot td{
+  font-weight:bold;
+  background:#f4f6f9;
+  position:sticky;
+  bottom:0;
 }
-
-input, select {
-  padding: 10px;
-  border-radius: 8px;
-  border: 1px solid #ddd;
-}
-
-button {
-  padding: 10px 15px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: bold;
-}
-
-.btn-search {
-  background: #4caf50;
-  color: white;
-}
-
-.btn-export {
-  background: #2196f3;
-  color: white;
-}
-
-button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 20px;
-  font-size: 14px;
-}
-
-th, td {
-  padding: 8px;
-  border-bottom: 1px solid #eee;
-}
-
-th {
-  background: #2c3e50;
-  color: white;
-  cursor: pointer;
-}
-
-th.sort-asc::after { content: " ▲"; }
-th.sort-desc::after { content: " ▼"; }
-
-td.number {
-  text-align: right;
-}
-
-tbody tr:hover {
-  background: #f5f6fa;
-}
-
-tfoot td {
-  font-weight: bold;
-  background: #f1f2f6;
-}
+tbody tr:hover{background:#f1f2f6}
 </style>
 </head>
 
 <body>
-
 <div class="container">
 <div class="card">
 
 <h2>📊 รายงานข้อมูลกำหนดชำระ</h2>
 
-<div class="filter-grid">
+<div class="grid">
   <input type="date" id="start_date">
   <input type="date" id="end_date">
-  <input type="text" id="province" placeholder="จังหวัด">
+
+  <select id="province">
+    <option value="">ทั้งหมด</option>
+  </select>
+
   <input type="text" id="project_status" placeholder="สถานะโครงการ">
-  <input type="text" id="contract_no" placeholder="เลขสัญญา">
-  <input type="number" id="start_row" value="1">
-  <input type="number" id="end_row" value="100">
+  <input type="text" id="contract_no" placeholder="เลขที่สัญญา">
+
+  <div>
+    <input type="number" id="start_row" value="1" style="width:60px"> -
+    <input type="number" id="end_row" value="100" style="width:60px">
+  </div>
 </div>
 
-<button class="btn-search" id="searchBtn" onclick="searchData()">ค้นหา</button>
-<button class="btn-export" id="exportBtn" onclick="exportExcel()">Export Excel</button>
+<button class="btn-search" onclick="searchData()">ค้นหา</button>
+<button class="btn-show" onclick="showRange()">แสดง</button>
+<button class="btn-export" onclick="exportExcel()">Export Excel</button>
 
-<div id="info" style="margin-top:10px;"></div>
+<div id="info" style="margin-top:10px;font-weight:bold"></div>
 
-<table id="dataTable">
+<div class="table-wrapper">
+<table id="table">
 <thead></thead>
 <tbody></tbody>
 <tfoot></tfoot>
 </table>
+</div>
 
 </div>
 </div>
@@ -137,180 +127,157 @@ tfoot td {
 <script>
 
 const API_URL = "https://api.twferp.click/due-report";
+let fullData = [];
+let currentView = [];
+let sortState = { column:null, direction:"asc" };
 
-let currentData = [];
-let sortState = { column: null, direction: "asc" };
+const provinces = [
+"กรุงเทพมหานคร","กระบี่","กาญจนบุรี","กาฬสินธุ์","กำแพงเพชร",
+"ขอนแก่น","จันทบุรี","ฉะเชิงเทรา","ชลบุรี","ชัยนาท","ชัยภูมิ",
+"ชุมพร","เชียงราย","เชียงใหม่","ตรัง","ตราด","ตาก","นครนายก",
+"นครปฐม","นครพนม","นครราชสีมา","นครศรีธรรมราช","นครสวรรค์",
+"นนทบุรี","นราธิวาส","น่าน","บึงกาฬ","บุรีรัมย์","ปทุมธานี",
+"ประจวบคีรีขันธ์","ปราจีนบุรี","ปัตตานี","พระนครศรีอยุธยา",
+"พะเยา","พังงา","พัทลุง","พิจิตร","พิษณุโลก","เพชรบุรี",
+"เพชรบูรณ์","แพร่","ภูเก็ต","มหาสารคาม","มุกดาหาร",
+"แม่ฮ่องสอน","ยะลา","ยโสธร","ร้อยเอ็ด","ระนอง","ระยอง",
+"ราชบุรี","ลพบุรี","ลำปาง","ลำพูน","เลย","ศรีสะเกษ",
+"สกลนคร","สงขลา","สตูล","สมุทรปราการ","สมุทรสงคราม",
+"สมุทรสาคร","สระแก้ว","สระบุรี","สิงห์บุรี","สุโขทัย",
+"สุพรรณบุรี","สุราษฎร์ธานี","สุรินทร์","หนองคาย",
+"หนองบัวลำภู","อ่างทอง","อำนาจเจริญ","อุดรธานี",
+"อุตรดิตถ์","อุทัยธานี","อุบลราชธานี"
+];
 
-function formatNumber(num) {
+provinces.forEach(p=>{
+  const opt=document.createElement("option");
+  opt.value=p;
+  opt.textContent=p;
+  province.appendChild(opt);
+});
+
+function formatNumber(num){
   return new Intl.NumberFormat('th-TH').format(num);
 }
 
-async function searchData() {
-
-  const btn = searchBtn;
-  btn.disabled = true;
-  btn.textContent = "กำลังโหลด...";
+async function searchData(){
 
   const params = new URLSearchParams({
-    start_date: start_date.value,
-    end_date: end_date.value,
-    province: province.value,
-    project_status: project_status.value,
-    contract_no: contract_no.value,
-    start_row: start_row.value,
-    end_row: end_row.value
+    start_date:start_date.value,
+    end_date:end_date.value,
+    province:province.value,
+    project_status:project_status.value,
+    contract_no:contract_no.value,
+    export_all:true
   });
 
   const res = await fetch(`${API_URL}?${params}`);
   const json = await res.json();
 
-  currentData = json.data || [];
-  renderTable(currentData);
+  fullData = json.data || [];
+  showRange();
 
-  info.innerText = `พบทั้งหมด ${json.total || currentData.length} รายการ`;
-
-  btn.disabled = false;
-  btn.textContent = "ค้นหา";
+  info.innerText = `พบทั้งหมด ${formatNumber(fullData.length)} รายการ`;
 }
 
-function renderTable(data) {
+function showRange(){
+  const start=parseInt(start_row.value)||1;
+  const end=parseInt(end_row.value)||fullData.length;
+  currentView=fullData.slice(start-1,end);
+  renderTable(currentView);
+}
 
-  const thead = dataTable.querySelector("thead");
-  const tbody = dataTable.querySelector("tbody");
-  const tfoot = dataTable.querySelector("tfoot");
+function renderTable(data){
 
-  thead.innerHTML = "";
-  tbody.innerHTML = "";
-  tfoot.innerHTML = "";
+  const thead=table.querySelector("thead");
+  const tbody=table.querySelector("tbody");
+  const tfoot=table.querySelector("tfoot");
 
-  if (!data.length) return;
+  thead.innerHTML="";
+  tbody.innerHTML="";
+  tfoot.innerHTML="";
 
-  const headers = Object.keys(data[0]);
+  if(!data.length) return;
 
-  // HEADER
-  const trHead = document.createElement("tr");
-  headers.forEach(header => {
-    const th = document.createElement("th");
-    th.textContent = header;
-    th.onclick = () => sortTable(header);
+  const headers=Object.keys(data[0]);
 
-    if (sortState.column === header) {
-      th.classList.add(sortState.direction === "asc" ? "sort-asc" : "sort-desc");
-    }
-
+  const trHead=document.createElement("tr");
+  headers.forEach(h=>{
+    const th=document.createElement("th");
+    th.textContent=h;
+    th.onclick=()=>sortTable(h);
     trHead.appendChild(th);
   });
   thead.appendChild(trHead);
 
-  // BODY
-  data.forEach(row => {
-    const tr = document.createElement("tr");
-
-    headers.forEach(h => {
-      const td = document.createElement("td");
-
-      if (typeof row[h] === "number") {
-        td.textContent = formatNumber(row[h]);
+  data.forEach(row=>{
+    const tr=document.createElement("tr");
+    headers.forEach(h=>{
+      const td=document.createElement("td");
+      if(typeof row[h]==="number"){
+        td.textContent=formatNumber(row[h]);
         td.classList.add("number");
-      } else {
-        td.textContent = row[h] ?? "";
+      }else{
+        td.textContent=row[h]??"";
       }
-
       tr.appendChild(td);
     });
-
     tbody.appendChild(tr);
   });
 
-  // FOOTER SUM
-  let totals = {};
-  data.forEach(row => {
-    headers.forEach(h => {
-      if (typeof row[h] === "number") {
-        totals[h] = (totals[h] || 0) + row[h];
+  let totals={};
+  data.forEach(row=>{
+    headers.forEach(h=>{
+      if(typeof row[h]==="number"){
+        totals[h]=(totals[h]||0)+row[h];
       }
     });
   });
 
-  const trFoot = document.createElement("tr");
-  headers.forEach((h, i) => {
-    const td = document.createElement("td");
-
-    if (i === 0) {
-      td.textContent = "รวม";
-    } else if (totals[h]) {
-      td.textContent = formatNumber(totals[h]);
+  const trFoot=document.createElement("tr");
+  headers.forEach((h,i)=>{
+    const td=document.createElement("td");
+    if(i===0) td.textContent="รวม";
+    else if(totals[h]){
+      td.textContent=formatNumber(totals[h]);
       td.classList.add("number");
     }
-
     trFoot.appendChild(td);
   });
-
   tfoot.appendChild(trFoot);
 }
 
-function sortTable(column) {
-
-  if (sortState.column === column) {
-    sortState.direction = sortState.direction === "asc" ? "desc" : "asc";
-  } else {
-    sortState.column = column;
-    sortState.direction = "asc";
+function sortTable(col){
+  if(sortState.column===col){
+    sortState.direction=sortState.direction==="asc"?"desc":"asc";
+  }else{
+    sortState.column=col;
+    sortState.direction="asc";
   }
 
-  currentData.sort((a, b) => {
-
-    let valA = a[column];
-    let valB = b[column];
-
-    if (typeof valA === "number") {
-      return sortState.direction === "asc"
-        ? valA - valB
-        : valB - valA;
+  currentView.sort((a,b)=>{
+    if(typeof a[col]==="number"){
+      return sortState.direction==="asc"?a[col]-b[col]:b[col]-a[col];
     }
-
-    return sortState.direction === "asc"
-      ? String(valA).localeCompare(String(valB))
-      : String(valB).localeCompare(String(valA));
+    return sortState.direction==="asc"
+      ? String(a[col]).localeCompare(String(b[col]),'th')
+      : String(b[col]).localeCompare(String(a[col]),'th');
   });
 
-  renderTable(currentData);
+  renderTable(currentView);
 }
 
-async function exportExcel() {
-
-  const btn = exportBtn;
-  btn.disabled = true;
-  btn.textContent = "กำลัง Export...";
-
-  const params = new URLSearchParams({
-    start_date: start_date.value,
-    end_date: end_date.value,
-    province: province.value,
-    project_status: project_status.value,
-    contract_no: contract_no.value,
-    export_all: true
-  });
-
-  const res = await fetch(`${API_URL}?${params}`);
-  const json = await res.json();
-
-  if (!json.data || json.data.length === 0) {
+function exportExcel(){
+  if(!currentView.length){
     alert("ไม่มีข้อมูล");
-    btn.disabled = false;
-    btn.textContent = "Export Excel";
     return;
   }
 
-  const ws = XLSX.utils.json_to_sheet(json.data);
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, "Due Report");
+  const ws=XLSX.utils.json_to_sheet(currentView);
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,ws,"Due Report");
 
-  const today = new Date().toISOString().slice(0,10);
-  XLSX.writeFile(wb, `due_report_${today}.xlsx`);
-
-  btn.disabled = false;
-  btn.textContent = "Export Excel";
+  XLSX.writeFile(wb,"due_report.xlsx");
 }
 
 </script>
