@@ -1,131 +1,308 @@
 <!DOCTYPE html>
 <html lang="th">
+
 <head>
-<meta charset="UTF-8">
-<title>Due Debt</title>
+  <meta charset="UTF-8">
+  <title>Due Debt</title>
 
-<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 
-<style>
-body{font-family:Sarabun;background:#f4f6fb;padding:30px}
-.card{background:#fff;padding:24px;border-radius:12px;max-width:1500px;margin:auto}
-input,select,button{padding:8px;width:100%;margin-bottom:8px}
-.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
-button{cursor:pointer}
-.table-wrap{max-height:600px;overflow:auto;margin-top:16px}
-table{width:100%;border-collapse:collapse}
-th,td{border:1px solid #ccc;padding:6px;font-size:14px}
-th{background:#eef;text-align:center;cursor:pointer;position:sticky;top:0}
-td{text-align:right}
-td.left{text-align:left}
-tfoot td{font-weight:bold;background:#fafafa;position:sticky;bottom:0}
-.error{color:red;margin-top:10px}
-</style>
+  <style>
+    body {
+      font-family: Sarabun;
+      background: #f4f6fb;
+      padding: 30px
+    }
+
+    .card {
+      background: #fff;
+      padding: 24px;
+      border-radius: 12px;
+      max-width: 1500px;
+      margin: auto
+    }
+
+    input,
+    select,
+    button {
+      padding: 8px;
+      width: 100%;
+      margin-bottom: 8px
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px
+    }
+
+    button {
+      cursor: pointer
+    }
+
+    .table-wrap {
+      max-height: 600px;
+      overflow: auto;
+      margin-top: 16px
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse
+    }
+
+    th,
+    td {
+      border: 1px solid #ccc;
+      padding: 6px;
+      font-size: 14px
+    }
+
+    th {
+      background: #eef;
+      text-align: center;
+      cursor: pointer;
+      position: sticky;
+      top: 0
+    }
+
+    td {
+      text-align: right
+    }
+
+    td.left {
+      text-align: left
+    }
+
+    tfoot td {
+      font-weight: bold;
+      background: #fafafa;
+      position: sticky;
+      bottom: 0
+    }
+
+    .error {
+      color: red;
+      margin-top: 10px
+    }
+  </style>
 </head>
 
 <body>
-<div class="card">
-<h2>ค้นหากำหนดชำระ</h2>
+  <div class="card">
+    <h2>ค้นหากำหนดชำระ</h2>
 
-<div class="grid">
-  <select id="province" required>
-    <option value="">-- เลือกจังหวัด --</option>
-    <option value="ทั้งหมด">ทั้งหมด</option>
-    <script>
-      const provinces = [
-        "กรุงเทพมหานคร","กระบี่","กาญจนบุรี","กาฬสินธุ์","กำแพงเพชร","ขอนแก่น",
-        "จันทบุรี","ฉะเชิงเทรา","ชลบุรี","ชัยนาท","ชัยภูมิ","ชุมพร",
-        "เชียงราย","เชียงใหม่","ตรัง","ตราด","ตาก","นครนายก","นครปฐม",
-        "นครพนม","นครราชสีมา","นครศรีธรรมราช","นครสวรรค์","นนทบุรี",
-        "นราธิวาส","น่าน","บึงกาฬ","บุรีรัมย์","ปทุมธานี","ประจวบคีรีขันธ์",
-        "ปราจีนบุรี","ปัตตานี","พระนครศรีอยุธยา","พะเยา","พังงา","พัทลุง",
-        "พิจิตร","พิษณุโลก","เพชรบุรี","เพชรบูรณ์","แพร่","ภูเก็ต",
-        "มหาสารคาม","มุกดาหาร","แม่ฮ่องสอน","ยโสธร","ยะลา","ร้อยเอ็ด",
-        "ระนอง","ระยอง","ราชบุรี","ลพบุรี","ลำปาง","ลำพูน",
-        "เลย","ศรีสะเกษ","สกลนคร","สงขลา","สตูล","สมุทรปราการ",
-        "สมุทรสงคราม","สมุทรสาคร","สระแก้ว","สระบุรี","สิงห์บุรี",
-        "สุโขทัย","สุพรรณบุรี","สุราษฎร์ธานี","สุรินทร์","หนองคาย",
-        "หนองบัวลำภู","อ่างทอง","อำนาจเจริญ","อุดรธานี","อุตรดิตถ์",
-        "อุทัยธานี","อุบลราชธานี"
-      ];
-      provinces.forEach(p=>{
-        document.write(`<option value="${p}">${p}</option>`)
-      });
-    </script>
-  </select>
+    <div class="grid">
+      <select id="province" required>
+        <option value="">-- เลือกจังหวัด --</option>
+        <option value="ทั้งหมด">ทั้งหมด</option>
+        <script>
+          const provinces = [
+            "กรุงเทพมหานคร", "กระบี่", "กาญจนบุรี", "กาฬสินธุ์", "กำแพงเพชร", "ขอนแก่น",
+            "จันทบุรี", "ฉะเชิงเทรา", "ชลบุรี", "ชัยนาท", "ชัยภูมิ", "ชุมพร",
+            "เชียงราย", "เชียงใหม่", "ตรัง", "ตราด", "ตาก", "นครนายก", "นครปฐม",
+            "นครพนม", "นครราชสีมา", "นครศรีธรรมราช", "นครสวรรค์", "นนทบุรี",
+            "นราธิวาส", "น่าน", "บึงกาฬ", "บุรีรัมย์", "ปทุมธานี", "ประจวบคีรีขันธ์",
+            "ปราจีนบุรี", "ปัตตานี", "พระนครศรีอยุธยา", "พะเยา", "พังงา", "พัทลุง",
+            "พิจิตร", "พิษณุโลก", "เพชรบุรี", "เพชรบูรณ์", "แพร่", "ภูเก็ต",
+            "มหาสารคาม", "มุกดาหาร", "แม่ฮ่องสอน", "ยโสธร", "ยะลา", "ร้อยเอ็ด",
+            "ระนอง", "ระยอง", "ราชบุรี", "ลพบุรี", "ลำปาง", "ลำพูน",
+            "เลย", "ศรีสะเกษ", "สกลนคร", "สงขลา", "สตูล", "สมุทรปราการ",
+            "สมุทรสงคราม", "สมุทรสาคร", "สระแก้ว", "สระบุรี", "สิงห์บุรี",
+            "สุโขทัย", "สุพรรณบุรี", "สุราษฎร์ธานี", "สุรินทร์", "หนองคาย",
+            "หนองบัวลำภู", "อ่างทอง", "อำนาจเจริญ", "อุดรธานี", "อุตรดิตถ์",
+            "อุทัยธานี", "อุบลราชธานี"
+          ];
+          provinces.forEach(p => {
+            document.write(`<option value="${p}">${p}</option>`)
+          });
+        </script>
+      </select>
 
-  <select id="project_status" required>
-    <option value="">-- เลือกสถานะ --</option>
-    <option value="ทั้งหมด">ทั้งหมด</option>
-    <option value="เปิดโครงการ">เปิดโครงการ</option>
-    <option value="ปิดโครงการ">ปิดโครงการ</option>
-    <option value="ระหว่างดำเนินคดี">ระหว่างดำเนินคดี</option>
-  </select>
+      <select id="project_status" required>
+        <option value="">-- เลือกสถานะ --</option>
+        <option value="ทั้งหมด">ทั้งหมด</option>
+        <option value="เปิดโครงการ">เปิดโครงการ</option>
+        <option value="ปิดโครงการ">ปิดโครงการ</option>
+        <option value="ระหว่างดำเนินคดี">ระหว่างดำเนินคดี</option>
+      </select>
 
-  <input id="contract" placeholder="เลขที่สัญญา (ไม่บังคับ)">
-  <div></div>
-</div>
+      <input id="contract" placeholder="เลขที่สัญญา (ไม่บังคับ)">
+      <div></div>
+    </div>
 
-<div class="grid">
-  <input type="date" id="start">
-  <input type="date" id="end">
-  <button onclick="search()">ค้นหา</button>
-  <button onclick="exportExcel()">Export Excel</button>
-</div>
+    <div class="grid">
+      <input type="date" id="start">
+      <input type="date" id="end">
+      <button onclick="search()">ค้นหา</button>
+      <button onclick="exportExcel()">Export Excel</button>
+    </div>
 
-<div id="result"></div>
-</div>
+    <div id="result"></div>
+  </div>
 
-<script>
-const API = "https://api.twferp.click/due-debt";
+  <script>
+    const API = "https://api.twferp.click/due-debt";
 
-function search(){
+    let fullData = [];
+    let pageData = [];
+    let sortKey = null;
+    let sortAsc = true;
 
-  if(!start.value || !end.value || !province.value || !project_status.value){
-    result.innerHTML = `<div class="error">กรุณาเลือก จังหวัด สถานะ และช่วงวันที่</div>`;
-    return;
-  }
+    const cols = [
+      { k: "province", t: "จังหวัด", left: true },
+      { k: "district", t: "อำเภอ", left: true },
+      { k: "sub_district", t: "ตำบล", left: true },
+      { k: "ds_number_promise", t: "เลขที่สัญญา", left: true },
+      { k: "ds_project", t: "ชื่อโครงการ", left: true },
+      { k: "project_status", t: "สถานะโครงการ", left: true },
+      { k: "due_date", t: "กำหนดชำระ" },
+      { k: "expect_principle", t: "เงินต้นที่คาดว่าจะได้" },
+      { k: "interest", t: "ดอกเบี้ย" },
+      { k: "penalty", t: "เบี้ยปรับ" },
+      { k: "re_principle", t: "เงินต้นรับคืน" },
+      { k: "re_interest", t: "ดอกเบี้ยรับคืน" },
+      { k: "re_penalty", t: "เบี้ยปรับรับคืน" },
+    ];
 
-  const q = new URLSearchParams({
-    start_date:start.value,
-    end_date:end.value,
-    province:province.value,
-    project_status:project_status.value
-  });
-
-  if(contract.value){
-    q.append("ds_number_promise", contract.value);
-  }
-
-  fetch(API+"?"+q)
-    .then(r=>r.json())
-    .then(d=>{
-      if(!d.found){
-        result.innerHTML = `<div class="error">ไม่พบข้อมูล</div>`;
+    function search() {
+      if (!start.value || !end.value || !province.value || !project_status.value) {
+        result.innerHTML = `<div class="error">กรุณาเลือก จังหวัด สถานะ และช่วงวันที่</div>`;
         return;
       }
-      renderTable(d.data);
-    });
-}
 
-function renderTable(data){
-  let html = "<div class='table-wrap'><table><thead><tr>";
-  Object.keys(data[0]).forEach(k=>{
-    html += `<th>${k}</th>`;
-  });
-  html += "</tr></thead><tbody>";
+      const q = new URLSearchParams({
+        start_date: start.value,
+        end_date: end.value,
+        province: province.value,
+        project_status: project_status.value
+      });
 
-  data.forEach(r=>{
-    html += "<tr>";
-    Object.values(r).forEach(v=>{
-      html += `<td>${typeof v==="number"?v.toLocaleString():v}</td>`;
-    });
-    html += "</tr>";
-  });
+      if (contract.value) {
+        q.append("ds_number_promise", contract.value);
+      }
 
-  html += "</tbody></table></div>";
-  result.innerHTML = html;
-}
-</script>
+      fetch(API + "?" + q)
+        .then(r => r.json())
+        .then(d => {
+          if (!d.found) {
+            result.innerHTML = `<div class="error">ไม่พบข้อมูล</div>`;
+            return;
+          }
+
+          fullData = d.data;
+          from.value = 1;
+          to.value = Math.min(100, fullData.length);
+          total.textContent = fullData.length;
+          pager.style.display = "flex";
+          renderPage();
+        });
+    }
+
+    function renderPage() {
+      const f = Math.max(1, Number(from.value));
+      const t = Math.min(Number(to.value), fullData.length);
+      pageData = fullData.slice(f - 1, t);
+      renderTable(pageData);
+    }
+
+    function renderTable(data) {
+
+      let html = `<div class="table-wrap"><table><thead><tr>`;
+      cols.forEach(c => {
+        html += `<th onclick="sortTable('${c.k}')">${c.t}</th>`;
+      });
+      html += `</tr></thead><tbody>`;
+
+      data.forEach(r => {
+        html += `<tr>`;
+        cols.forEach(c => {
+          const v = r[c.k] ?? "";
+          html += `<td class="${c.left ? 'left' : ''}">
+        ${typeof v === "number" ? v.toLocaleString() : v}
+      </td>`;
+        });
+        html += `</tr>`;
+      });
+
+      const s = summary(data);
+
+      html += `</tbody><tfoot><tr>
+    <td colspan="7">รวม</td>
+    <td>${s.expect_principle.toLocaleString()}</td>
+    <td>${s.interest.toLocaleString()}</td>
+    <td>${s.penalty.toLocaleString()}</td>
+    <td>${s.re_principle.toLocaleString()}</td>
+    <td>${s.re_interest.toLocaleString()}</td>
+    <td>${s.re_penalty.toLocaleString()}</td>
+  </tr></tfoot></table></div>`;
+
+      result.innerHTML = html;
+    }
+
+    function sortTable(key) {
+      sortAsc = sortKey === key ? !sortAsc : true;
+      sortKey = key;
+
+      fullData.sort((a, b) => {
+        if (a[key] == null) return 1;
+        if (b[key] == null) return -1;
+        return sortAsc ? (a[key] > b[key] ? 1 : -1) : (a[key] < b[key] ? 1 : -1);
+      });
+
+      renderPage();
+    }
+
+    function summary(data) {
+      const sum = k => data.reduce((s, r) => s + (+r[k] || 0), 0);
+      return {
+        expect_principle: sum("expect_principle"),
+        interest: sum("interest"),
+        penalty: sum("penalty"),
+        re_principle: sum("re_principle"),
+        re_interest: sum("re_interest"),
+        re_penalty: sum("re_penalty"),
+      };
+    }
+
+    /* ===== Export Excel ===== */
+
+    function formatThaiDate(dateStr) {
+      const m = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.",
+        "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
+
+      const d = new Date(dateStr);
+      if (isNaN(d)) return "";
+      return `${d.getDate()} ${m[d.getMonth()]} ${d.getFullYear() + 543}`;
+    }
+
+    function exportExcel() {
+      if (!pageData.length) {
+        alert("ไม่มีข้อมูลสำหรับ Export");
+        return;
+      }
+
+      const startTxt = formatThaiDate(start.value);
+      const endTxt = formatThaiDate(end.value);
+      const todayTxt = formatThaiDate(new Date().toISOString().slice(0, 10));
+
+      const filename =
+        `กำหนดชำระของวันที่ ${startTxt} ถึง ${endTxt} ณ วันที่ ${todayTxt}.xlsx`;
+
+      const exportData = pageData.map(r => {
+        const o = {};
+        cols.forEach(c => {
+          o[c.t] = r[c.k] ?? "";
+        });
+        return o;
+      });
+
+      const ws = XLSX.utils.json_to_sheet(exportData);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "กำหนดชำระ");
+      XLSX.writeFile(wb, filename);
+    }
+  </script>
 </body>
+
 </html>
