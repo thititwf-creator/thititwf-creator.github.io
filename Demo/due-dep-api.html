@@ -65,29 +65,37 @@ tfoot td { font-weight:bold; background:#fafafa; position:sticky; bottom:0 }
 
 <script>
 const API = "https://api.twferp.click/due-report";
-const limit = 100;
+
+const limit = 100; // ✅ ค่าเริ่มต้น 100
 let offset = 0;
 let total = 0;
 let currentData = [];
+let sortKey = null;
+let sortAsc = true;
 
-const provinces = ["กรุงเทพมหานคร","กระบี่","กาญจนบุรี","กาฬสินธุ์","กำแพงเพชร","ขอนแก่น",
-"จันทบุรี","ฉะเชิงเทรา","ชลบุรี","ชัยนาท","ชัยภูมิ","ชุมพร","เชียงราย","เชียงใหม่",
-"ตรัง","ตราด","ตาก","นครนายก","นครปฐม","นครพนม","นครราชสีมา","นครศรีธรรมราช",
-"นครสวรรค์","นนทบุรี","นราธิวาส","น่าน","บึงกาฬ","บุรีรัมย์","ปทุมธานี",
-"ประจวบคีรีขันธ์","ปราจีนบุรี","ปัตตานี","พระนครศรีอยุธยา","พะเยา","พังงา",
-"พัทลุง","พิจิตร","พิษณุโลก","เพชรบุรี","เพชรบูรณ์","แพร่","ภูเก็ต","มหาสารคาม",
-"มุกดาหาร","แม่ฮ่องสอน","ยโสธร","ยะลา","ร้อยเอ็ด","ระนอง","ระยอง","ราชบุรี",
-"ลพบุรี","ลำปาง","ลำพูน","เลย","ศรีสะเกษ","สกลนคร","สงขลา","สตูล","สมุทรปราการ",
-"สมุทรสงคราม","สมุทรสาคร","สระแก้ว","สระบุรี","สิงห์บุรี","สุโขทัย",
-"สุพรรณบุรี","สุราษฎร์ธานี","สุรินทร์","หนองคาย","หนองบัวลำภู","อ่างทอง",
-"อำนาจเจริญ","อุดรธานี","อุตรดิตถ์","อุทัยธานี","อุบลราชธานี"];
-
-provinces.forEach(p=>{
-  province.innerHTML+=`<option value="${p}">${p}</option>`;
-});
+/* 🔹 กำหนดหัวตารางให้ตรง SQL ภาษาไทย */
+const columns = [
+  { key:"province", label:"จังหวัด", type:"text", align:"left" },
+  { key:"district", label:"อำเภอ", type:"text", align:"left" },
+  { key:"sub_district", label:"ตำบล", type:"text", align:"left" },
+  { key:"fiscal_year", label:"ปีงบประมาณ", type:"text" },
+  { key:"contract_no", label:"เลขที่สัญญา", type:"text", align:"left" },
+  { key:"project_name", label:"ชื่อโครงการ", type:"text", align:"left" },
+  { key:"project_status", label:"สถานะโครงการ", type:"text", align:"left" },
+  { key:"due_date", label:"กำหนดชำระ", type:"date" },
+  { key:"expected_principle", label:"เงินต้นที่คาดว่าจะได้", type:"number" },
+  { key:"interest", label:"ดอกเบี้ย", type:"number" },
+  { key:"penalty", label:"เบี้ยปรับ", type:"number" },
+  { key:"default_interest", label:"ดอกเบี้ยผิดนัด", type:"number" },
+  { key:"principle_received", label:"เงินต้นรับคืน", type:"number" },
+  { key:"interest_received", label:"ดอกเบี้ยรับคืน", type:"number" },
+  { key:"penalty_received", label:"เบี้ยปรับรับคืน", type:"number" },
+  { key:"default_interest_received", label:"ดอกเบี้ยผิดนัดรับคืน", type:"number" },
+  { key:"overpaid", label:"รับเงินเกิน", type:"number" }
+];
 
 function search(){
-  offset=0;
+  offset = 0;
   loadData();
 }
 
@@ -117,23 +125,79 @@ function loadData(){
 
 function renderTable(){
   let html="<div class='table-wrap'><table><thead><tr>";
-  Object.keys(currentData[0]).forEach(k=>{
-    html+=`<th>${k}</th>`;
+
+  columns.forEach(col=>{
+    html+=`<th onclick="sortTable('${col.key}')">${col.label}</th>`;
   });
+
   html+="</tr></thead><tbody>";
 
-  currentData.forEach(r=>{
+  currentData.forEach(row=>{
     html+="<tr>";
-    Object.values(r).forEach(v=>{
-      html+=`<td>${typeof v==="number"?v.toLocaleString():v??""}</td>`;
+    columns.forEach(col=>{
+      let val=row[col.key];
+
+      if(col.type==="number"){
+        val = val ? Number(val).toLocaleString(undefined,{minimumFractionDigits:2}) : "0.00";
+      }
+
+      if(col.type==="date" && val){
+        val = formatThaiDate(val);
+      }
+
+      html+=`<td class="${col.align==='left'?'left':''}">${val??""}</td>`;
     });
     html+="</tr>";
   });
 
-  html+="</tbody></table></div>";
+  /* 🔹 รวมยอดเฉพาะหน้า */
+  const sumCols = columns.filter(c=>c.type==="number");
+
+  let summary={};
+  sumCols.forEach(c=>{
+    summary[c.key]=currentData.reduce((s,r)=>s+(+r[c.key]||0),0);
+  });
+
+  html+="</tbody><tfoot><tr>";
+  html+=`<td colspan="8">รวม (เฉพาะหน้านี้)</td>`;
+
+  columns.slice(8).forEach(col=>{
+    html+=`<td>${summary[col.key].toLocaleString(undefined,{minimumFractionDigits:2})}</td>`;
+  });
+
+  html+="</tr></tfoot></table></div>";
   result.innerHTML=html;
 }
 
+/* 🔥 Sorting รองรับ text / number / date */
+function sortTable(key){
+  const col = columns.find(c=>c.key===key);
+  sortAsc = (sortKey===key)? !sortAsc : true;
+  sortKey = key;
+
+  currentData.sort((a,b)=>{
+    let x=a[key], y=b[key];
+
+    if(col.type==="number"){
+      x=+x||0; y=+y||0;
+      return sortAsc? x-y : y-x;
+    }
+
+    if(col.type==="date"){
+      return sortAsc?
+        new Date(x)-new Date(y) :
+        new Date(y)-new Date(x);
+    }
+
+    return sortAsc?
+      (x||"").localeCompare(y||"") :
+      (y||"").localeCompare(x||"");
+  });
+
+  renderTable();
+}
+
+/* 🔹 Pagination */
 function updatePager(){
   pager.style.display="flex";
   const page=Math.floor(offset/limit)+1;
@@ -146,14 +210,8 @@ function prevPage(){ if(offset-limit>=0){ offset-=limit; loadData(); } }
 function firstPage(){ offset=0; loadData(); }
 function lastPage(){ offset=(Math.ceil(total/limit)-1)*limit; loadData(); }
 
-function formatThaiDate(d){
-  const m=["ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.","ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."];
-  const x=new Date(d);
-  return `${x.getDate()} ${m[x.getMonth()]} ${x.getFullYear()+543}`;
-}
-
+/* 🔹 Export ใช้หัวเดียวกับที่แสดง */
 function exportExcel(){
-  loading.textContent="กำลังเตรียมไฟล์...";
   const q=new URLSearchParams({
     start_date:start.value,
     end_date:end.value,
@@ -166,15 +224,29 @@ function exportExcel(){
   fetch(API+"?"+q)
   .then(r=>r.json())
   .then(d=>{
-    loading.textContent="";
-    const ws=XLSX.utils.json_to_sheet(d.data);
+    const exportData=d.data.map(row=>{
+      let obj={};
+      columns.forEach(col=>{
+        obj[col.label]=row[col.key];
+      });
+      return obj;
+    });
+
+    const ws=XLSX.utils.json_to_sheet(exportData);
     const wb=XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb,ws,"DueReport");
 
-    const filename=`ข้อมูลกำหนดชำระของ ${province.value} ${project_status.value} วันที่ ${formatThaiDate(start.value)} ถึง ${formatThaiDate(end.value)} ข้อมูล ณ วันที่ ${formatThaiDate(new Date())}.xlsx`;
+    const filename=
+    `ข้อมูลกำหนดชำระของ ${province.value} ${project_status.value} วันที่ ${formatThaiDate(start.value)} ถึง ${formatThaiDate(end.value)} ข้อมูล ณ วันที่ ${formatThaiDate(new Date())}.xlsx`;
 
     XLSX.writeFile(wb,filename);
   });
+}
+
+function formatThaiDate(d){
+  const m=["ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.","ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."];
+  const x=new Date(d);
+  return `${x.getDate()} ${m[x.getMonth()]} ${x.getFullYear()+543}`;
 }
 </script>
 </body>
