@@ -1,346 +1,274 @@
 <!DOCTYPE html>
 <html lang="th">
-
 <head>
-  <meta charset="UTF-8">
-  <title>Due Report</title>
-  <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+<meta charset="UTF-8">
+<title>รายงานข้อมูลกำหนดชำระ</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <style>
-    body {
-      font-family: Sarabun;
-      background: #f4f6fb;
-      padding: 20px
-    }
+<style>
+body {
+    font-family: system-ui, -apple-system, "Sarabun", sans-serif;
+    background: #f4f6f9;
+    padding: 20px;
+}
 
-    .card {
-      background: #fff;
-      padding: 20px;
-      border-radius: 12px;
-      max-width: 1700px;
-      margin: auto
-    }
+.card {
+    background: #fff;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
 
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 8px
-    }
+h2 { margin-top: 0; }
 
-    input,
-    select,
-    button {
-      padding: 8px;
-      width: 100%
-    }
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 10px;
+    margin-bottom: 15px;
+}
 
-    button {
-      cursor: pointer
-    }
+input, select, button {
+    padding: 6px;
+    font-size: 14px;
+}
 
-    .table-wrap {
-      max-height: 600px;
-      overflow: auto;
-      margin-top: 16px
-    }
+button {
+    cursor: pointer;
+}
 
-    table {
-      width: 100%;
-      border-collapse: collapse
-    }
+.table-wrapper {
+    overflow: auto;
+    max-height: 600px;
+    border: 1px solid #ddd;
+}
 
-    th,
-    td {
-      border: 1px solid #ccc;
-      padding: 6px;
-      font-size: 14px
-    }
+table {
+    border-collapse: collapse;
+    width: 100%;
+    min-width: 1600px;
+}
 
-    th {
-      background: #eef;
-      position: sticky;
-      top: 0;
-      cursor: pointer
-    }
+th, td {
+    border: 1px solid #ddd;
+    padding: 6px;
+    font-size: 13px;
+    text-align: right;
+    white-space: nowrap;
+}
 
-    td {
-      text-align: right
-    }
+th {
+    background: #1f4e79;
+    color: #fff;
+    position: sticky;
+    top: 0;
+    cursor: pointer;
+}
 
-    td.left {
-      text-align: left
-    }
+th.left, td.left { text-align: left; }
 
-    tfoot td {
-      font-weight: bold;
-      background: #fafafa;
-      position: sticky;
-      bottom: 0
-    }
+tfoot td {
+    background: #e9f1fb;
+    font-weight: bold;
+}
 
-    .pager {
-      display: flex;
-      gap: 10px;
-      align-items: center;
-      margin-top: 10px
-    }
-
-    .loading {
-      color: blue
-    }
-  </style>
+.info-bar {
+    margin: 10px 0;
+    font-weight: bold;
+}
+</style>
 </head>
 
 <body>
-  <div class="card">
+<div class="card">
+<h2>รายงานข้อมูลกำหนดชำระ</h2>
 
-    <h2>รายงานกำหนดชำระ</h2>
-
-    <div class="grid">
-      <select id="province">
-        <option value="ทั้งหมด">ทั้งหมด</option>
-      </select>
-
-      <select id="project_status">
-        <option value="ทั้งหมด">ทั้งหมด</option>
-        <option>เปิดโครงการ</option>
-        <option>ปิดโครงการ</option>
-        <option>ระหว่างดำเนินคดี</option>
-      </select>
-
-      <input id="contract" placeholder="เลขที่สัญญา (ไม่บังคับ)">
-      <div></div>
+<div class="grid">
+    <div>
+        <label>วันที่เริ่มต้น</label>
+        <input type="date" id="start_date">
     </div>
-
-    <div class="grid">
-      <input type="date" id="start">
-      <input type="date" id="end">
-      <button onclick="search()">ค้นหา</button>
-      <button onclick="exportExcel()">Export Excel</button>
+    <div>
+        <label>วันที่สิ้นสุด</label>
+        <input type="date" id="end_date">
     </div>
-
-    <div id="loading" class="loading"></div>
-    <div id="result"></div>
-
-    <div class="pager" id="pager" style="display:none">
-      <button onclick="firstPage()">หน้าแรก</button>
-      <button onclick="prevPage()">ก่อนหน้า</button>
-      <span id="pageInfo"></span>
-      <button onclick="nextPage()">ถัดไป</button>
-      <button onclick="lastPage()">หน้าสุดท้าย</button>
+    <div>
+        <label>จังหวัด</label>
+        <select id="province"></select>
     </div>
+    <div>
+        <label>สถานะโครงการ</label>
+        <select id="project_status">
+            <option>ทั้งหมด</option>
+            <option>เปิดโครงการ</option>
+            <option>ปิดโครงการ</option>
+            <option>ระหว่างดำเนินคดี</option>
+        </select>
+    </div>
+    <div>
+        <label>เลขที่สัญญา</label>
+        <input type="text" id="contract_no">
+    </div>
+    <div>
+        <label>ช่วงแสดงผล</label>
+        <input type="number" id="start_row" value="1" style="width:60px;"> -
+        <input type="number" id="end_row" value="100" style="width:60px;">
+    </div>
+</div>
 
-  </div>
+<button onclick="searchData()">ค้นหา</button>
+<button onclick="exportData()">Export Excel</button>
 
-  <script>
-    const API = "https://api.twferp.click/due-report";
+<div class="info-bar" id="info"></div>
 
-    const limit = 100; // ✅ ค่าเริ่มต้น 100
-    let offset = 0;
-    let total = 0;
-    let currentData = [];
-    let sortKey = null;
-    let sortAsc = true;
-    /* เติม 77 จังหวัดกลับเข้า dropdown */
-    const provinces = [
-      "กรุงเทพมหานคร", "กระบี่", "กาญจนบุรี", "กาฬสินธุ์", "กำแพงเพชร", "ขอนแก่น",
-      "จันทบุรี", "ฉะเชิงเทรา", "ชลบุรี", "ชัยนาท", "ชัยภูมิ", "ชุมพร",
-      "เชียงราย", "เชียงใหม่", "ตรัง", "ตราด", "ตาก", "นครนายก", "นครปฐม",
-      "นครพนม", "นครราชสีมา", "นครศรีธรรมราช", "นครสวรรค์", "นนทบุรี",
-      "นราธิวาส", "น่าน", "บึงกาฬ", "บุรีรัมย์", "ปทุมธานี", "ประจวบคีรีขันธ์",
-      "ปราจีนบุรี", "ปัตตานี", "พระนครศรีอยุธยา", "พะเยา", "พังงา", "พัทลุง",
-      "พิจิตร", "พิษณุโลก", "เพชรบุรี", "เพชรบูรณ์", "แพร่", "ภูเก็ต",
-      "มหาสารคาม", "มุกดาหาร", "แม่ฮ่องสอน", "ยโสธร", "ยะลา", "ร้อยเอ็ด",
-      "ระนอง", "ระยอง", "ราชบุรี", "ลพบุรี", "ลำปาง", "ลำพูน",
-      "เลย", "ศรีสะเกษ", "สกลนคร", "สงขลา", "สตูล", "สมุทรปราการ",
-      "สมุทรสงคราม", "สมุทรสาคร", "สระแก้ว", "สระบุรี", "สิงห์บุรี",
-      "สุโขทัย", "สุพรรณบุรี", "สุราษฎร์ธานี", "สุรินทร์", "หนองคาย",
-      "หนองบัวลำภู", "อ่างทอง", "อำนาจเจริญ", "อุดรธานี", "อุตรดิตถ์",
-      "อุทัยธานี", "อุบลราชธานี"
-    ];
+<div class="table-wrapper">
+<table id="resultTable">
+<thead>
+<tr>
+<th class="left" data-key="จังหวัด">จังหวัด</th>
+<th class="left" data-key="อำเภอ">อำเภอ</th>
+<th class="left" data-key="ตำบล">ตำบล</th>
+<th class="left" data-key="ปีงบประมาณ">ปีงบประมาณ</th>
+<th class="left" data-key="เลขที่สัญญา">เลขที่สัญญา</th>
+<th class="left" data-key="ชื่อโครงการ">ชื่อโครงการ</th>
+<th class="left" data-key="สถานะโครงการ">สถานะโครงการ</th>
+<th data-key="กำหนดชำระ">กำหนดชำระ</th>
+<th data-key="เงินต้นที่คาดว่าจะได้">เงินต้นที่คาดว่าจะได้</th>
+<th data-key="ดอกเบี้ย">ดอกเบี้ย</th>
+<th data-key="เบี้ยปรับ">เบี้ยปรับ</th>
+<th data-key="ดอกเบี้ยผิดนัด">ดอกเบี้ยผิดนัด</th>
+<th data-key="เงินต้นรับคืน">เงินต้นรับคืน</th>
+<th data-key="ดอกเบี้ยรับคืน">ดอกเบี้ยรับคืน</th>
+<th data-key="เบี้ยปรับรับคืน">เบี้ยปรับรับคืน</th>
+<th data-key="ดอกเบี้ยผิดนัดรับคืน">ดอกเบี้ยผิดนัดรับคืน</th>
+<th data-key="รับเงินเกิน">รับเงินเกิน</th>
+</tr>
+</thead>
+<tbody></tbody>
+<tfoot></tfoot>
+</table>
+</div>
 
-    const provinceSelect = document.getElementById("province");
-    provinceSelect.innerHTML = `<option value="ทั้งหมด">ทั้งหมด</option>`;
+</div>
 
-    provinces.forEach(p => {
-      provinceSelect.innerHTML += `<option value="${p}">${p}</option>`;
+<script>
+const API_URL = "https://your-domain/due-report"; // 🔥 เปลี่ยนเป็นของคุณ
+let currentData = [];
+
+const provinces = [
+"ทั้งหมด","กรุงเทพมหานคร","กระบี่","กาญจนบุรี","กาฬสินธุ์","กำแพงเพชร",
+"ขอนแก่น","จันทบุรี","ฉะเชิงเทรา","ชลบุรี","ชัยนาท","ชัยภูมิ",
+"ชุมพร","เชียงราย","เชียงใหม่","ตรัง","ตราด","ตาก","นครนายก",
+"นครปฐม","นครพนม","นครราชสีมา","นครศรีธรรมราช","นครสวรรค์",
+"นนทบุรี","นราธิวาส","น่าน","บึงกาฬ","บุรีรัมย์","ปทุมธานี",
+"ประจวบคีรีขันธ์","ปราจีนบุรี","ปัตตานี","พระนครศรีอยุธยา",
+"พะเยา","พังงา","พัทลุง","พิจิตร","พิษณุโลก","เพชรบุรี",
+"เพชรบูรณ์","แพร่","ภูเก็ต","มหาสารคาม","มุกดาหาร",
+"แม่ฮ่องสอน","ยะลา","ยโสธร","ร้อยเอ็ด","ระนอง","ระยอง",
+"ราชบุรี","ลพบุรี","ลำปาง","ลำพูน","เลย","ศรีสะเกษ",
+"สกลนคร","สงขลา","สตูล","สมุทรปราการ","สมุทรสงคราม",
+"สมุทรสาคร","สระแก้ว","สระบุรี","สิงห์บุรี","สุโขทัย",
+"สุพรรณบุรี","สุราษฎร์ธานี","สุรินทร์","หนองคาย","หนองบัวลำภู",
+"อ่างทอง","อำนาจเจริญ","อุดรธานี","อุตรดิตถ์","อุทัยธานี",
+"อุบลราชธานี"
+];
+
+const provinceSelect = document.getElementById("province");
+provinces.forEach(p=>{
+    const opt = document.createElement("option");
+    opt.value = p;
+    opt.textContent = p;
+    provinceSelect.appendChild(opt);
+});
+
+async function searchData() {
+
+    const params = new URLSearchParams({
+        start_date: start_date.value,
+        end_date: end_date.value,
+        province: province.value,
+        project_status: project_status.value,
+        contract_no: contract_no.value,
+        start_row: start_row.value,
+        end_row: end_row.value
     });
-    /* 🔹 กำหนดหัวตารางให้ตรง SQL ภาษาไทย */
-    const columns = [
-      { key: "province", label: "จังหวัด", type: "text", align: "left" },
-      { key: "district", label: "อำเภอ", type: "text", align: "left" },
-      { key: "sub_district", label: "ตำบล", type: "text", align: "left" },
-      { key: "fiscal_year", label: "ปีงบประมาณ", type: "text" },
-      { key: "contract_no", label: "เลขที่สัญญา", type: "text", align: "left" },
-      { key: "project_name", label: "ชื่อโครงการ", type: "text", align: "left" },
-      { key: "project_status", label: "สถานะโครงการ", type: "text", align: "left" },
-      { key: "due_date", label: "กำหนดชำระ", type: "date" },
-      { key: "expected_principle", label: "เงินต้นที่คาดว่าจะได้", type: "number" },
-      { key: "interest", label: "ดอกเบี้ย", type: "number" },
-      { key: "penalty", label: "เบี้ยปรับ", type: "number" },
-      { key: "default_interest", label: "ดอกเบี้ยผิดนัด", type: "number" },
-      { key: "principle_received", label: "เงินต้นรับคืน", type: "number" },
-      { key: "interest_received", label: "ดอกเบี้ยรับคืน", type: "number" },
-      { key: "penalty_received", label: "เบี้ยปรับรับคืน", type: "number" },
-      { key: "default_interest_received", label: "ดอกเบี้ยผิดนัดรับคืน", type: "number" },
-      { key: "overpaid", label: "รับเงินเกิน", type: "number" }
-    ];
 
-    function search() {
-      offset = 0;
-      loadData();
-    }
+    const res = await fetch(`${API_URL}?${params}`);
+    const json = await res.json();
 
-    function loadData() {
-      loading.textContent = "กำลังโหลด...";
-      const q = new URLSearchParams({
-        start_date: start.value,
-        end_date: end.value,
+    currentData = json.data || [];
+    renderTable(currentData);
+
+    document.getElementById("info").innerText =
+        `แสดง ${json.start_row}-${json.end_row} / ${json.total}`;
+}
+
+function renderTable(data) {
+
+    const tbody = document.querySelector("#resultTable tbody");
+    const tfoot = document.querySelector("#resultTable tfoot");
+    tbody.innerHTML = "";
+    tfoot.innerHTML = "";
+
+    let totals = {};
+
+    data.forEach(row=>{
+        const tr = document.createElement("tr");
+
+        Object.keys(row).forEach(key=>{
+            const td = document.createElement("td");
+
+            if (typeof row[key] === "number") {
+                td.textContent = row[key].toLocaleString();
+                totals[key] = (totals[key] || 0) + row[key];
+            } else {
+                td.textContent = row[key];
+                td.classList.add("left");
+            }
+
+            tr.appendChild(td);
+        });
+
+        tbody.appendChild(tr);
+    });
+
+    const trf = document.createElement("tr");
+    Object.keys(data[0] || {}).forEach((key,i)=>{
+        const td = document.createElement("td");
+        if(i < 8){
+            td.textContent = (i===0) ? "รวม" : "";
+        } else {
+            td.textContent = (totals[key] || 0).toLocaleString();
+        }
+        trf.appendChild(td);
+    });
+    tfoot.appendChild(trf);
+}
+
+function exportData(){
+    const params = new URLSearchParams({
+        start_date: start_date.value,
+        end_date: end_date.value,
         province: province.value,
         project_status: project_status.value,
-        contract_no: contract.value,
-        limit: limit,
-        offset: offset
-      });
-
-      fetch(API + "?" + q)
-        .then(r => r.json())
-        .then(d => {
-          loading.textContent = "";
-          if (!d.found) { result.innerHTML = "ไม่พบข้อมูล"; return; }
-          total = d.total;
-          currentData = d.data;
-          renderTable();
-          updatePager();
-        });
-    }
-
-    function renderTable() {
-      let html = "<div class='table-wrap'><table><thead><tr>";
-
-      columns.forEach(col => {
-        html += `<th onclick="sortTable('${col.key}')">${col.label}</th>`;
-      });
-
-      html += "</tr></thead><tbody>";
-
-      currentData.forEach(row => {
-        html += "<tr>";
-        columns.forEach(col => {
-          let val = row[col.key];
-
-          if (col.type === "number") {
-            val = val ? Number(val).toLocaleString(undefined, { minimumFractionDigits: 2 }) : "0.00";
-          }
-
-          if (col.type === "date" && val) {
-            val = formatThaiDate(val);
-          }
-
-          html += `<td class="${col.align === 'left' ? 'left' : ''}">${val ?? ""}</td>`;
-        });
-        html += "</tr>";
-      });
-
-      /* 🔹 รวมยอดเฉพาะหน้า */
-      const sumCols = columns.filter(c => c.type === "number");
-
-      let summary = {};
-      sumCols.forEach(c => {
-        summary[c.key] = currentData.reduce((s, r) => s + (+r[c.key] || 0), 0);
-      });
-
-      html += "</tbody><tfoot><tr>";
-      html += `<td colspan="8">รวม (เฉพาะหน้านี้)</td>`;
-
-      columns.slice(8).forEach(col => {
-        html += `<td>${summary[col.key].toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>`;
-      });
-
-      html += "</tr></tfoot></table></div>";
-      result.innerHTML = html;
-    }
-
-    /* 🔥 Sorting รองรับ text / number / date */
-    function sortTable(key) {
-      const col = columns.find(c => c.key === key);
-      sortAsc = (sortKey === key) ? !sortAsc : true;
-      sortKey = key;
-
-      currentData.sort((a, b) => {
-        let x = a[key], y = b[key];
-
-        if (col.type === "number") {
-          x = +x || 0; y = +y || 0;
-          return sortAsc ? x - y : y - x;
-        }
-
-        if (col.type === "date") {
-          return sortAsc ?
-            new Date(x) - new Date(y) :
-            new Date(y) - new Date(x);
-        }
-
-        return sortAsc ?
-          (x || "").localeCompare(y || "") :
-          (y || "").localeCompare(x || "");
-      });
-
-      renderTable();
-    }
-
-    /* 🔹 Pagination */
-    function updatePager() {
-      pager.style.display = "flex";
-      const page = Math.floor(offset / limit) + 1;
-      const totalPage = Math.ceil(total / limit);
-      pageInfo.textContent = `หน้าที่ ${page} จาก ${totalPage} (ทั้งหมด ${total} รายการ)`;
-    }
-
-    function nextPage() { if (offset + limit < total) { offset += limit; loadData(); } }
-    function prevPage() { if (offset - limit >= 0) { offset -= limit; loadData(); } }
-    function firstPage() { offset = 0; loadData(); }
-    function lastPage() { offset = (Math.ceil(total / limit) - 1) * limit; loadData(); }
-
-    /* 🔹 Export ใช้หัวเดียวกับที่แสดง */
-    function exportExcel() {
-      const q = new URLSearchParams({
-        start_date: start.value,
-        end_date: end.value,
-        province: province.value,
-        project_status: project_status.value,
-        contract_no: contract.value,
+        contract_no: contract_no.value,
         export_all: true
-      });
+    });
 
-      fetch(API + "?" + q)
-        .then(r => r.json())
-        .then(d => {
-          const exportData = d.data.map(row => {
-            let obj = {};
-            columns.forEach(col => {
-              obj[col.label] = row[col.key];
-            });
-            return obj;
-          });
+    window.open(`${API_URL}?${params}`);
+}
 
-          const ws = XLSX.utils.json_to_sheet(exportData);
-          const wb = XLSX.utils.book_new();
-          XLSX.utils.book_append_sheet(wb, ws, "DueReport");
-
-          const filename =
-            `ข้อมูลกำหนดชำระของ ${province.value} ${project_status.value} วันที่ ${formatThaiDate(start.value)} ถึง ${formatThaiDate(end.value)} ข้อมูล ณ วันที่ ${formatThaiDate(new Date())}.xlsx`;
-
-          XLSX.writeFile(wb, filename);
+document.querySelectorAll("th").forEach(th=>{
+    th.addEventListener("click", ()=>{
+        const key = th.dataset.key;
+        currentData.sort((a,b)=>{
+            if(a[key] > b[key]) return 1;
+            if(a[key] < b[key]) return -1;
+            return 0;
         });
-    }
-
-    function formatThaiDate(d) {
-      const m = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
-      const x = new Date(d);
-      return `${x.getDate()} ${m[x.getMonth()]} ${x.getFullYear() + 543}`;
-    }
-  </script>
+        renderTable(currentData);
+    });
+});
+</script>
 </body>
-
 </html>
