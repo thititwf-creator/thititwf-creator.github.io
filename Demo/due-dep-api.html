@@ -126,7 +126,7 @@
     </div>
 
     <button onclick="searchData()">ค้นหา</button>
-    <button onclick="exportData()">Export Excel</button>
+    <button onclick="exportExcel()">Export Excel</button>
 
     <div class="info-bar" id="info"></div>
 
@@ -254,7 +254,8 @@
       tfoot.appendChild(trf);
     }
 
-    function exportData() {
+    async function exportExcel() {
+
       const params = new URLSearchParams({
         start_date: start_date.value,
         end_date: end_date.value,
@@ -264,7 +265,19 @@
         export_all: true
       });
 
-      window.open(`${API_URL}?${params}`);
+      const res = await fetch(`${API_URL}?${params}`);
+      const data = await res.json();
+
+      if (!data.data || data.data.length === 0) {
+        alert("ไม่มีข้อมูล");
+        return;
+      }
+
+      const ws = XLSX.utils.json_to_sheet(data.data);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Due Report");
+
+      XLSX.writeFile(wb, "due_report.xlsx");
     }
 
     let currentSort = {
