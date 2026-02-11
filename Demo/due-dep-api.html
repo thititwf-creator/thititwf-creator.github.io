@@ -72,6 +72,18 @@ th{
   position:sticky;
   top:0;
   z-index:10;
+  user-select:none;
+}
+th.sortable::after{
+  content:" ⇅";
+  font-size:11px;
+  opacity:0.6;
+}
+th.sort-asc::after{
+  content:" ▲";
+}
+th.sort-desc::after{
+  content:" ▼";
 }
 td.number{text-align:right}
 tfoot td{
@@ -131,23 +143,7 @@ let fullData = [];
 let currentView = [];
 let sortState = { column:null, direction:"asc" };
 
-const provinces = [
-"กรุงเทพมหานคร","กระบี่","กาญจนบุรี","กาฬสินธุ์","กำแพงเพชร",
-"ขอนแก่น","จันทบุรี","ฉะเชิงเทรา","ชลบุรี","ชัยนาท","ชัยภูมิ",
-"ชุมพร","เชียงราย","เชียงใหม่","ตรัง","ตราด","ตาก","นครนายก",
-"นครปฐม","นครพนม","นครราชสีมา","นครศรีธรรมราช","นครสวรรค์",
-"นนทบุรี","นราธิวาส","น่าน","บึงกาฬ","บุรีรัมย์","ปทุมธานี",
-"ประจวบคีรีขันธ์","ปราจีนบุรี","ปัตตานี","พระนครศรีอยุธยา",
-"พะเยา","พังงา","พัทลุง","พิจิตร","พิษณุโลก","เพชรบุรี",
-"เพชรบูรณ์","แพร่","ภูเก็ต","มหาสารคาม","มุกดาหาร",
-"แม่ฮ่องสอน","ยะลา","ยโสธร","ร้อยเอ็ด","ระนอง","ระยอง",
-"ราชบุรี","ลพบุรี","ลำปาง","ลำพูน","เลย","ศรีสะเกษ",
-"สกลนคร","สงขลา","สตูล","สมุทรปราการ","สมุทรสงคราม",
-"สมุทรสาคร","สระแก้ว","สระบุรี","สิงห์บุรี","สุโขทัย",
-"สุพรรณบุรี","สุราษฎร์ธานี","สุรินทร์","หนองคาย",
-"หนองบัวลำภู","อ่างทอง","อำนาจเจริญ","อุดรธานี",
-"อุตรดิตถ์","อุทัยธานี","อุบลราชธานี"
-];
+const provinces = ["กรุงเทพมหานคร","กระบี่","กาญจนบุรี","กาฬสินธุ์","กำแพงเพชร","ขอนแก่น","จันทบุรี","ฉะเชิงเทรา","ชลบุรี","ชัยนาท","ชัยภูมิ","ชุมพร","เชียงราย","เชียงใหม่","ตรัง","ตราด","ตาก","นครนายก","นครปฐม","นครพนม","นครราชสีมา","นครศรีธรรมราช","นครสวรรค์","นนทบุรี","นราธิวาส","น่าน","บึงกาฬ","บุรีรัมย์","ปทุมธานี","ประจวบคีรีขันธ์","ปราจีนบุรี","ปัตตานี","พระนครศรีอยุธยา","พะเยา","พังงา","พัทลุง","พิจิตร","พิษณุโลก","เพชรบุรี","เพชรบูรณ์","แพร่","ภูเก็ต","มหาสารคาม","มุกดาหาร","แม่ฮ่องสอน","ยะลา","ยโสธร","ร้อยเอ็ด","ระนอง","ระยอง","ราชบุรี","ลพบุรี","ลำปาง","ลำพูน","เลย","ศรีสะเกษ","สกลนคร","สงขลา","สตูล","สมุทรปราการ","สมุทรสงคราม","สมุทรสาคร","สระแก้ว","สระบุรี","สิงห์บุรี","สุโขทัย","สุพรรณบุรี","สุราษฎร์ธานี","สุรินทร์","หนองคาย","หนองบัวลำภู","อ่างทอง","อำนาจเจริญ","อุดรธานี","อุตรดิตถ์","อุทัยธานี","อุบลราชธานี"];
 
 provinces.forEach(p=>{
   const opt=document.createElement("option");
@@ -175,6 +171,7 @@ async function searchData(){
   const json = await res.json();
 
   fullData = json.data || [];
+  sortState = { column:null, direction:"asc" };
   showRange();
 
   info.innerText = `พบทั้งหมด ${formatNumber(fullData.length)} รายการ`;
@@ -205,7 +202,14 @@ function renderTable(data){
   headers.forEach(h=>{
     const th=document.createElement("th");
     th.textContent=h;
+    th.classList.add("sortable");
     th.onclick=()=>sortTable(h);
+
+    if(sortState.column===h){
+      th.classList.remove("sortable");
+      th.classList.add(sortState.direction==="asc"?"sort-asc":"sort-desc");
+    }
+
     trHead.appendChild(th);
   });
   thead.appendChild(trHead);
@@ -248,6 +252,7 @@ function renderTable(data){
 }
 
 function sortTable(col){
+
   if(sortState.column===col){
     sortState.direction=sortState.direction==="asc"?"desc":"asc";
   }else{
@@ -277,7 +282,10 @@ function exportExcel(){
   const wb=XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb,ws,"Due Report");
 
-  XLSX.writeFile(wb,"due_report.xlsx");
+  const today=new Date().toLocaleDateString('th-TH');
+  const fileName=`กำหนดชำระ_${province.value||"ทุกจังหวัด"}_${today}.xlsx`;
+
+  XLSX.writeFile(wb,fileName);
 }
 
 </script>
