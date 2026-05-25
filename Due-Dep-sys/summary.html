@@ -158,7 +158,6 @@
   <div class="navbar">
     หนี้ครบกำหนดชำระ ณ วันที่ 23 พฤษภาคม 2569
 
-    <!-- โลโก้มุมขวาบน -->
     <div class="logo-top">
       <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQZtkPBp_xmIFgEEmX2cyScE1QzabzZbtNdbQ&s"
         alt="Women Fund Logo">
@@ -168,18 +167,7 @@
   <div class="main">
     <h2>ภาพรวมการชำระคืนรายจังหวัด</h2>
 
-    <!-- ===== Cards ===== -->
     <div class="cards">
-      <div class="card">
-        <h3>31 มี.ค. 69<br>เงินต้นที่คาดว่าจะได้</h3>
-        <div class="value" id="sumExpectedMar">-</div>
-      </div>
-
-      <div class="card">
-        <h3>31 มี.ค. 69<br>ร้อยละการชำระคืน</h3>
-        <div class="value" id="sumPercentMar">-</div>
-      </div>
-
       <div class="card">
         <h3>30 ก.ย. 69<br>เงินต้นที่คาดว่าจะได้</h3>
         <div class="value" id="sumExpectedSep">-</div>
@@ -197,21 +185,16 @@
     </div>
 
     <div>
-      <p>*หมายเหตุ เงินต้นที่รับคืนถึง ณ วันที่ 31 มี.ค. 69
-      <br>
-      คลิกที่ชื่อจังหวัดเพื่อล็อคอินเข้าดูรายอำเภอ-โครงการ</p>
+      <p>คลิกที่ชื่อจังหวัดเพื่อล็อคอินเข้าดูรายอำเภอ-โครงการ</p>
     </div>
 
-    <!-- ===== Table ===== -->
     <table id="tbl">
       <thead>
         <tr>
           <th data-key="จังหวัด">จังหวัด</th>
           <th data-key="เขตตรวจ">เขตตรวจ</th>
-          <th data-key="expMar">เงินต้นที่คาดว่าจะได้<br>(31 มี.ค. 69)</th>
           <th data-key="expSep">เงินต้นที่คาดว่าจะได้<br>(30 ก.ย. 69)</th>
           <th data-key="recMar">เงินต้นรับคืน</th>
-          <th data-key="perMar">ร้อยละการชำระคืน<br>(31 มี.ค. 69)</th>
           <th data-key="perSep">ร้อยละการชำระคืน<br>(30 ก.ย. 69)</th>
         </tr>
       </thead>
@@ -228,21 +211,17 @@
       .then(r => r.json())
       .then(res => {
 
-        let sumExpMar = 0;
         let sumExpSep = 0;
         let sumRecMar = 0;
         let sumRecSep = 0;
 
         tableData = res.data.map(r => {
-          const expMar = Number(r["เงินต้นที่คาดว่าจะได้(31 มี.ค. 69)"] || 0);
           const expSep = Number(r["เงินต้นที่คาดว่าจะได้(30 ก.ย. 69)"] || 0);
           const recMar = Number(r["เงินต้นรับคืน(31 มี.ค. 69)"] || 0);
           const recSep = Number(r["เงินต้นรับคืน(30 ก.ย. 69)"] || 0);
 
-          const perMar = expMar > 0 ? (recMar * 100) / expMar : 0;
           const perSep = expSep > 0 ? (recSep * 100) / expSep : 0;
 
-          sumExpMar += expMar;
           sumExpSep += expSep;
           sumRecMar += recMar;
           sumRecSep += recSep;
@@ -250,11 +229,9 @@
           return {
             จังหวัด: r["จังหวัด"],
             เขตตรวจ: r["เขตตรวจ"],
-            expMar,
             expSep,
             recMar,
             recSep,
-            perMar,
             perSep
           };
         });
@@ -262,19 +239,11 @@
         renderTable(tableData);
 
         // ===== Cards =====
-        document.getElementById("sumExpectedMar").innerText =
-          sumExpMar.toLocaleString() + " บาท";
-
         document.getElementById("sumExpectedSep").innerText =
           sumExpSep.toLocaleString() + " บาท";
 
         document.getElementById("sumReceivedSep").innerText =
-          sumRecMar.toLocaleString() + " บาท"; // เงินรับคืน ณ 31 มี.ค. 69
-
-        document.getElementById("sumPercentMar").innerText =
-          sumExpMar > 0
-            ? (sumRecMar * 100 / sumExpMar).toFixed(2) + "%"
-            : "0%";
+          sumRecMar.toLocaleString() + " บาท"; 
 
         document.getElementById("sumPercentSep").innerText =
           sumExpSep > 0
@@ -295,10 +264,8 @@
           </a>
         </td>
         <td>${r.เขตตรวจ}</td>
-        <td>${r.expMar.toLocaleString()}</td>
         <td>${r.expSep.toLocaleString()}</td>
         <td>${r.recMar.toLocaleString()}</td>
-        <td>${r.perMar.toFixed(2)}%</td>
         <td>${r.perSep.toFixed(2)}%</td>
       `;
         tbody.appendChild(tr);
@@ -334,3 +301,6 @@
       });
     });
   </script>
+</body>
+
+</html>
