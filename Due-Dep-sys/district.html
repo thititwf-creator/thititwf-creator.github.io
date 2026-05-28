@@ -96,7 +96,7 @@
 
         table {
             width: 100%;
-            min-width: 1200px;
+            min-width: 1000px; /* ปรับลดขนาดความกว้างขั้นต่ำลงเนื่องจากคอลัมน์น้อยลง */
             border-collapse: collapse;
             border: 2px solid var(--border);
         }
@@ -141,7 +141,7 @@
 
     <div class="main">
         <h2 id="title">กำลังโหลดข้อมูล…</h2>
-        <p>*หมายเหตุ เงินต้นที่รับคืนถึง ณ วันที่ 31 มี.ค. 69</p>
+        <p>*หมายเหตุ เงินต้นที่รับคืนถึง ณ วันที่ 30 ก.ย. 69</p>
         <button class="btn" onclick="goAllProjects()">
             ดูโครงการทั้งหมด
         </button>
@@ -169,7 +169,6 @@
         title.innerText = `สรุปรายอำเภอ จังหวัด${province}`;
 
         const START = new Date("2025-10-01");
-        const MAR31 = new Date("2026-03-31");
         const SEP30 = new Date("2026-09-30");
 
         fetch(`${API}?province=${encodeURIComponent(province)}&token=${encodeURIComponent(token)}`)
@@ -190,26 +189,21 @@
                 if (isNaN(due) || due < START) return;
 
                 if (!map[district]) {
-                    map[district] = { expect_mar: 0, expect_sep: 0, paid: 0 };
+                    map[district] = { expect_sep: 0, paid: 0 };
                 }
 
                 const expect = Number(r["เงินต้นที่คาดว่าจะได้"] || 0);
                 const paid = Number(r["เงินต้นรับคืน"] || 0);
 
-                if (due <= MAR31) {
-                    map[district].expect_mar += expect;
-                    map[district].paid += paid;
-                }
                 if (due <= SEP30) {
                     map[district].expect_sep += expect;
+                    map[district].paid += paid;
                 }
             });
 
             return Object.entries(map).map(([d, v]) => ({
                 อำเภอ: d,
-                "เงินต้นเป้าหมายการรับชำระคืน ณ 31 มี.ค. 69": v.expect_mar,
                 "เงินต้นที่ได้รับชำระคืนแล้ว": v.paid,
-                "ร้อยละ (31 มี.ค. 69)": v.expect_mar ? v.paid * 100 / v.expect_mar : 0,
                 "เงินต้นเป้าหมายการรับชำระคืน ณ 30 ก.ย. 69": v.expect_sep,
                 "ร้อยละ (30 ก.ย. 69)": v.expect_sep ? v.paid * 100 / v.expect_sep : 0
             }));
@@ -220,12 +214,13 @@
             const tbody = tbl.querySelector("tbody");
             const tfoot = tbl.querySelector("tfoot");
 
+            if (!data || data.length === 0) return;
+
             const headers = [...Object.keys(data[0]), "ดูโครงการ"];
 
             thead.innerHTML =
                 `<tr>${headers.map(h => `<th>${h}</th>`).join("")}</tr>`;
 
-            let sum_expect_mar = 0;
             let sum_expect_sep = 0;
             let sum_paid = 0;
 
@@ -251,22 +246,18 @@
                     tr.appendChild(td);
                 });
 
-                sum_expect_mar += r["เงินต้นเป้าหมายการรับชำระคืน ณ 31 มี.ค. 69"];
                 sum_expect_sep += r["เงินต้นเป้าหมายการรับชำระคืน ณ 30 ก.ย. 69"];
                 sum_paid += r["เงินต้นที่ได้รับชำระคืนแล้ว"];
 
                 tbody.appendChild(tr);
             });
 
-            const percent_mar = sum_expect_mar ? sum_paid * 100 / sum_expect_mar : 0;
             const percent_sep = sum_expect_sep ? sum_paid * 100 / sum_expect_sep : 0;
 
             tfoot.innerHTML = `
             <tr>
                 <td><strong>รวมทั้งจังหวัด</strong></td>
-                <td>${sum_expect_mar.toLocaleString()}</td>
                 <td>${sum_paid.toLocaleString()}</td>
-                <td>${percent_mar.toFixed(2)}</td>
                 <td>${sum_expect_sep.toLocaleString()}</td>
                 <td>${percent_sep.toFixed(2)}</td>
                 <td>-</td>
