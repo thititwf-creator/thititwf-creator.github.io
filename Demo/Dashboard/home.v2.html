@@ -85,11 +85,11 @@
             width: auto;
         }
 
-        /* --- 2. โครงสร้างวงกลมแบบโดนัทสำหรับ 4 เมนู (4-Item Donut Wheel) --- */
+        /* --- 2. โครงสร้างเมนูวงกลมแบบเต็มแผ่น 4 ส่วน (4-Item Pie Menu Wheel) --- */
         .menu-wheel-wrapper {
             position: relative;
             width: 100%;
-            max-width: 540px;
+            max-width: 500px; /* ปรับขนาดสัดส่วนวงกลมให้กระชับพอดีตา */
             margin: 40px auto;
             aspect-ratio: 1 / 1;
             display: grid;
@@ -103,7 +103,8 @@
             border-radius: 50%;
             display: grid;
             grid-template-areas: "layer";
-            overflow: hidden; /* ล็อคขอบวงกลมหลักด้านนอก */
+            overflow: hidden; /* ล็อคให้เป็นวงกลมสมบูรณ์ */
+            box-shadow: 0 10px 25px rgba(0,0,0,0.06);
         }
 
         .menu-item {
@@ -113,14 +114,14 @@
             text-decoration: none;
             color: var(--text-dark);
             
-            /* ตัดสัดส่วนกล่องเหลี่ยมให้เหลือแฉกสามเหลี่ยมมุมฉาก 90 องศาพุ่งจากศูนย์กลาง */
+            /* ตัดสัดส่วนกล่องเหลี่ยมให้เหลือแฉกสามเหลี่ยม 90 องศาพุ่งจากศูนย์กลาง */
             clip-path: polygon(50% 50%, 0% 0%, 100% 0%); 
             
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: flex-start;
-            padding-top: 50px;
+            padding-top: 55px; /* ดันเนื้อหาให้อยู่ในจุดที่เหมาะสมของแผ่นพาย */
             transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             cursor: pointer;
         }
@@ -130,7 +131,7 @@
             flex-direction: column;
             align-items: center;
             text-align: center;
-            width: 200px; /* ขยายพื้นที่รองรับตัวอักษรให้กว้างขึ้นตามขนาดชิ้นเค้ก */
+            width: 190px; /* ขนาดพื้นที่กำลังดี ไม่ชิดขอบพายเกินไป */
         }
 
         .menu-icon {
@@ -157,80 +158,42 @@
             line-height: 1.4;
         }
 
-        /* คำนวณองศาจัดวางแบบกากบาท (ชิ้นละ 90 องศา) และดึงข้อความกลับมาตั้งตรง */
-        /* ชิ้นที่ 1: การเงินและลูกหนี้ (ขวาบน: เฉียง 45°) */
+        /* จัดมุมเฉียงกากบาท 4 ทิศทาง (ชิ้นละ 90 องศา) พร้อมดึง Content กลับมาตั้งตรง */
+        /* ชิ้นที่ 1: การเงินและลูกหนี้ (ขวาบน: 45°) */
         .item-orange {
             background-color: #FFF2D9;
             transform: rotate(45deg);
         }
-        .item-orange .menu-content { transform: rotate(-45deg) translateY(-10px); }
+        .item-orange .menu-content { transform: rotate(-45deg) translateY(-5px); }
 
-        /* ชิ้นที่ 2: ศูนย์ช่วยเหลือและองค์ความรู้ (ขวาล่าง: เฉียง 135°) */
+        /* ชิ้นที่ 2: ศูนย์ช่วยเหลือและองค์ความรู้ (ขวาล่าง: 135°) */
         .item-blue {
             background-color: #E3F5FF;
             transform: rotate(135deg);
         }
-        .item-blue .menu-content { transform: rotate(-135deg) translateY(-10px); }
+        .item-blue .menu-content { transform: rotate(-135deg) translateY(-5px); }
 
-        /* ชิ้นที่ 3: บริหารจัดการและกำกับติดตาม (ซ้ายล่าง: เฉียง 225°) */
+        /* ชิ้นที่ 3: บริหารจัดการและกำกับติดตาม (ซ้ายล่าง: 225°) */
         .item-green {
             background-color: #E2F9F3;
             transform: rotate(225deg);
         }
-        .item-green .menu-content { transform: rotate(-225deg) translateY(-10px); }
+        .item-green .menu-content { transform: rotate(-225deg) translateY(-5px); }
 
-        /* ชิ้นที่ 4: ตัวชี้วัดและการติดตามผล (ซ้ายบน: เฉียง 315°) */
+        /* ชิ้นที่ 4: ตัวชี้วัดและการติดตามผล (ซ้ายบน: 315°) */
         .item-pink {
             background-color: #FFE6EE;
             transform: rotate(315deg);
         }
-        .item-pink .menu-content { transform: rotate(-315deg) translateY(-10px); }
+        .item-pink .menu-content { transform: rotate(-315deg) translateY(-5px); }
 
 
-        /* Hover Effects: ดึงชิ้นพายพุ่งเยื้องออกจากจุดศูนย์กลางตามมุมเฉียง */
-        .item-orange:hover { transform: rotate(45deg)  translateY(-12px); z-index: 5; }
-        .item-blue:hover   { transform: rotate(135deg) translateY(-12px); z-index: 5; }
-        .item-green:hover  { transform: rotate(225deg) translateY(-12px); z-index: 5; }
-        .item-pink:hover   { transform: rotate(315deg) translateY(-12px); z-index: 5; }
+        /* Hover Effects: เมื่อดึงชิ้นเมนูใด ชิ้นนั้นจะยื่นตัวออกจากศูนย์กลางตามแนวองศา */
+        .item-orange:hover { transform: rotate(45deg)  translateY(-15px); z-index: 5; }
+        .item-blue:hover   { transform: rotate(135deg) translateY(-15px); z-index: 5; }
+        .item-green:hover  { transform: rotate(225deg) translateY(-15px); z-index: 5; }
+        .item-pink:hover   { transform: rotate(315deg) translateY(-15px); z-index: 5; }
 
-
-        /* วงกลมตรงกลางเพื่อเจาะรูให้เป็นโดนัท */
-        .center-circle {
-            position: absolute;
-            width: 38%;
-            height: 38%;
-            background: linear-gradient(135deg, #FF5294 0%, #D0145A 100%);
-            border-radius: 50%;
-            color: white;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            padding: 15px;
-            box-shadow: 0 10px 30px rgba(224, 43, 114, 0.4);
-            z-index: 10;
-            border: 6px solid #FFF;
-            pointer-events: none;
-        }
-
-        .center-circle h2 {
-            font-size: 19px;
-            font-weight: 700;
-            line-height: 1.3;
-        }
-
-        /* เส้นปะไข่ปลาตกแต่งรอบวงกลมตรงกลาง */
-        .dots-decor {
-            position: absolute;
-            width: 46%;
-            height: 46%;
-            border: 3px dashed #FF5294;
-            border-radius: 50%;
-            z-index: 2;
-            pointer-events: none;
-            opacity: 0.35;
-        }
 
         /* --- 3. แถบปุ่มด้านล่าง (Footer Button) --- */
         .footer-button {
@@ -243,7 +206,7 @@
             border-radius: 18px;
             text-decoration: none;
             max-width: 750px;
-            margin: 20px auto 0 auto;
+            margin: 25px auto 0 auto;
             box-shadow: 0 8px 20px rgba(224, 43, 114, 0.2);
             transition: transform 0.2s, opacity 0.2s;
         }
@@ -279,7 +242,7 @@
             font-weight: bold;
         }
 
-        /* Responsive: ปรับแกนแสดงผลสำหรับจอสมาร์ทโฟน */
+        /* Responsive: บนหน้าจอสมาร์ทโฟน จะคลี่การจัดวางออกมาเป็นแถวแนวตั้งเรียงลงมาให้อ่านง่าย */
         @media (max-width: 650px) {
             .header-section {
                 flex-direction: column;
@@ -304,17 +267,8 @@
                 position: relative;
                 gap: 12px;
                 overflow: visible;
-            }
-            .center-circle {
-                position: relative;
-                width: 100%;
-                height: auto;
-                border-radius: 15px;
-                padding: 20px;
-                order: -1;
                 box-shadow: none;
             }
-            .dots-decor { display: none; }
             .menu-item {
                 position: relative;
                 width: 100%;
@@ -342,7 +296,6 @@
 
     <div class="dashboard-container">
         
-        <!-- ================= 1. HEADER SECTION ================= -->
         <header class="header-section">
             <div class="header-title-container">
                 <h1 class="main-title">CDD Women Fund</h1>
@@ -356,21 +309,10 @@
             </div>
         </header>
 
-        <!-- ================= 2. 4-ITEM DONUT WHEEL MENU ================= -->
         <div class="menu-wheel-wrapper">
-            
-            <!-- จุดไข่ปลาตกแต่งตรงกลาง -->
-            <div class="dots-decor"></div>
 
-            <!-- รูเจาะโดนัท / หัวข้อตรงกลาง -->
-            <div class="center-circle">
-                <h2>CDD<br>Women Fund<br>Dashboard</h2>
-            </div>
-
-            <!-- พื้นที่วงแหวน 4 ชิ้นพาย -->
             <div class="donut-ring">
 
-                <!-- ชิ้นที่ 1: การเงินและลูกหนี้ (ขวาบน) -->
                 <a href="finance_debtors.html" class="menu-item item-orange">
                     <div class="menu-content">
                         <img class="menu-icon" src="img/moneybag.png" alt="Icon">
@@ -379,7 +321,6 @@
                     </div>
                 </a>
 
-                <!-- ชิ้นที่ 2: ศูนย์ช่วยเหลือและองค์ความรู้ (ขวาล่าง) -->
                 <a href="" class="menu-item item-blue">
                     <div class="menu-content">
                         <img class="menu-icon" src="img/chat.png" alt="Icon">
@@ -388,7 +329,6 @@
                     </div>
                 </a>
 
-                <!-- ชิ้นที่ 3: บริหารจัดการและกำกับติดตาม (ซ้ายล่าง) -->
                 <a href="" class="menu-item item-green">
                     <div class="menu-content">
                         <img class="menu-icon" src="img/checklist.png" alt="Icon">
@@ -397,7 +337,6 @@
                     </div>
                 </a>
 
-                <!-- ชิ้นที่ 4: ตัวชี้วัดและการติดตามผล (ซ้ายบน) -->
                 <a href="" class="menu-item item-pink">
                     <div class="menu-content">
                         <img class="menu-icon" src="img/arrow.png" alt="Icon">
@@ -410,7 +349,6 @@
 
         </div>
 
-        <!-- ================= 3. FOOTER BUTTON ================= -->
         <a href="" class="footer-button">
             <div class="footer-left">
                 <img class="footer-icon" src="img/perm.png" alt="Dashboard Icon">
