@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ข้อมูลหนี้ครบกำหนดชำระ</title>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-gradient: linear-gradient(135deg, #ffc3a0 0%, #ffafbd 100%   );
+            --text-light: #ffffff;
+            --text-dark: #333;
+            --card-bg: #ffffff;
+            --grand-total-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --control-bg: rgba(255, 255, 255, 0.7);
+            --active-sort-bg: #ff8a8a;
+            --status-green: #28a745;
+            --status-yellow: #ffc107;
+            --status-red: #dc3545;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Kanit', sans-serif;
+            background: var(--bg-gradient);
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .main-container {
+            width: 100%;
+            max-width: 1200px;
+            text-align: center;
+            position: relative;
+        }
+        .header-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--text-light);
+            margin-bottom: 25px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        .filter-container {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+        .filter-container select {
+            font-family: 'Kanit', sans-serif;
+            font-size: 1rem;
+            padding: 12px 20px;
+            border-radius: 50px;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            background-color: var(--control-bg);
+            color: var(--text-dark);
+            min-width: 200px;
+        }
+        #grandTotalContainer { margin-bottom: 30px; }
+        #grandTotalContainer .card {
+            background: var(--grand-total-bg);
+            color: var(--text-light);
+            border-left: 8px solid #4a2a8a;
+        }
+        #grandTotalContainer .card-title { color: var(--text-light); font-size: 1.8rem; }
+        #grandTotalContainer .card-percentage { font-size: 2.2rem; }
+        #grandTotalContainer .data-row .label { color: #e0e0e0; }
+        #grandTotalContainer .data-row .value { color: var(--text-light); }
+        #grandTotalContainer .card-body { border-top: 1px solid rgba(255,255,255,0.2); padding-top: 15px; }
+        .divider {
+            height: 2px;
+            background-color: rgba(255, 255, 255, 0.3);
+            border: none;
+            margin: 0 0 20px 0;
+        }
+        
+        /* [แก้ไข] ปรับปรุง Layout ของ controls-container */
+        .controls-container {
+            display: flex;
+            flex-direction: column; /* จัดเรียงเป็นแนวตั้ง */
+            gap: 15px;
+            margin-bottom: 20px;
+            background-color: rgba(255, 255, 255, 0.5);
+            padding: 20px;
+            border-radius: 15px;
+        }
+        .top-controls, .bottom-controls {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        #searchInput {
+            flex-grow: 1;
+            padding: 12px 20px;
+            border-radius: 50px;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            background-color: #fff;
+            font-family: 'Kanit', sans-serif;
+            font-size: 1rem;
+            color: #555;
+            min-width: 200px;
+        }
+        .sort-buttons { display: flex; gap: 10px; }
+        .sort-button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 50px;
+            background-color: #fff;
+            font-family: 'Kanit', sans-serif;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background-color 0.3s;
+        }
+        .sort-button.active {
+            background-color: var(--active-sort-bg);
+            color: var(--text-light);
+        }
+
+        /* --- [ส่วนที่เพิ่มเข้ามา] สไตล์สำหรับตัวกรองเปอร์เซ็นต์ --- */
+        .filter-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-grow: 1;
+        }
+        .filter-controls label {
+            color: var(--text-dark);
+            font-weight: 500;
+        }
+        .filter-controls select, .filter-controls input {
+            font-family: 'Kanit', sans-serif;
+            font-size: 1rem;
+            padding: 12px 15px;
+            border-radius: 50px;
+            border: 1px solid rgba(0,0,0,0.1);
+            background-color: #fff;
+            color: #555;
+        }
+        .filter-controls select {
+            flex-shrink: 0;
+        }
+        .filter-controls input {
+            width: 100px;
+        }
+        /* --- จบส่วนที่เพิ่มเข้ามา --- */
+
+        .cards-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 20px;
+            text-align: left;
+        }
+        .card {
+            background: var(--card-bg);
+            border-radius: 15px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+            padding: 20px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border-left: 8px solid #ccc;
+        }
+        .card:hover { transform: translateY(-5px); box-shadow: 0 12px 24px rgba(0,0,0,0.15); }
+        .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px; }
+        .card-title { font-size: 1.5rem; font-weight: 700; color: var(--text-dark); }
+        .card-percentage { font-size: 1.8rem; font-weight: 700; padding: 5px 10px; border-radius: 10px; color: white; }
+        .card-body .data-row { display: flex; justify-content: space-between; font-size: 0.95rem; padding: 8px 0; border-bottom: 1px solid #f0f0f0; }
+        .card-body .data-row:last-child { border-bottom: none; }
+        .data-row .label { color: #666; }
+        .data-row .value { color: var(--text-dark); font-weight: 500; }
+        .card.status-green { border-left-color: var(--status-green); }
+        .card-percentage.status-green { background-color: var(--status-green); }
+        .card.status-yellow { border-left-color: var(--status-yellow); }
+        .card-percentage.status-yellow { background-color: var(--status-yellow); }
+        .card.status-red { border-left-color: var(--status-red); }
+        .card-percentage.status-red { background-color: var(--status-red); }
+        .loading-text, .error-text {
+            color: var(--text-dark);
+            font-size: 1.2rem;
+            text-align: center;
+            padding: 40px 0;
+            background: rgba(255,255,255,0.6);
+            border-radius: 15px;
+            grid-column: 1 / -1;
+        }
+        .back-button {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: rgba(255, 255, 255, 0.3);
+            color: var(--text-light);
+            text-decoration: none;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            transition: background-color 0.3s ease;
+            text-shadow: none;
+        }
+        .back-button:hover {
+            background-color: rgba(255, 255, 255, 0.5);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="main-container">
+        <!-- <a href="index.html" class="back-button">‹ กลับหน้าหลัก</a> -->
+
+        <h1 class="header-title">ข้อมูลหนี้ครบกำหนดชำระ</h1>
+
+        <div class="filter-container">
+            <select id="year-select">
+                <option value="">-- เลือกปีงบประมาณ --</option>
+            </select>
+            <select id="month-select" disabled>
+                <option value="">-- เลือกเดือน --</option>
+            </select>
+        </div>
+
+        <div id="grandTotalContainer"></div>
+        <hr class="divider">
+
+        <!-- [แก้ไข] ปรับโครงสร้าง Container ของตัวควบคุม -->
+        <div class="controls-container">
+            <div class="top-controls">
+                <input type="text" id="searchInput" placeholder="พิมพ์ชื่อจังหวัดเพื่อค้นหา...">
+                <div class="sort-buttons">
+                    <button id="sort-province" class="sort-button active">เรียงตามจังหวัด</button>
+                    <button id="sort-percentage" class="sort-button">เรียงตามร้อยละ</button>
+                </div>
+            </div>
+            <div class="bottom-controls">
+                <!-- [ส่วนที่เพิ่มเข้ามา] ตัวกรองตามร้อยละ -->
+                <div class="filter-controls">
+                    <label for="percentage-condition">แสดงร้อยละ:</label>
+                    <select id="percentage-condition">
+                        <option value="all">ทั้งหมด</option>
+                        <option value="gt">มากกว่า</option>
+                        <option value="lt">น้อยกว่า</option>
+                        <option value="eq">เท่ากับ</option>
+                    </select>
+                    <input type="number" id="percentage-value" placeholder="%" min="0" max="100" disabled>
+                </div>
+            </div>
+        </div>
+
+        <div class="cards-container" id="cardsContainer">
+            <p class="loading-text">กรุณาเลือกปีงบประมาณและเดือนเพื่อแสดงข้อมูล</p>
+        </div>
+    </div>
+
+    <script src="due-dept-total.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <title>ข้อมูลสัญญา</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <style>
+    body {
+      font-family: "Kanit", sans-serif;
+      background: #f5f6fa;
+      margin: 0;
+      padding: 20px;
+    }
+    h1 {
+      margin-bottom: 10px;
+    }
+    #summary {
+      margin: 10px 0 20px;
+      color: #555;
+    }
+    #searchBox {
+      width: 100%;
+      max-width: 400px;
+      padding: 10px 14px;
+      font-size: 16px;
+      margin-bottom: 15px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #fff;
+    }
+    th, td {
+      padding: 10px 12px;
+      border-bottom: 1px solid #eee;
+      font-size: 14px;
+      white-space: nowrap;
+    }
+    th {
+      background: #2c3e50;
+      color: #fff;
+      position: sticky;
+      top: 0;
+    }
+    tr:hover {
+      background: #f0f4ff;
+    }
+    .text-right {
+      text-align: right;
+    }
+  </style>
+</head>
+<body>
+
+  <h1 id="title">จังหวัด ...</h1>
+  <div id="summary"></div>
+
+  <input
+    type="text"
+    id="searchBox"
+    placeholder="พิมพ์เพื่อค้นหา (ชื่อโครงการ / เลขสัญญา / ตำบล / ผู้เสนอ ฯลฯ)"
+  >
+
+  <table id="resultTable" style="display:none;">
+    <thead>
+      <tr>
+        <th>ลำดับ</th>
+        <th>อำเภอ</th>
+        <th>ตำบล</th>
+        <th>เลขที่สัญญา</th>
+        <th>ชื่อโครงการ</th>
+        <th>ชื่อผู้เสนอ</th>
+        <th>กำหนดชำระ</th>
+        <th class="text-right">เงินต้นที่คาดว่าจะได้</th>
+        <th class="text-right">เงินต้นรับคืน</th>
+        <th>สถานะ</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script src="due-dep-demo.js"></script>
+</body>
+</html>

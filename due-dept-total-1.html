@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CDD Women Fund – ข้อมูลหนี้ครบกำหนดชำระ</title>
+
+    <!-- Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --pink: #e91e63;
+            --light-pink: #f8bbd0;
+            --deep-pink: #f06292;
+            --bg-gradient: linear-gradient(to bottom right, #fce4ec, #f3e5f5);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Sarabun', sans-serif;
+            background: var(--bg-gradient);
+            padding: 20px;
+        }
+
+        .main-container {
+            max-width: 1200px;
+            margin: auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 12px;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            font-size: 2.3rem;
+        }
+
+        h2 {
+            font-size: 1.4rem;
+            margin-top: 5px;
+        }
+
+        /* Controls */
+        .controls-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        input,
+        select,
+        button {
+            padding: 6px 10px;
+            font-family: 'Sarabun';
+            border-radius: 6px;
+            border: 1px solid #aaa;
+        }
+
+        button {
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        /* Toolbar */
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+
+        .toolbar button {
+            background: var(--light-pink);
+            border: none;
+            border-radius: 8px;
+        }
+
+        /* Table */
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+
+        thead th {
+            position: sticky;
+            top: 0;
+            background: var(--deep-pink);
+            color: #000;
+            cursor: pointer;
+            z-index: 5;
+        }
+
+        th,
+        td {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            text-align: center;
+        }
+
+        tbody tr:hover {
+            background: #fce4ec;
+        }
+
+        /* Status */
+        .status-green {
+            color: #2e7d32;
+            font-weight: bold;
+        }
+
+        .status-yellow {
+            color: #f57c00;
+            font-weight: bold;
+        }
+
+        .status-red {
+            color: #c62828;
+            font-weight: bold;
+        }
+
+        .province-link {
+            color: navy;
+            text-decoration: underline;
+            cursor: pointer;
+        }
+
+        .loading-text {
+            padding: 20px;
+            font-weight: bold;
+        }
+
+        /* Grand Total */
+        .card {
+            background: var(--pink);
+            color: #fff;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .data-row {
+            display: flex;
+            justify-content: space-between;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="main-container">
+
+        <!-- Header -->
+        <div class="header">
+            <div>
+                <h1>
+                    <span style="color:navy;">CDD</span>
+                    <span style="color:deeppink;">Women</span>
+                    <span style="color:red;">Fund</span>
+                </h1>
+                <h2>ข้อมูลหนี้ครบกำหนดชำระ (ข้อมูล ณ วันที่ 4 ธันวาคม 2568)</h2>
+            </div>
+        </div>
+
+        <!-- Grand Total -->
+        <div id="grandTotalContainer"></div>
+
+        <!-- Toolbar -->
+        <div class="toolbar">
+            <button onclick="window.location.href='https://tnah097.github.io/cdwomenpod-dashboard/Menu.html'">🏠 เมนูหลัก</button>
+            <!-- <button onclick="exportToExcel()">📥 Export Excel</button> -->
+        </div>
+
+        <!-- Controls -->
+        <div class="controls-container">
+            <input type="text" id="searchInput" placeholder="ค้นหาจังหวัด">
+
+            <button id="sort-province">เรียงตามจังหวัด</button>
+            <button id="sort-percentage">เรียงตามร้อยละ</button>
+
+            <select id="percentage-condition">
+                <option value="all">ร้อยละทั้งหมด</option>
+                <option value="gt">มากกว่า</option>
+                <option value="lt">น้อยกว่า</option>
+                <option value="eq">เท่ากับ</option>
+            </select>
+
+            <input type="number" id="percentage-value" placeholder="%" disabled>
+        </div>
+
+        <!-- Table -->
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th data-key="province">จังหวัด</th>
+                        <th data-key="totalExpected">เงินต้นที่คาดว่าจะได้</th>
+                        <th data-key="totalReturned">เงินต้นรับคืน</th>
+                        <th data-key="percentage">ร้อยละ (%)</th>
+                        <!-- <th data-key="expectedAll">เงินต้นที่คาดว่าจะได้ทั้งหมด</th> -->
+                        <!-- <th data-key="returnedAll">เงินต้นรับคืนทั้งหมด</th> -->
+                        <!-- <th data-key="percentageAll">ร้อยละทั้งหมด (%)</th> -->
+                        <th data-key="projectTotal">จำนวนโครงการทั้งหมด</th>
+                        <th data-key="projectUsed">จำนวนโครงการที่นำมาคิด</th>
+                        <th>สถานะ</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                    <tr>
+                        <td colspan="7" class="loading-text">
+                            กำลังโหลดข้อมูลล่าสุด...
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+
+    <!-- JS -->
+    <script src="due-dept-total-1.js"></script>
+
+</body>
+
+</html>
